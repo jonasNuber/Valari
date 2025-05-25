@@ -1,7 +1,6 @@
 package io.github.jonasnuber.valari.api.helpers;
 
 import io.github.jonasnuber.valari.BaseTest;
-import io.github.jonasnuber.valari.api.helpers.ObjectValidationHelpers;
 import org.junit.jupiter.api.Test;
 
 class ObjectValidationHelpersTest extends BaseTest {

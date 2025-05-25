@@ -1,7 +1,6 @@
 package io.github.jonasnuber.valari.api.helpers;
 
 import io.github.jonasnuber.valari.BaseTest;
-import io.github.jonasnuber.valari.api.helpers.StringValidationHelpers;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -30,6 +29,7 @@ class StringValidationHelpersTest extends BaseTest {
         var validation = StringValidationHelpers.notEmpty();
 
         assertInvalid(validation, value);
+        assertInvalid(validation, null);
     }
 
     @Test
@@ -48,6 +48,7 @@ class StringValidationHelpersTest extends BaseTest {
         var validation = StringValidationHelpers.exactly(size);
 
         assertInvalid(validation, "abcd");
+        assertInvalid(validation, null);
     }
 
     @Test
@@ -57,6 +58,7 @@ class StringValidationHelpersTest extends BaseTest {
         var validation = StringValidationHelpers.exactly(size);
 
         assertInvalid(validation, "abcdef");
+        assertInvalid(validation, null);
     }
 
     @Test
@@ -66,6 +68,7 @@ class StringValidationHelpersTest extends BaseTest {
         var validation = StringValidationHelpers.moreThan(minimum);
 
         assertValid(validation, "abcd");
+        assertValid(validation, "adcdef");
     }
 
     @Test
@@ -75,6 +78,7 @@ class StringValidationHelpersTest extends BaseTest {
         var validation = StringValidationHelpers.moreThan(minimum);
 
         assertInvalid(validation, "abc");
+        assertInvalid(validation, null);
     }
 
     @Test
@@ -84,6 +88,7 @@ class StringValidationHelpersTest extends BaseTest {
         var validation = StringValidationHelpers.moreThan(minimum);
 
         assertInvalid(validation, "ab");
+        assertInvalid(validation, null);
     }
 
     @Test
@@ -93,6 +98,7 @@ class StringValidationHelpersTest extends BaseTest {
         var validation = StringValidationHelpers.lessThan(maximum);
 
         assertValid(validation, "abcd");
+        assertValid(validation, "a");
     }
 
     @Test
@@ -102,6 +108,7 @@ class StringValidationHelpersTest extends BaseTest {
         var validation = StringValidationHelpers.lessThan(maximum);
 
         assertInvalid(validation, "abcde");
+        assertInvalid(validation, null);
     }
 
     @Test
@@ -111,6 +118,7 @@ class StringValidationHelpersTest extends BaseTest {
         var validation = StringValidationHelpers.lessThan(maximum);
 
         assertInvalid(validation, "abcdef");
+        assertInvalid(validation, null);
     }
 
     @Test
@@ -138,6 +146,7 @@ class StringValidationHelpersTest extends BaseTest {
         var validation = StringValidationHelpers.between(minSize, maxSize);
 
         assertInvalid(validation, input);
+        assertInvalid(validation, null);
     }
 
     @Test
@@ -147,6 +156,7 @@ class StringValidationHelpersTest extends BaseTest {
         var validation = StringValidationHelpers.contains(str);
 
         assertValid(validation, "this is a test");
+        assertValid(validation, "testing");
     }
 
     @Test
@@ -156,6 +166,7 @@ class StringValidationHelpersTest extends BaseTest {
         var validation = StringValidationHelpers.contains(str);
 
         assertInvalid(validation, "this is a Test");
+        assertInvalid(validation, null);
     }
 
     @Test
@@ -165,6 +176,7 @@ class StringValidationHelpersTest extends BaseTest {
         var validation = StringValidationHelpers.containsIgnoreCase(str);
 
         assertValid(validation, "this is a Test");
+        assertValid(validation, "TeStIng");
     }
 
     @Test
@@ -174,5 +186,45 @@ class StringValidationHelpersTest extends BaseTest {
         var validation = StringValidationHelpers.containsIgnoreCase(str);
 
         assertInvalid(validation, "this is a tes");
+        assertInvalid(validation, null);
+    }
+
+    @Test
+    void regex_ShouldReturnValidResult_ForMatchingRegex() {
+        var regex = "hello\\d+";
+
+        var validation = StringValidationHelpers.regex(regex);
+
+        assertValid(validation, "hello1234");
+    }
+
+    @Test
+    void regex_ShouldReturnInvalidResult_ForNoneMatchingRegex() {
+        var regex = "hello\\d+";
+
+        var validation = StringValidationHelpers.regex(regex);
+
+        assertInvalid(validation, "hello");
+        assertInvalid(validation, null);
+    }
+
+    @Test
+    void containsRegex_ShouldReturnValidResult_ForSubstringMatchingPattern(){
+        var regex = "\\d+";
+
+        var validation = StringValidationHelpers.containsRegex(regex);
+
+        assertValid(validation, "hello1234");
+        assertValid(validation, "12hello34");
+    }
+
+    @Test
+    void containsRegex_ShouldReturnInvalidResult_ForNoSubstringMatchingPattern(){
+        var regex = "\\d+";
+
+        var validation = StringValidationHelpers.containsRegex(regex);
+
+        assertInvalid(validation, "hello");
+        assertInvalid(validation, null);
     }
 }

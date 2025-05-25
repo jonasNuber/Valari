@@ -38,9 +38,11 @@ public final class CollectionValidationHelpers {
      */
     public static Validation<Collection<?>> sizeBetween(int min, int max) {
         return SimpleValidation.from(
-                c -> c != null && c.size() > min && c.size() < max,
+                c -> notNull(c) && c.size() > min && c.size() < max,
                 String.format("Size must be between %d and %d", min, max));
     }
 
-    //match all
+    private static boolean notNull(Collection<?> collection) {
+        return collection != null;
+    }
 }

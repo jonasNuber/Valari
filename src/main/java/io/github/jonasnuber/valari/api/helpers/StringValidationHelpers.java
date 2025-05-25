@@ -3,6 +3,8 @@ package io.github.jonasnuber.valari.api.helpers;
 import io.github.jonasnuber.valari.internal.SimpleValidation;
 import io.github.jonasnuber.valari.spi.Validation;
 
+import java.util.regex.Pattern;
+
 /**
  * Utility class providing predefined validations for strings.
  * These validations define conditions that a string must meet to be considered valid.
@@ -23,7 +25,9 @@ public final class StringValidationHelpers {
 	 * @return the Validation for not empty
 	 */
 	public static Validation<String> notEmpty(){
-		return SimpleValidation.from(s -> s != null && !s.trim().isEmpty(), "must not be blank");
+		return SimpleValidation.from(
+				s -> s != null && !s.trim().isEmpty(),
+				"must not be blank");
 	}
 
 	/**
@@ -33,7 +37,9 @@ public final class StringValidationHelpers {
 	 * @return The validation for exact string length.
 	 */
 	public static Validation<String> exactly(int size) {
-		return SimpleValidation.from(s -> s.length() == size, String.format("must have exactly %s chars", size));
+		return SimpleValidation.from(
+				s -> notNull(s) && s.length() == size,
+				String.format("must have exactly %s chars", size));
 	}
 
 	/**
@@ -43,7 +49,9 @@ public final class StringValidationHelpers {
 	 * @return The validation for minimum string length.
 	 */
 	public static Validation<String> moreThan(int minimum) {
-		return SimpleValidation.from(s -> s.length() > minimum, String.format("must have more than %s chars", minimum));
+		return SimpleValidation.from(
+				s -> notNull(s) && s.length() > minimum,
+				String.format("must have more than %s chars", minimum));
 	}
 
 	/**
@@ -53,7 +61,9 @@ public final class StringValidationHelpers {
 	 * @return The validation for maximum string length.
 	 */
 	public static Validation<String> lessThan(int maximum) {
-		return SimpleValidation.from(s -> s.length() < maximum, String.format("must have less than %s chars", maximum));
+		return SimpleValidation.from(
+				s -> notNull(s) && s.length() < maximum,
+				String.format("must have less than %s chars", maximum));
 	}
 
 	/**
@@ -74,7 +84,9 @@ public final class StringValidationHelpers {
 	 * @return The validation for string containment.
 	 */
 	public static Validation<String> contains(String str) {
-		return SimpleValidation.from(s -> s.contains(str), String.format("must contain \"%s\"", str));
+		return SimpleValidation.from(
+				s -> notNull(s) && s.contains(str),
+				String.format("must contain \"%s\"", str));
 	}
 
 	/**
@@ -84,6 +96,38 @@ public final class StringValidationHelpers {
 	 * @return The validation for case-insensitive string containment.
 	 */
 	public static Validation<String> containsIgnoreCase(String str) {
-		return SimpleValidation.from(s -> s.toLowerCase().contains(str.toLowerCase()), String.format("must contain \"%s\"", str));
+		return SimpleValidation.from(
+				s -> notNull(s) && s.toLowerCase().contains(str.toLowerCase()),
+				String.format("must contain \"%s\"", str));
+	}
+
+	/**
+	 * Returns a validation that passes only if the entire string matches the given regex.
+	 *
+	 * @param regex The regular expression to match against the whole string.
+	 * @return The validation for full regex match.
+	 */
+	public static Validation<String> regex(String regex) {
+		return SimpleValidation.from(
+				s -> notNull(s) && s.matches(regex),
+				String.format("must fully match regex '%s'", regex)
+		);
+	}
+
+	/**
+	 * Returns a validation that passes if any substring of the string matches the given regex.
+	 *
+	 * @param regex The regular expression to search for within the string.
+	 * @return The validation for substring regex match.
+	 */
+	public static Validation<String> containsRegex(String regex) {
+		return SimpleValidation.from(
+				s -> notNull(s) && Pattern.compile(regex).matcher(s).find(),
+				String.format("must contain substring matching regex '%s'", regex)
+		);
+	}
+
+	private static boolean notNull(String string) {
+		return string != null;
 	}
 }
