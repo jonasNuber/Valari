@@ -1,6 +1,7 @@
-package io.github.jonasnuber.valari.helpers;
+package io.github.jonasnuber.valari.api.helpers;
 
 import io.github.jonasnuber.valari.BaseTest;
+import io.github.jonasnuber.valari.api.helpers.CollectionValidationHelpers;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;

@@ -1,7 +1,7 @@
-package io.github.jonasnuber.valari.helpers;
+package io.github.jonasnuber.valari.api.helpers;
 
-import io.github.jonasnuber.valari.base.SimpleValidation;
-import io.github.jonasnuber.valari.base.Validation;
+import io.github.jonasnuber.valari.internal.SimpleValidation;
+import io.github.jonasnuber.valari.spi.Validation;
 
 import java.util.Collection;
 

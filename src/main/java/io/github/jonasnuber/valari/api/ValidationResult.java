@@ -1,6 +1,6 @@
-package io.github.jonasnuber.valari.base;
+package io.github.jonasnuber.valari.api;
 
-import io.github.jonasnuber.valari.exceptions.InvalidAttributeValueException;
+import io.github.jonasnuber.valari.api.exceptions.InvalidAttributeValueException;
 
 /**
  * The ValidationResult class represents the result of a validation process.

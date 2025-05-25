@@ -1,7 +1,8 @@
-package io.github.jonasnuber.valari.base;
+package io.github.jonasnuber.valari.api;
 
 import io.github.jonasnuber.valari.BaseTest;
-import io.github.jonasnuber.valari.exceptions.AggregatedValidationException;
+import io.github.jonasnuber.valari.api.exceptions.AggregatedValidationException;
+import io.github.jonasnuber.valari.spi.Validation;
 import org.assertj.core.api.ThrowableAssert;
 import org.junit.jupiter.api.Test;
 
@@ -50,7 +51,7 @@ class ValidationResultCollectionTest extends BaseTest {
         assertThat(thrown)
                 .isInstanceOf(AggregatedValidationException.class)
                 .hasMessage(
-                        String.format("Validation for Class %s failed with %d error(s):%n - Field '%s': %s%n - Field '%s': %s%n",
+                        String.format("Validation for %s failed with %d error(s):%n - Field '%s': %s%n - Field '%s': %s%n",
                                 Validation.class, 2, "Unknown", causeDescription, fieldName, causeDescription));
     }
 }

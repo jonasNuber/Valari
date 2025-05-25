@@ -1,7 +1,7 @@
-package io.github.jonasnuber.valari.base;
+package io.github.jonasnuber.valari.api;
 
 import io.github.jonasnuber.valari.BaseTest;
-import io.github.jonasnuber.valari.exceptions.InvalidAttributeValueException;
+import io.github.jonasnuber.valari.api.exceptions.InvalidAttributeValueException;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.*;

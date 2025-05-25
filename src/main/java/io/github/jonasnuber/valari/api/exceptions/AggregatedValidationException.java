@@ -1,9 +1,12 @@
-package io.github.jonasnuber.valari.exceptions;
+package io.github.jonasnuber.valari.api.exceptions;
+
+import io.github.jonasnuber.valari.api.ValidationResult;
+import io.github.jonasnuber.valari.api.ValidationResultCollection;
 
 import java.io.Serial;
 
 /**
- * Exception representing a failure during validation that includes multiple {@link io.github.jonasnuber.valari.base.ValidationResult} errors.
+ * Exception representing a failure during validation that includes multiple {@link ValidationResult} errors.
  * <p>
  * This exception is typically thrown after collecting all validation errors for a given object
  * in a {@code ValidationResultCollection}. It aggregates those errors into a single exception to
@@ -25,7 +28,7 @@ public class AggregatedValidationException extends RuntimeException {
     /**
      * Constructs a new {@code AggregatedValidationException} with a combined error message.
      * <p>
-     * This constructor is typically used by {@link io.github.jonasnuber.valari.base.ValidationResultCollection}
+     * This constructor is typically used by {@link ValidationResultCollection}
      * to report multiple validation failures in a single, aggregated exception.
      * </p>
      *

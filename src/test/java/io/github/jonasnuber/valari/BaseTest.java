@@ -1,7 +1,7 @@
 package io.github.jonasnuber.valari;
 
 
-import io.github.jonasnuber.valari.base.Validation;
+import io.github.jonasnuber.valari.spi.Validation;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

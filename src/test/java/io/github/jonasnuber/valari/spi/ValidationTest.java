@@ -1,6 +1,7 @@
-package io.github.jonasnuber.valari.base;
+package io.github.jonasnuber.valari.spi;
 
 import io.github.jonasnuber.valari.BaseTest;
+import io.github.jonasnuber.valari.api.ValidationResult;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 

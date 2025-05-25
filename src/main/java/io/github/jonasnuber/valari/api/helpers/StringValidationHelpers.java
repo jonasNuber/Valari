@@ -1,7 +1,7 @@
-package io.github.jonasnuber.valari.helpers;
+package io.github.jonasnuber.valari.api.helpers;
 
-import io.github.jonasnuber.valari.base.SimpleValidation;
-import io.github.jonasnuber.valari.base.Validation;
+import io.github.jonasnuber.valari.internal.SimpleValidation;
+import io.github.jonasnuber.valari.spi.Validation;
 
 /**
  * Utility class providing predefined validations for strings.
@@ -43,7 +43,7 @@ public final class StringValidationHelpers {
 	 * @return The validation for minimum string length.
 	 */
 	public static Validation<String> moreThan(int minimum) {
-		return SimpleValidation.from(s -> s.length() > minimum, String.format("must have more than %s chars.", minimum));
+		return SimpleValidation.from(s -> s.length() > minimum, String.format("must have more than %s chars", minimum));
 	}
 
 	/**

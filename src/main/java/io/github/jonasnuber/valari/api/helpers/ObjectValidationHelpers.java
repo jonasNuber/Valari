@@ -1,7 +1,7 @@
-package io.github.jonasnuber.valari.helpers;
+package io.github.jonasnuber.valari.api.helpers;
 
-import io.github.jonasnuber.valari.base.SimpleValidation;
-import io.github.jonasnuber.valari.base.Validation;
+import io.github.jonasnuber.valari.internal.SimpleValidation;
+import io.github.jonasnuber.valari.spi.Validation;
 
 import java.util.Objects;
 
@@ -26,7 +26,7 @@ public final class ObjectValidationHelpers {
      * @return The validation for not null.
      */
     public static <K> Validation<K> notNull(){
-        return SimpleValidation.from(Objects::nonNull, "must not be null.");
+        return SimpleValidation.from(Objects::nonNull, "must not be null");
     }
 
     /**

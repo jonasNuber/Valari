@@ -1,6 +1,6 @@
-package io.github.jonasnuber.valari.base;
+package io.github.jonasnuber.valari.api;
 
-import io.github.jonasnuber.valari.exceptions.AggregatedValidationException;
+import io.github.jonasnuber.valari.api.exceptions.AggregatedValidationException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -92,7 +92,7 @@ public final class ValidationResultCollection {
    */
   public String getErrorMessage() {
     StringBuilder sb = new StringBuilder(
-            String.format("Validation for Class %s failed with %d error(s):%n", clazz, results.size()));
+            String.format("Validation for %s failed with %d error(s):%n", clazz, results.size()));
 
     for (ValidationResult result : results) {
       sb.append(

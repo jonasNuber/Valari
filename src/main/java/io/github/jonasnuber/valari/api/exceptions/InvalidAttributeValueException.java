@@ -1,4 +1,4 @@
-package io.github.jonasnuber.valari.exceptions;
+package io.github.jonasnuber.valari.api.exceptions;
 
 import java.io.Serial;
 

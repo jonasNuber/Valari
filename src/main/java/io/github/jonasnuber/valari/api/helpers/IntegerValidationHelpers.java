@@ -1,8 +1,8 @@
-package io.github.jonasnuber.valari.helpers;
+package io.github.jonasnuber.valari.api.helpers;
 
 
-import io.github.jonasnuber.valari.base.SimpleValidation;
-import io.github.jonasnuber.valari.base.Validation;
+import io.github.jonasnuber.valari.internal.SimpleValidation;
+import io.github.jonasnuber.valari.spi.Validation;
 
 /**
  * Utility class providing predefined validations for integer values.
@@ -25,7 +25,7 @@ public final class IntegerValidationHelpers {
      * @return The validation for equality.
      */
     public static Validation<Integer> sameAmount(int exact) {
-        return SimpleValidation.from(i -> i == exact, String.format("must equal %d.", exact));
+        return SimpleValidation.from(i -> i == exact, String.format("must equal %d", exact));
     }
 
     /**
@@ -35,7 +35,7 @@ public final class IntegerValidationHelpers {
      * @return The validation for values lower than the maximum.
      */
     public static Validation<Integer> lowerThan(int max) {
-        return SimpleValidation.from(i -> i < max, String.format("must be lower than %d.", max));
+        return SimpleValidation.from(i -> i < max, String.format("must be lower than %d", max));
     }
 
     /**
@@ -45,7 +45,7 @@ public final class IntegerValidationHelpers {
      * @return The validation for values greater than the minimum.
      */
     public static Validation<Integer> greaterThan(int min) {
-        return SimpleValidation.from(i -> i > min, String.format("must be greater than %d.", min));
+        return SimpleValidation.from(i -> i > min, String.format("must be greater than %d", min));
     }
 
     /**

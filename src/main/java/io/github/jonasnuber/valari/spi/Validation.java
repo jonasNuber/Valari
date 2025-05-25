@@ -1,5 +1,7 @@
-package io.github.jonasnuber.valari.base;
+package io.github.jonasnuber.valari.spi;
 
+
+import io.github.jonasnuber.valari.api.ValidationResult;
 
 /**
  * A Validation is a test for the validity of any object or field against predefined conditions.

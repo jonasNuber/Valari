@@ -1,6 +1,7 @@
-package io.github.jonasnuber.valari.helpers;
+package io.github.jonasnuber.valari.api.helpers;
 
 import io.github.jonasnuber.valari.BaseTest;
+import io.github.jonasnuber.valari.api.helpers.IntegerValidationHelpers;
 import org.junit.jupiter.api.Test;
 
 class IntegerValidationHelpersTest extends BaseTest {
