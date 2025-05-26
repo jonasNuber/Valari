@@ -46,6 +46,37 @@ class DomainValidatorTest {
     }
 
     @Test
+    void validate_ShouldIgnoreNullFields_WhenUsingIfPresent() {
+        var validatorWithOptionalName = DomainValidator.of(Person.class)
+                .field(Person::getName, "Name")
+                .ifPresent(notEmpty())
+                .field(Person::getAge, "Age")
+                .mustSatisfy(greaterThan(0));
+        var person = new Person(null, 42);
+
+        var result = validatorWithOptionalName.validate(person);
+
+        assertThat(result.hasFailures()).isFalse();
+    }
+
+    @Test
+    void validate_ShouldFail_WhenPresentFieldIsInvalid_UsingIfPresent() {
+        var validatorWithOptionalName = DomainValidator.of(Person.class)
+                .field(Person::getName, "Name")
+                .ifPresent(notEmpty())
+                .field(Person::getAge, "Age")
+                .mustSatisfy(greaterThan(0));
+        var person = new Person("", 42);
+
+        var result = validatorWithOptionalName.validate(person);
+
+        assertThat(result.hasFailures()).isTrue();
+        assertThat(result.getResults())
+                .extracting(ValidationResult::getFieldName)
+                .containsExactly("Name");
+    }
+
+    @Test
     void validateAndThrow_ShouldNotThrow_WhenFieldsPass() {
         var name = "Bob";
         var age = 25;

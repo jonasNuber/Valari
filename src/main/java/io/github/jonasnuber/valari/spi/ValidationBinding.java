@@ -28,4 +28,21 @@ public interface ValidationBinding<V extends Validator<?, ?>, F> {
      * @return the owning validator instance for fluent chaining
      */
     V mustSatisfy(Validation<F> validation);
+
+    /**
+     * Applies the validation rule only if the field's value is present (i.e., not {@code null}).
+     * <p>
+     * This is useful for optional fields where absence (null) is acceptable,
+     * but if a value is provided, it must satisfy the specified validation.
+     *
+     * <p>Example:
+     * <pre>{@code
+     * validator.field(User::getMiddleName, "middleName")
+     *          .ifPresent(nonEmpty());
+     * }</pre>
+     *
+     * @param validation the validation logic to apply if the value is present
+     * @return the owning validator instance for fluent chaining
+     */
+    V ifPresent(Validation<F> validation);
 }

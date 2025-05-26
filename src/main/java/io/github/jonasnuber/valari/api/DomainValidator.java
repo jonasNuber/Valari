@@ -16,7 +16,8 @@ import java.util.function.Function;
  * A {@code DomainValidator} is a fluent, type-safe validator for domain models.
  * <p>
  * It supports defining per-field validation logic using extractors and rules,
- * and provides two validation strategies: fail-fast and collect-all-failures.
+ * with options for mandatory ({@code mustSatisfy(...)}) and optional ({@code ifPresent(...)}) validation.
+ * It also provides two validation strategies: fail-fast and collect-all-failures.
  * </p>
  *
  * <p>
@@ -25,6 +26,8 @@ import java.util.function.Function;
  * DomainValidator<User> validator = DomainValidator.of(User.class)
  *     .field(User::getName, "name")
  *          .mustSatisfy(notBlank())
+ *     .field(User::getNickname, "nickname")
+ *          .ifPresent(notBlank()) // optional field, validated only if non-null
  *     .field(User::getEmail, "email")
  *          .mustSatisfy(validEmail());
  *

@@ -1,9 +1,11 @@
 package io.github.jonasnuber.valari.internal.domain;
 
 import io.github.jonasnuber.valari.api.*;
+import io.github.jonasnuber.valari.internal.SimpleValidation;
 import io.github.jonasnuber.valari.spi.Validation;
 import io.github.jonasnuber.valari.spi.ValidationBinding;
 
+import java.util.Objects;
 import java.util.function.Function;
 
 /**
@@ -31,13 +33,33 @@ public class FieldValidationBinding<T, F> implements ValidationBinding<DomainVal
 
   /**
    * Associates a validation rule with this field.
+   * <p>
+   * The provided validation must not be {@code null}.
    *
-   * @param validation the validation rule to apply
+   * @param validation the validation rule to apply (must not be null)
    * @return the parent validator, enabling fluent chaining
+   * @throws NullPointerException if the validation is {@code null}
    */
   @Override
   public DomainValidator<T> mustSatisfy(Validation<F> validation) {
-    this.validation = validation;
+    this.validation = Objects.requireNonNull(validation, "validation must not be null");
+    return parent;
+  }
+
+  /**
+   * Applies the given validation rule only if the field value is non-null.
+   * <p>
+   * If the value is {@code null}, validation is skipped and considered valid.
+   * The provided validation must not be {@code null}.
+   *
+   * @param validation the validation rule to apply if the field value is present (must not be null)
+   * @return the parent validator, enabling fluent chaining
+   * @throws NullPointerException if the validation is {@code null}
+   */
+  @Override
+  public DomainValidator<T> ifPresent(Validation<F> validation) {
+    this.validation = SimpleValidation.<F>from(Objects::isNull, "")
+            .or(Objects.requireNonNull(validation, "validation must not be null"));
     return parent;
   }
 
