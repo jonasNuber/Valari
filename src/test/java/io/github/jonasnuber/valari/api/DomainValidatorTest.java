@@ -130,6 +130,33 @@ class DomainValidatorTest {
     }
 
     @Test
+    void and_ShouldReturnSameInstance(){
+        var expectedValidator = validator;
+
+        var actualValidator = validator.and();
+
+        assertThat(actualValidator).isEqualTo(expectedValidator);
+    }
+
+    @Test
+    void and_ShouldNotAffectValidation(){
+        var andValidator = DomainValidator.of(Person.class)
+                .field(Person::getName, "Name")
+                    .mustSatisfy(notEmpty())
+                .and()
+                .field(Person::getAge, "Age")
+                    .mustSatisfy(greaterThan(0));
+        var age = -1;
+
+        var result = andValidator.validate(new Person(null, age));
+
+        assertThat(result.hasFailures()).isTrue();
+        assertThat(result.getResults())
+                .extracting(ValidationResult::getFieldName)
+                .containsExactlyInAnyOrder("Name", "Age");
+    }
+
+    @Test
     void shouldAllowStrategySwitching() {
         var age = 0;
 

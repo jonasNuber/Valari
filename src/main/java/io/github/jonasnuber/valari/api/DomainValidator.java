@@ -83,6 +83,29 @@ public class DomainValidator<T> implements Validator<T, ValidationResultCollecti
     }
 
     /**
+     * A no-op method for visual separation in the fluent DSL.
+     * <p>
+     * Use {@code and()} to improve readability when chaining multiple field validations.
+     * This method has no effect on validation behavior and simply returns {@code this}.
+     * </p>
+     *
+     * <p>Example usage:</p>
+     * <pre>{@code
+     * DomainValidator<User> validator = DomainValidator.of(User.class)
+     *     .field(User::getName, "name")
+     *         .mustSatisfy(notBlank())
+     *     .and()
+     *     .field(User::getEmail, "email")
+     *         .mustSatisfy(validEmail());
+     * }</pre>
+     *
+     * @return this validator instance (for chaining)
+     */
+    public DomainValidator<T> and(){
+        return this;
+    }
+
+    /**
      * Validates the given object using the current validation strategy.
      *
      * @param toValidate the object to validate
