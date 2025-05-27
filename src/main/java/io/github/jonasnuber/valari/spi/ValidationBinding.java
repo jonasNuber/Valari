@@ -1,48 +1,46 @@
 package io.github.jonasnuber.valari.spi;
 
 /**
- * A binding interface for associating a {@link Validation} rule with a specific field in a validator.
+ * A fluent interface for associating validation rules with a specific field in a validator.
  * <p>
- * This interface enables fluent validation configuration. It is typically returned by a validator
- * when declaring a field, allowing the caller to attach a validation rule using {@link #mustSatisfy(Validation)}.
+ * This interface is typically used within a {@link Validator} to define rules for validating
+ * individual fields of a domain object. It is returned when declaring a field using
+ * {@code validator.field(...)} and allows attaching a validation rule using {@link #mustSatisfy(Object)}
+ * or {@link #ifPresent(Object)}.
  *
- * <p>Example usage:
+ * <p>Usage example:
  * <pre>{@code
  * validator.field(User::getEmail, "email")
  *          .mustSatisfy(validEmail());
+ *
+ * validator.field(User::getNickname, "nickname")
+ *          .ifPresent(nonBlank());
  * }</pre>
  *
- * @param <V> the type of the validator that owns the binding (used for fluent chaining)
- * @param <F> the type of the field to be validated
- * @see Validation
- * @see Validator
+ * @param <V> the type of the validator (used to return the validator for chaining)
+ * @param <T> the type of the validation rule (e.g., {@code Validation<F>})
  *
  * @author Jonas Nuber
+ * @see Validator
  */
-public interface ValidationBinding<V extends Validator<?, ?>, F> {
+public interface ValidationBinding<V extends Validator<?, ?>, T> {
 
     /**
-     * Specifies the validation rule that the field must satisfy.
+     * Specifies that the field must satisfy the given validation rule.
      *
-     * @param validation the validation logic for the field
-     * @return the owning validator instance for fluent chaining
+     * @param rule the validation rule to apply (e.g., {@code notBlank()}, {@code between()})
+     * @return the validator instance for fluent chaining
      */
-    V mustSatisfy(Validation<F> validation);
+    V mustSatisfy(T rule);
 
     /**
-     * Applies the validation rule only if the field's value is present (i.e., not {@code null}).
+     * Applies the rule only if the field's value is present (i.e., not {@code null}).
      * <p>
-     * This is useful for optional fields where absence (null) is acceptable,
-     * but if a value is provided, it must satisfy the specified validation.
+     * This is useful for optional fields where {@code null} is valid, but non-null values
+     * must still adhere to a constraint.
      *
-     * <p>Example:
-     * <pre>{@code
-     * validator.field(User::getMiddleName, "middleName")
-     *          .ifPresent(nonEmpty());
-     * }</pre>
-     *
-     * @param validation the validation logic to apply if the value is present
-     * @return the owning validator instance for fluent chaining
+     * @param rule the validation rule to apply if the field value is non-null
+     * @return the validator instance for fluent chaining
      */
-    V ifPresent(Validation<F> validation);
+    V ifPresent(T rule);
 }

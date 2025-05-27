@@ -26,7 +26,7 @@ public final class StringValidationHelpers {
 	 */
 	public static Validation<String> notEmpty(){
 		return SimpleValidation.from(
-				s -> s != null && !s.trim().isEmpty(),
+				s -> notNull(s) && !s.trim().isEmpty(),
 				"must not be blank");
 	}
 
@@ -85,7 +85,7 @@ public final class StringValidationHelpers {
 	 */
 	public static Validation<String> contains(String str) {
 		return SimpleValidation.from(
-				s -> notNull(s) && s.contains(str),
+				s -> notNull(s) && notNull(str) && s.contains(str),
 				String.format("must contain \"%s\"", str));
 	}
 
@@ -97,7 +97,7 @@ public final class StringValidationHelpers {
 	 */
 	public static Validation<String> containsIgnoreCase(String str) {
 		return SimpleValidation.from(
-				s -> notNull(s) && s.toLowerCase().contains(str.toLowerCase()),
+				s -> notNull(s) && notNull(str) && s.toLowerCase().contains(str.toLowerCase()),
 				String.format("must contain \"%s\"", str));
 	}
 
@@ -109,7 +109,7 @@ public final class StringValidationHelpers {
 	 */
 	public static Validation<String> regex(String regex) {
 		return SimpleValidation.from(
-				s -> notNull(s) && s.matches(regex),
+				s -> notNull(s) && notNull(regex) && s.matches(regex),
 				String.format("must fully match regex '%s'", regex)
 		);
 	}
@@ -122,7 +122,7 @@ public final class StringValidationHelpers {
 	 */
 	public static Validation<String> containsRegex(String regex) {
 		return SimpleValidation.from(
-				s -> notNull(s) && Pattern.compile(regex).matcher(s).find(),
+				s -> notNull(s) && notNull(regex) && Pattern.compile(regex).matcher(s).find(),
 				String.format("must contain substring matching regex '%s'", regex)
 		);
 	}

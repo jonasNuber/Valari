@@ -2,13 +2,18 @@ package io.github.jonasnuber.valari.api;
 
 import io.github.jonasnuber.valari.Person;
 import io.github.jonasnuber.valari.api.exceptions.AggregatedValidationException;
+import io.github.jonasnuber.valari.internal.domain.FieldValidationBinding;
+import io.github.jonasnuber.valari.internal.domain.NestedValidationBinding;
 import org.assertj.core.api.ThrowableAssert;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.util.function.Function;
+
 import static io.github.jonasnuber.valari.api.helpers.IntegerValidationHelpers.greaterThan;
 import static io.github.jonasnuber.valari.api.helpers.StringValidationHelpers.notEmpty;
 import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.catchThrowable;
 
 class DomainValidatorTest {
     private static DomainValidator<Person> validator;
@@ -20,6 +25,72 @@ class DomainValidatorTest {
                     .mustSatisfy(notEmpty())
                 .field(Person::getAge, "Age")
                     .mustSatisfy(greaterThan(0));
+    }
+
+    @Test
+    void of_ShouldThrowException_ForNullClass() {
+        var thrown = catchThrowable(() -> DomainValidator.of(null));
+
+        assertThat(thrown)
+                .isInstanceOf(NullPointerException.class)
+                .hasMessage("Class must not be null");
+    }
+
+    @Test
+    void field_ShouldThrowException_ForNullInput() {
+        var nullExtractor = catchThrowable(() -> DomainValidator.of(Person.class).field(null, null));
+        var nullFieldName = catchThrowable(() -> DomainValidator.of(Person.class).field(Person::getAge, null));
+
+        assertThat(nullExtractor)
+                .isInstanceOf(NullPointerException.class)
+                .hasMessage("Extractor Function must not be null");
+        assertThat(nullFieldName)
+                .isInstanceOf(NullPointerException.class)
+                .hasMessage("FieldName must not be null");
+    }
+
+    @Test
+    void field_ShouldReturnFieldValidationBinding_ForValidInput() {
+        Function<Person, Integer> extractor = Person::getAge;
+        var fieldName = "Age";
+
+        var fieldValidationBinding = DomainValidator.of(Person.class).field(extractor, fieldName);
+
+        assertThat(fieldValidationBinding)
+                .isInstanceOf(FieldValidationBinding.class);
+    }
+
+    @Test
+    void nested_ShouldThrowException_ForNullInput() {
+        var nullExtractor = catchThrowable(() -> DomainValidator.of(Person.class).nested(null, null));
+        var nullFieldName = catchThrowable(() -> DomainValidator.of(Person.class).nested(Person::getAge, null));
+
+        assertThat(nullExtractor)
+                .isInstanceOf(NullPointerException.class)
+                .hasMessage("Extractor Function must not be null");
+        assertThat(nullFieldName)
+                .isInstanceOf(NullPointerException.class)
+                .hasMessage("FieldName must not be null");
+    }
+
+    @Test
+    void nested_ShouldReturnNestedValidationBinding_ForValidInput() {
+        Function<Person, Integer> extractor = Person::getAge;
+        var fieldName = "Age";
+
+        var nestedValidationBinding = DomainValidator.of(Person.class).nested(extractor, fieldName);
+
+        assertThat(nestedValidationBinding)
+                .isInstanceOf(NestedValidationBinding.class);
+    }
+
+    @Test
+    void validate_ShouldThrowException_ForNullObject() {
+        var nullToValidate = catchThrowable(() -> validator.validate(null));
+
+        assertThat(nullToValidate)
+                .isInstanceOf(NullPointerException.class)
+                .hasMessage("Object to validate must not be null");
     }
 
     @Test
@@ -74,6 +145,15 @@ class DomainValidatorTest {
         assertThat(result.getResults())
                 .extracting(ValidationResult::getFieldName)
                 .containsExactly("Name");
+    }
+
+    @Test
+    void validateAndThrow_ShouldThrowException_ForNullObject() {
+        var nullToValidate = catchThrowable(() -> validator.validateAndThrow(null));
+
+        assertThat(nullToValidate)
+                .isInstanceOf(NullPointerException.class)
+                .hasMessage("Object to validate must not be null");
     }
 
     @Test

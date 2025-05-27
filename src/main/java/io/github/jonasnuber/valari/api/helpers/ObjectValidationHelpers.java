@@ -37,6 +37,10 @@ public final class ObjectValidationHelpers {
      * @return The validation for equality.
      */
     public static <K> Validation<K> isEqualTo(K other){
-        return SimpleValidation.from(other::equals, String.format("must be equal to %s", other));
+        return SimpleValidation.from(o -> notNull(o) && notNull(other) && other.equals(o), String.format("must be equal to %s", other));
+    }
+
+    private static boolean notNull(Object o) {
+        return o != null;
     }
 }

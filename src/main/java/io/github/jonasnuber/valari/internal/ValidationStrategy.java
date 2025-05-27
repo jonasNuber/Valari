@@ -1,6 +1,7 @@
 package io.github.jonasnuber.valari.internal;
 
-import io.github.jonasnuber.valari.internal.domain.FieldValidationBinding;
+import io.github.jonasnuber.valari.api.ValidationResult;
+import io.github.jonasnuber.valari.spi.Validator;
 
 import java.util.List;
 
@@ -24,5 +25,5 @@ public interface ValidationStrategy<T, R> {
      * @param validationClass the class of the object being validated, used for context in results
      * @return the result of the validation, determined by the specific strategy implementation
      */
-    R validate(T toValidate, List<FieldValidationBinding<T, ?>> validations, Class<T> validationClass);
+    R validate(T toValidate, List<Validator<T, ValidationResult>> validations, Class<T> validationClass);
 }

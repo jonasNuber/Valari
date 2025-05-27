@@ -1,0 +1,140 @@
+package io.github.jonasnuber.valari.internal.domain;
+
+import io.github.jonasnuber.valari.api.DomainValidator;
+import io.github.jonasnuber.valari.api.ValidationResult;
+import io.github.jonasnuber.valari.api.ValidationResultCollection;
+import io.github.jonasnuber.valari.spi.ValidationBinding;
+import io.github.jonasnuber.valari.spi.Validator;
+
+import java.util.Objects;
+import java.util.function.Function;
+
+/**
+ * Binds a nested (composite) object of a domain entity to a {@link DomainValidator},
+ * enabling recursive validation of complex object graphs.
+ * <p>
+ * This class supports both required and optional validation modes:
+ * <ul>
+ *   <li>{@link #mustSatisfy(DomainValidator)} requires the nested value to be non-null.</li>
+ *   <li>{@link #ifPresent(DomainValidator)} only validates if the nested value is present.</li>
+ * </ul>
+ *
+ * <p>Example:
+ * <pre>{@code
+ * validator.field(User::getAddress, "address")
+ *          .mustSatisfy(addressValidator);
+ * }</pre>
+ *
+ * @param <T> the type of the parent object being validated
+ * @param <F> the type of the nested/composite field being validated
+ *
+ * @author Jonas Nuber
+ */
+public class NestedValidationBinding<T, F> implements ValidationBinding<DomainValidator<T>, DomainValidator<F>>, Validator<T, ValidationResult> {
+    private final DomainValidator<T> parent;
+    private final String fieldName;
+    private final Function<T, F> valueExtractor;
+
+    private DomainValidator<F> compositeValidator;
+    private boolean required;
+
+    public NestedValidationBinding(DomainValidator<T> parent, Function<T, F> valueExtractor, String fieldName) {
+        Objects.requireNonNull(parent, "Parent Validator must not be null");
+        Objects.requireNonNull(valueExtractor, "Extractor Method to get value for validation must not be null");
+        Objects.requireNonNull(fieldName, "FieldName of the value to validate must not be null");
+
+        this.parent = parent;
+        this.valueExtractor = valueExtractor;
+        this.fieldName = fieldName;
+    }
+
+    /**
+     * Marks this field as required and associates a validator for the nested type.
+     * <p>
+     * If the value is {@code null}, validation fails with a {@link NullPointerException}.
+     *
+     * @param compositeValidator the validator for the nested field (must not be {@code null})
+     * @return the parent validator for fluent chaining
+     * @throws NullPointerException if {@code compositeValidator} is {@code null}
+     */
+    @Override
+    public DomainValidator<T> mustSatisfy(DomainValidator<F> compositeValidator) {
+        this.compositeValidator = Objects.requireNonNull(compositeValidator, "The validator for the nested type must not be null");
+        required = true;
+
+        return parent;
+    }
+
+    /**
+     * Associates a validator for the nested field, but only applies it if the value is present.
+     * <p>
+     * If the value is {@code null}, validation passes automatically.
+     *
+     * @param compositeValidator the validator for the nested field (must not be {@code null})
+     * @return the parent validator for fluent chaining
+     * @throws NullPointerException if {@code compositeValidator} is {@code null}
+     */
+    @Override
+    public DomainValidator<T> ifPresent(DomainValidator<F> compositeValidator) {
+        this.compositeValidator = Objects.requireNonNull(compositeValidator, "The validator for the composite type must not be null");
+        required = false;
+
+        return parent;
+    }
+
+    /**
+     * Validates the nested field using the bound {@link DomainValidator}.
+     * <p>
+     * If {@link #mustSatisfy(DomainValidator)} was used and the value is {@code null},
+     * a {@link NullPointerException} is thrown.
+     *
+     * @param toValidate the object to validate (must not be {@code null})
+     * @return a {@link ValidationResult} representing success or failure
+     * @throws NullPointerException if the object or a required value is {@code null}
+     */
+    @Override
+    public ValidationResult validate(T toValidate) {
+        Objects.requireNonNull(toValidate, "Object to validate must not be null");
+
+        F value = extractValue(toValidate);
+
+        if (shouldSkipValidation(value)) {
+            return ValidationResult.ok();
+        }
+
+        return validateNested(value);
+    }
+
+    private F extractValue(T toValidate) {
+        return valueExtractor.apply(toValidate);
+    }
+
+    private boolean shouldSkipValidation(F value) {
+        if (required) {
+            Objects.requireNonNull(value, "Required field value must not be null");
+            return false;
+        }
+        return value == null;
+    }
+
+    private ValidationResult validateNested(F value) {
+        ValidationResultCollection results = compositeValidator.validate(value);
+
+        if (results.hasFailures()) {
+            return ValidationResult.fail(results.getErrorMessage(), fieldName);
+        }
+
+        return ValidationResult.ok();
+    }
+
+    /**
+     * Validates the object and throws an exception if validation fails.
+     *
+     * @param toValidate the object to validate
+     * @throws io.github.jonasnuber.valari.api.exceptions.InvalidAttributeValueException if validation fails
+     */
+    @Override
+    public void validateAndThrow(T toValidate) {
+        validate(toValidate).throwIfInvalid();
+    }
+}

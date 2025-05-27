@@ -1,9 +1,12 @@
 package io.github.jonasnuber.valari.internal.domain;
 
+import io.github.jonasnuber.valari.api.ValidationResult;
 import io.github.jonasnuber.valari.api.ValidationResultCollection;
 import io.github.jonasnuber.valari.internal.ValidationStrategy;
+import io.github.jonasnuber.valari.spi.Validator;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * A {@link ValidationStrategy} implementation that evaluates all field-level validations
@@ -12,9 +15,8 @@ import java.util.List;
  * This strategy does not short-circuit on failure and ensures a comprehensive report
  * of all validation issues present in the object.
  *
- * @author Jonas Nuber
- *
  * @param <T> the type of object being validated
+ * @author Jonas Nuber
  */
 public final class CollectFailuresStrategy<T> implements ValidationStrategy<T, ValidationResultCollection> {
 
@@ -28,10 +30,14 @@ public final class CollectFailuresStrategy<T> implements ValidationStrategy<T, V
      * @return a {@link ValidationResultCollection} containing all validation failures (if any)
      */
     @Override
-    public ValidationResultCollection validate(T toValidate, List<FieldValidationBinding<T, ?>> validations, Class<T> validationClass) {
+    public ValidationResultCollection validate(T toValidate, List<Validator<T, ValidationResult>> validations, Class<T> validationClass) {
+        Objects.requireNonNull(toValidate, "Object to validate must not be null");
+        Objects.requireNonNull(validations, "Validations to validate Object by must not be null");
+        Objects.requireNonNull(validationClass, "The class of the Object to validate must not be null");
+
         ValidationResultCollection results = new ValidationResultCollection(validationClass);
 
-        for (FieldValidationBinding<T, ?> validation : validations) {
+        for (Validator<T, ValidationResult> validation : validations) {
             results.add(validation.validate(toValidate));
         }
 

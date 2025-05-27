@@ -68,4 +68,11 @@ class CollectionValidationHelpersTest extends BaseTest {
 
         assertInvalid(validation, collection);
     }
+
+    @Test
+    void sizeBetween_ShouldReturnInvalidResult_ForNullCollection() {
+        var validation = CollectionValidationHelpers.sizeBetween(0,2);
+
+        assertInvalid(validation, null);
+    }
 }
