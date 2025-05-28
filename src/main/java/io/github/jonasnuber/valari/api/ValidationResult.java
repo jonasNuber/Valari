@@ -58,6 +58,10 @@ public final class ValidationResult {
         return new ValidationResult(false, fieldName, causeDescription);
     }
 
+    public ValidationResult withFieldName(String fieldName) {
+        return new ValidationResult(this.valid, fieldName, this.causeDescription);
+    }
+
     /**
      * Throws an InvalidAttributeValueException if the ValidationResult is FAILED. The thrown
      * exception contains the causeDescription provided in the {@linkplain #fail(String)} constructor as

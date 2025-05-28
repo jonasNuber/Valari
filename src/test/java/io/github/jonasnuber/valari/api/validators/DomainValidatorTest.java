@@ -1,6 +1,7 @@
-package io.github.jonasnuber.valari.api;
+package io.github.jonasnuber.valari.api.validators;
 
 import io.github.jonasnuber.valari.Person;
+import io.github.jonasnuber.valari.api.ValidationResult;
 import io.github.jonasnuber.valari.api.exceptions.AggregatedValidationException;
 import io.github.jonasnuber.valari.internal.domain.FieldValidationBinding;
 import io.github.jonasnuber.valari.internal.domain.NestedValidationBinding;
@@ -13,7 +14,6 @@ import java.util.function.Function;
 import static io.github.jonasnuber.valari.api.helpers.IntegerValidationHelpers.greaterThan;
 import static io.github.jonasnuber.valari.api.helpers.StringValidationHelpers.notEmpty;
 import static org.assertj.core.api.Assertions.*;
-import static org.assertj.core.api.Assertions.catchThrowable;
 
 class DomainValidatorTest {
     private static DomainValidator<Person> validator;
@@ -22,9 +22,9 @@ class DomainValidatorTest {
     static void init() {
         validator = DomainValidator.of(Person.class)
                 .field(Person::getName, "Name")
-                    .mustSatisfy(notEmpty())
+                .mustSatisfy(notEmpty())
                 .field(Person::getAge, "Age")
-                    .mustSatisfy(greaterThan(0));
+                .mustSatisfy(greaterThan(0));
     }
 
     @Test
@@ -210,7 +210,7 @@ class DomainValidatorTest {
     }
 
     @Test
-    void and_ShouldReturnSameInstance(){
+    void and_ShouldReturnSameInstance() {
         var expectedValidator = validator;
 
         var actualValidator = validator.and();
@@ -219,13 +219,13 @@ class DomainValidatorTest {
     }
 
     @Test
-    void and_ShouldNotAffectValidation(){
+    void and_ShouldNotAffectValidation() {
         var andValidator = DomainValidator.of(Person.class)
                 .field(Person::getName, "Name")
-                    .mustSatisfy(notEmpty())
+                .mustSatisfy(notEmpty())
                 .and()
                 .field(Person::getAge, "Age")
-                    .mustSatisfy(greaterThan(0));
+                .mustSatisfy(greaterThan(0));
         var age = -1;
 
         var result = andValidator.validate(new Person(null, age));

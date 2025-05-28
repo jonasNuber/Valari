@@ -1,7 +1,7 @@
 package io.github.jonasnuber.valari.internal.domain;
 
 import io.github.jonasnuber.valari.api.*;
-import io.github.jonasnuber.valari.api.DomainValidator;
+import io.github.jonasnuber.valari.api.validators.DomainValidator;
 import io.github.jonasnuber.valari.internal.SimpleValidation;
 import io.github.jonasnuber.valari.spi.Validation;
 import io.github.jonasnuber.valari.spi.ValidationBinding;

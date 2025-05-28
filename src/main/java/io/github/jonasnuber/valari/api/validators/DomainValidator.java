@@ -1,5 +1,7 @@
-package io.github.jonasnuber.valari.api;
+package io.github.jonasnuber.valari.api.validators;
 
+import io.github.jonasnuber.valari.api.ValidationResult;
+import io.github.jonasnuber.valari.api.ValidationResultCollection;
 import io.github.jonasnuber.valari.api.exceptions.AggregatedValidationException;
 import io.github.jonasnuber.valari.internal.domain.CollectFailuresStrategy;
 import io.github.jonasnuber.valari.internal.domain.NestedValidationBinding;
@@ -51,7 +53,7 @@ public class DomainValidator<T> implements Validator<T, ValidationResultCollecti
     private ValidationStrategy<T, ValidationResultCollection> validationStrategy;
 
     private DomainValidator(Class<T> clazz) {
-        this.clazz = clazz;
+        this.clazz = Objects.requireNonNull(clazz, "Class must not be null");
         validationStrategy = new CollectFailuresStrategy<>();
     }
 
@@ -63,7 +65,7 @@ public class DomainValidator<T> implements Validator<T, ValidationResultCollecti
      * @return a new instance of {@code DomainValidator}
      */
     public static <T> DomainValidator<T> of(Class<T> clazz) {
-        return new DomainValidator<>(Objects.requireNonNull(clazz, "Class must not be null"));
+        return new DomainValidator<>(clazz);
     }
 
     /**

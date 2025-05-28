@@ -2,8 +2,7 @@ package io.github.jonasnuber.valari.internal.domain;
 
 import io.github.jonasnuber.valari.CreditCard;
 import io.github.jonasnuber.valari.Person;
-import io.github.jonasnuber.valari.api.DomainValidator;
-import io.github.jonasnuber.valari.api.ValidationResult;
+import io.github.jonasnuber.valari.api.validators.DomainValidator;
 import org.junit.jupiter.api.Test;
 
 import static io.github.jonasnuber.valari.api.helpers.IntegerValidationHelpers.greaterThan;
