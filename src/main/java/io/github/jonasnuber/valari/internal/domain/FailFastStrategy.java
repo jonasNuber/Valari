@@ -14,11 +14,23 @@ import java.util.Objects;
  * <p>
  * This strategy improves performance in scenarios where early termination is acceptable,
  * such as when only the first error is needed or validation is expensive.
+ * </p>
  *
  * @param <T> the type of object being validated
  * @author Jonas Nuber
  */
 public final class FailFastStrategy<T> implements ValidationStrategy<T, ValidationResultCollection> {
+
+    /**
+     * Constructs a new {@code FailFastStrategy} instance.
+     * <p>
+     * This strategy short-circuits validation on the first failure,
+     * making it suitable for performance-critical use cases or where only the first error is needed.
+     * </p>
+     */
+    public FailFastStrategy() {
+        // No initialization required
+    }
 
     /**
      * Validates the given object by applying field-level validations in order

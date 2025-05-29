@@ -13,11 +13,9 @@ import io.github.jonasnuber.valari.api.ValidationResult;
  * <p>
  * Default functionality is provided for logical {@linkplain #and} and {@linkplain #or} Validation chaining.
  * </p>
- * <p>
  *
  * @param <K> Type of object to be validated.
  * @author Jonas Nuber
- * </p>
  */
 @FunctionalInterface
 public interface Validation<K> {

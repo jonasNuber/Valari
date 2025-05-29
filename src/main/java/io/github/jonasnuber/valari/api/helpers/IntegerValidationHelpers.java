@@ -7,10 +7,8 @@ import io.github.jonasnuber.valari.spi.Validation;
 /**
  * Utility class providing predefined validations for integer values.
  * These validations define conditions that an integer must meet to be considered valid.
- * <p>
  *
  * @author Jonas Nuber
- * </p>
  */
 public final class IntegerValidationHelpers {
 

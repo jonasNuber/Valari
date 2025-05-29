@@ -7,9 +7,8 @@ import java.util.function.Predicate;
 
 /**
  * A SimpleValidation validates a field against a predefined condition specified by a Predicate.
- * <p>
+ *
  * @author Jonas Nuber
- * </p>
  *
  * @param <K> Type of the field to test.
  */

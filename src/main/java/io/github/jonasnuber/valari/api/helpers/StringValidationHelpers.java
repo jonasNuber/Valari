@@ -9,9 +9,7 @@ import java.util.regex.Pattern;
  * Utility class providing predefined validations for strings.
  * These validations define conditions that a string must meet to be considered valid.
  *
- * <p>
  * @author  Jonas Nuber
- * </p>
  */
 public final class StringValidationHelpers {
 

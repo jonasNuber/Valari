@@ -7,10 +7,7 @@ import io.github.jonasnuber.valari.api.exceptions.InvalidAttributeValueException
  * It can indicate whether the validation was successful (OK) or failed (FAIL), and can
  * initiate an exception throw in case of a failed validation.
  *
- * <p>
- *
  * @author Jonas Nuber
- * </p>
  */
 public final class ValidationResult {
 
@@ -49,6 +46,7 @@ public final class ValidationResult {
      * Returns a ValidationResult with the state FAILED, representing an unsuccessful validation.
      * <p>
      * The field which was validated is named and will show in the Exception Message.
+     * </p>
      *
      * @param causeDescription The message describing the reason for the failed validation.
      * @param fieldName        the name of the field which was validated.
@@ -58,6 +56,17 @@ public final class ValidationResult {
         return new ValidationResult(false, fieldName, causeDescription);
     }
 
+    /**
+     * Returns a new {@link ValidationResult} instance with the same validity and cause description,
+     * but with the specified field name.
+     * <p>
+     * This is useful for attaching a field name to an existing validation result,
+     * especially when the original result was created without one.
+     * </p>
+     *
+     * @param fieldName the name of the field to associate with the validation result
+     * @return a new {@code ValidationResult} instance with the updated field name
+     */
     public ValidationResult withFieldName(String fieldName) {
         return new ValidationResult(this.valid, fieldName, this.causeDescription);
     }

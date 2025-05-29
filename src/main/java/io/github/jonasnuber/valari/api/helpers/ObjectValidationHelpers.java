@@ -9,9 +9,7 @@ import java.util.Objects;
  * Utility class providing predefined validations for objects.
  * These validations define conditions that an object must meet to be considered valid.
  *
- * <p>
  * @author Jonas Nuber
- * </p>
  */
 public final class ObjectValidationHelpers {
 

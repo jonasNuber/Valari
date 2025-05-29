@@ -5,9 +5,9 @@ import java.io.Serial;
 /**
  * Exception thrown when an attribute value is deemed invalid based on a validation result.
  * This exception type is used for the throw statement of an invalid ValidationResult.
- * <p>
+ *
  * @author  Jonas Nuber
- * </p>
+ *
  */
 public class InvalidAttributeValueException extends RuntimeException {
 

@@ -25,7 +25,6 @@ import java.util.function.Function;
  * It also provides two validation strategies: fail-fast and collect-all-failures.
  * </p>
  *
- * <p>
  * Example usage:
  * <pre>{@code
  * DomainValidator<User> validator = DomainValidator.of(User.class)
@@ -73,6 +72,7 @@ public class DomainValidator<T> implements Validator<T, ValidationResultCollecti
      * <p>
      * This method allows binding a field extractor and associating it with a name,
      * which will be used in validation results.
+     * </p>
      *
      * @param extractor the function to extract the field value from the object
      * @param fieldName the logical name of the field (used in error reporting)
@@ -98,7 +98,7 @@ public class DomainValidator<T> implements Validator<T, ValidationResultCollecti
      * You can choose whether the nested field is required using {@code mustSatisfy(...)} or optional using {@code ifPresent(...)}.
      * </p>
      *
-     * <p>Example usage:</p>
+     * Example usage:
      * <pre>{@code
      * DomainValidator<User> validator = DomainValidator.of(User.class)
      *     .field(User::getName, "name")
@@ -134,7 +134,7 @@ public class DomainValidator<T> implements Validator<T, ValidationResultCollecti
      * This method has no effect on validation behavior and simply returns {@code this}.
      * </p>
      *
-     * <p>Example usage:</p>
+     * Example usage:
      * <pre>{@code
      * DomainValidator<User> validator = DomainValidator.of(User.class)
      *     .field(User::getName, "name")
@@ -182,6 +182,7 @@ public class DomainValidator<T> implements Validator<T, ValidationResultCollecti
      * Sets the validation strategy to fail-fast mode.
      * <p>
      * In fail-fast mode, validation stops on the first failed rule.
+     * </p>
      *
      * @return this validator instance (for chaining)
      */
@@ -195,6 +196,7 @@ public class DomainValidator<T> implements Validator<T, ValidationResultCollecti
      * <p>
      * In this mode, all validation rules are evaluated, and all failures are reported together.
      * This is the default behavior.
+     * </p>
      *
      * @return this validator instance (for chaining)
      */

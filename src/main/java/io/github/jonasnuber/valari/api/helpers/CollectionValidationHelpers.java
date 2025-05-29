@@ -9,10 +9,7 @@ import java.util.Collection;
  * Utility class providing predefined validations for Collection values.
  * These validations define conditions that a collection, or elements of a collection must meet to be considered valid.
  *
- * <p>
- *
  * @author Jonas Nuber
- * </p>
  */
 public final class CollectionValidationHelpers {
 

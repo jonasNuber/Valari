@@ -7,8 +7,9 @@ package io.github.jonasnuber.valari.spi;
  * individual fields of a domain object. It is returned when declaring a field using
  * {@code validator.field(...)} and allows attaching a validation rule using {@link #mustSatisfy(Object)}
  * or {@link #ifPresent(Object)}.
+ * </p>
  *
- * <p>Usage example:
+ * Usage example:
  * <pre>{@code
  * validator.field(User::getEmail, "email")
  *          .mustSatisfy(validEmail());
@@ -38,6 +39,7 @@ public interface ValidationBinding<V extends Validator<?, ?>, T> {
      * <p>
      * This is useful for optional fields where {@code null} is valid, but non-null values
      * must still adhere to a constraint.
+     * </p>
      *
      * @param rule the validation rule to apply if the field value is non-null
      * @return the validator instance for fluent chaining

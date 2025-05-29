@@ -19,7 +19,7 @@ import java.util.function.Function;
  *   <li>{@link #ifPresent(DomainValidator)} only validates if the nested value is present.</li>
  * </ul>
  *
- * <p>Example:
+ * Example:
  * <pre>{@code
  * validator.field(User::getAddress, "address")
  *          .mustSatisfy(addressValidator);
@@ -38,6 +38,18 @@ public class NestedValidationBinding<T, F> implements ValidationBinding<DomainVa
     private DomainValidator<F> compositeValidator;
     private boolean required;
 
+    /**
+     * Constructs a new {@code NestedValidationBinding} for a specific nested field.
+     * <p>
+     * This constructor sets up the binding between a parent domain validator and a nested field,
+     * enabling recursive validation logic for complex object graphs.
+     * </p>
+     *
+     * @param parent        the parent domain validator (must not be {@code null})
+     * @param valueExtractor a function to extract the nested field value from the parent object (must not be {@code null})
+     * @param fieldName     the name of the nested field (used for error reporting, must not be {@code null})
+     * @throws NullPointerException if any argument is {@code null}
+     */
     public NestedValidationBinding(DomainValidator<T> parent, Function<T, F> valueExtractor, String fieldName) {
         Objects.requireNonNull(parent, "Parent Validator must not be null");
         Objects.requireNonNull(valueExtractor, "Extractor Method to get value for validation must not be null");
@@ -52,6 +64,7 @@ public class NestedValidationBinding<T, F> implements ValidationBinding<DomainVa
      * Marks this field as required and associates a validator for the nested type.
      * <p>
      * If the value is {@code null}, validation fails with a {@link NullPointerException}.
+     * </p>
      *
      * @param compositeValidator the validator for the nested field (must not be {@code null})
      * @return the parent validator for fluent chaining
@@ -69,6 +82,7 @@ public class NestedValidationBinding<T, F> implements ValidationBinding<DomainVa
      * Associates a validator for the nested field, but only applies it if the value is present.
      * <p>
      * If the value is {@code null}, validation passes automatically.
+     * </p>
      *
      * @param compositeValidator the validator for the nested field (must not be {@code null})
      * @return the parent validator for fluent chaining
@@ -87,6 +101,7 @@ public class NestedValidationBinding<T, F> implements ValidationBinding<DomainVa
      * <p>
      * If {@link #mustSatisfy(DomainValidator)} was used and the value is {@code null},
      * a {@link NullPointerException} is thrown.
+     * </p>
      *
      * @param toValidate the object to validate (must not be {@code null})
      * @return a {@link ValidationResult} representing success or failure

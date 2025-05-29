@@ -14,11 +14,23 @@ import java.util.Objects;
  * <p>
  * This strategy does not short-circuit on failure and ensures a comprehensive report
  * of all validation issues present in the object.
+ * </p>
  *
  * @param <T> the type of object being validated
  * @author Jonas Nuber
  */
 public final class CollectFailuresStrategy<T> implements ValidationStrategy<T, ValidationResultCollection> {
+
+    /**
+     * Constructs a new {@code CollectFailuresStrategy} instance.
+     * <p>
+     * This strategy collects all validation failures instead of short-circuiting on the first failure,
+     * making it useful when a complete list of validation issues is needed.
+     * </p>
+     */
+    public CollectFailuresStrategy() {
+        // No initialization required
+    }
 
     /**
      * Validates the given object by applying all specified field validations and collecting

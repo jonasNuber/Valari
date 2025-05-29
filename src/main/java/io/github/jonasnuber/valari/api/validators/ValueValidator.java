@@ -9,8 +9,10 @@ import java.util.Objects;
 /**
  * A simple wrapper around a {@link Validation} for validating a single value with a contextual name.
  *
- * <p>This validator allows you to associate a name (e.g., a field or parameter name) with the validated value,
- * making the resulting {@link ValidationResult} more meaningful and easier to trace back in error reporting.</p>
+ * <p>
+ * This validator allows you to associate a name (e.g., a field or parameter name) with the validated value,
+ * making the resulting {@link ValidationResult} more meaningful and easier to trace back in error reporting.
+ * </p>
  *
  * @param <T> the type of the value being validated
  * @author Jonas Nuber
@@ -54,7 +56,7 @@ public class ValueValidator<T> implements Validator<T, ValidationResult> {
      * If the value is {@code null}, validation passes.
      *
      * @param validation the validation to wrap
-     * @param <T> the type of the value being validated
+     * @param <T>        the type of the value being validated
      * @return a new optional {@code ValueValidator} instance
      */
     public static <T> ValueValidator<T> optional(Validation<T> validation) {
@@ -66,8 +68,8 @@ public class ValueValidator<T> implements Validator<T, ValidationResult> {
      * If the value is {@code null}, validation passes.
      *
      * @param validation the validation to wrap
-     * @param valueName the name of the value being validated (used for error messages)
-     * @param <T> the type of the value being validated
+     * @param valueName  the name of the value being validated (used for error messages)
+     * @param <T>        the type of the value being validated
      * @return a new optional {@code ValueValidator} instance
      */
     public static <T> ValueValidator<T> optional(Validation<T> validation, String valueName) {
@@ -78,7 +80,9 @@ public class ValueValidator<T> implements Validator<T, ValidationResult> {
      * Validates the provided value and returns the resulting {@link ValidationResult},
      * enriched with the configured value name.
      *
-     * <p>If {@link #optional} is {@code true} and the input is {@code null}, validation is skipped and considered valid.</p>
+     * <p>
+     * If {@link #optional} is {@code true} and the input is {@code null}, validation is skipped and considered valid.
+     * </p>
      *
      * @param toValidate the value to validate
      * @return the validation result

@@ -10,6 +10,7 @@ import java.util.List;
  * <p>
  * Implementations can define different behaviors such as {@link io.github.jonasnuber.valari.internal.domain.FailFastStrategy} (stop on first failure)
  * or collect-all (gather all validation errors) approaches.
+ * </p>
  *
  * @param <T> the type of the object to validate
  * @param <R> the type of the result produced by the validation
