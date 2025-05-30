@@ -1,19 +1,20 @@
 package io.github.jonasnuber.valari.spi;
 
-import io.github.jonasnuber.valari.BaseTest;
 import io.github.jonasnuber.valari.api.ValidationResult;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-class ValidationTest extends BaseTest {
+import static org.assertj.core.api.Assertions.assertThat;
+
+class ValidationTest {
 
     private static Validation<Object> valid;
     private static Validation<Object> inValid;
 
     @BeforeAll
-    public static void init() {
-        valid = (k) -> ValidationResult.ok();
-        inValid = (k) -> ValidationResult.fail("Validation failed");
+    static void init() {
+        valid = k -> ValidationResult.ok();
+        inValid = k -> ValidationResult.fail("Validation failed");
     }
 
     @Test
@@ -22,7 +23,7 @@ class ValidationTest extends BaseTest {
 
         var isValid = result.isValid();
 
-        assertValid(isValid);
+        assertThat(isValid).isTrue();
     }
 
     @Test
@@ -31,7 +32,7 @@ class ValidationTest extends BaseTest {
 
         var isInvalid = result.isInvalid();
 
-        assertInvalid(isInvalid);
+        assertThat(isInvalid).isTrue();
     }
 
     @Test
@@ -42,8 +43,8 @@ class ValidationTest extends BaseTest {
         var validInvalid_isInvalid = resultValidInvalid.isInvalid();
         var invalidValid_isInvalid = resultInvalidValid.isInvalid();
 
-        assertValid(validInvalid_isInvalid);
-        assertValid(invalidValid_isInvalid);
+        assertThat(validInvalid_isInvalid).isTrue();
+        assertThat(invalidValid_isInvalid).isTrue();
     }
 
     @Test
@@ -52,7 +53,7 @@ class ValidationTest extends BaseTest {
 
         var isValid = result.isValid();
 
-        assertValid(isValid);
+        assertThat(isValid).isTrue();
     }
 
     @Test
@@ -61,7 +62,7 @@ class ValidationTest extends BaseTest {
 
         var isInvalid = result.isInvalid();
 
-        assertInvalid(isInvalid);
+        assertThat(isInvalid).isTrue();
     }
 
     @Test
@@ -72,7 +73,7 @@ class ValidationTest extends BaseTest {
         var invalidValid_isValid = resultInvalidValid.isValid();
         var validInvalid_isValid = resultValidInvalid.isValid();
 
-        assertValid(invalidValid_isValid);
-        assertValid(validInvalid_isValid);
+        assertThat(invalidValid_isValid).isTrue();
+        assertThat(validInvalid_isValid).isTrue();
     }
 }

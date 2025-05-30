@@ -4,6 +4,9 @@ import io.github.jonasnuber.valari.internal.SimpleValidation;
 import io.github.jonasnuber.valari.spi.Validation;
 
 import java.util.Collection;
+import java.util.function.Predicate;
+
+import static io.github.jonasnuber.valari.api.helpers.ObjectValidationHelpers.notNull;
 
 /**
  * Utility class providing predefined validations for Collection values.
@@ -22,8 +25,10 @@ public final class CollectionValidationHelpers {
      *
      * @return the Validation for not empty
      */
-    public static Validation<Collection<?>> notBlank() {
-        return SimpleValidation.from(c -> !(c == null || c.isEmpty()), "Collection must not be empty");
+    public static Validation<Collection<?>> notEmpty() {
+        return SimpleValidation.from(
+                c -> !(c == null || c.isEmpty()),
+                "Collection must not be empty");
     }
 
     /**
@@ -35,11 +40,36 @@ public final class CollectionValidationHelpers {
      */
     public static Validation<Collection<?>> sizeBetween(int min, int max) {
         return SimpleValidation.from(
-                c -> notNull(c) && c.size() > min && c.size() < max,
-                String.format("Size must be between %d and %d", min, max));
+                c -> notNull(c, "Collection must not be null") &&
+                        c.size() > min &&
+                        c.size() < max,
+                String.format("Size must be greater than %d and less than %d", min, max));
     }
 
-    private static boolean notNull(Collection<?> collection) {
-        return collection != null;
+    public static <T> Validation<Collection<T>> contains(T value) {
+        return SimpleValidation.from(
+                c -> notNull(c, "Collection must not be null") &&
+                        notNull(value, "Object which should be contained, must not be null") &&
+                        c.contains(value),
+                String.format("Collection must contain Object \"%s\"", value)
+        );
+    }
+
+    public static <T> Validation<Collection<T>> allMatch(Predicate<T> predicate) {
+        return SimpleValidation.from(
+                c -> notNull(c, "Collection must not be null") &&
+                        notNull(predicate, "Predicate all elements should match, must not be null") &&
+                        c.stream().allMatch(predicate),
+                String.format("All elements must match the Predicate %s", predicate)
+        );
+    }
+
+    public static <T> Validation<Collection<T>> noneMatch(Predicate<T> predicate) {
+        return SimpleValidation.from(
+                c -> notNull(c, "Collection must not be null") &&
+                        notNull(predicate, "Predicate no element should match, must not be null") &&
+                        c.stream().noneMatch(predicate),
+                String.format("No element should match the predicate %s", predicate)
+        );
     }
 }

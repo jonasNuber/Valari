@@ -35,10 +35,16 @@ public final class ObjectValidationHelpers {
      * @return The validation for equality.
      */
     public static <K> Validation<K> isEqualTo(K other){
-        return SimpleValidation.from(o -> notNull(o) && notNull(other) && other.equals(o), String.format("must be equal to %s", other));
+        return SimpleValidation.from(
+                o -> notNull(o, "Object must not be null") &&
+                        notNull(other, "Object to equal must not be null") &&
+                        other.equals(o),
+                String.format("must be equal to \"%s\"", other));
     }
 
-    private static boolean notNull(Object o) {
-        return o != null;
+    static boolean notNull(Object o, String errorMessage) throws NullPointerException {
+        Objects.requireNonNull(o, errorMessage);
+
+        return true;
     }
 }

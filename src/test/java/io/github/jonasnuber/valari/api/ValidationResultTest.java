@@ -1,13 +1,12 @@
 package io.github.jonasnuber.valari.api;
 
-import io.github.jonasnuber.valari.BaseTest;
 import io.github.jonasnuber.valari.api.exceptions.InvalidAttributeValueException;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 
-class ValidationResultTest extends BaseTest {
+class ValidationResultTest{
 
     @Test
     void ok_ShouldReturnValidResult() {
@@ -16,8 +15,8 @@ class ValidationResultTest extends BaseTest {
         var isValid = result.isValid();
         var isInvalid = result.isInvalid();
 
-        assertValid(isValid);
-        assertNotInvalid(isInvalid);
+        assertThat(isValid).isTrue();
+        assertThat(isInvalid).isFalse();
     }
 
     @Test
@@ -28,8 +27,8 @@ class ValidationResultTest extends BaseTest {
         var isValid = result.isValid();
         var isInvalid = result.isInvalid();
 
-        assertNotValid(isValid);
-        assertInvalid(isInvalid);
+        assertThat(isValid).isFalse();
+        assertThat(isInvalid).isTrue();
         assertThat(result.getFieldName()).isEqualTo("Unknown");
     }
 
@@ -42,8 +41,8 @@ class ValidationResultTest extends BaseTest {
         var isValid = result.isValid();
         var isInvalid = result.isInvalid();
 
-        assertNotValid(isValid);
-        assertInvalid(isInvalid);
+        assertThat(isValid).isFalse();
+        assertThat(isInvalid).isTrue();
     }
 
     @Test

@@ -56,4 +56,22 @@ public final class IntegerValidationHelpers {
     public static Validation<Integer> inBetween(int min, int max) {
         return greaterThan(min).and(lowerThan(max));
     }
+
+    public static Validation<Integer> inBetweenInclusive(int min, int max) {
+        return greaterThan(--min).and(lowerThan(++max));
+    }
+
+    public static Validation<Integer> isEven() {
+        return SimpleValidation.from(
+                i -> i % 2 == 0,
+                "must be even"
+        );
+    }
+
+    public static Validation<Integer> isOdd() {
+        return SimpleValidation.from(
+                i -> i % 2 != 0,
+                "must be odd"
+        );
+    }
 }

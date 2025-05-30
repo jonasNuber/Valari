@@ -175,7 +175,7 @@ class DomainValidatorTest {
         assertThat(thrown)
                 .isInstanceOf(AggregatedValidationException.class)
                 .hasMessage("Validation for class io.github.jonasnuber.valari.Person failed with 2 error(s):\n" +
-                        " - Field 'Name': must not be blank\n" +
+                        " - Field 'Name': must not be empty\n" +
                         " - Field 'Age': must be greater than 0\n");
     }
 

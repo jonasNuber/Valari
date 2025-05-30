@@ -1,6 +1,5 @@
 package io.github.jonasnuber.valari.api.helpers;
 
-import io.github.jonasnuber.valari.BaseTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -8,128 +7,191 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.stream.Stream;
 
-class StringValidationHelpersTest extends BaseTest {
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
+
+class StringValidationHelpersTest {
 
     @Test
     void notEmpty_ShouldReturnValidResult_ForNotEmptyString() {
         var value = "notEmpty";
-
         var validation = StringValidationHelpers.notEmpty();
 
-        assertValid(validation, value);
+        var result = validation.test(value);
+
+        assertThat(result.isValid()).isTrue();
     }
 
     static Stream<String> emptyStringValues() {
-        return Stream.of("", null, "     ");
+        return Stream.of("", null);
     }
 
     @ParameterizedTest(name = "Test with empty input string: {0}")
     @MethodSource("emptyStringValues")
-    void notEmpty_ShouldReturnInvalidResult_ForEmptyString(String value) {
+    void notEmpty_ShouldReturnInvalidResult_ForEmptyString(String emptyValue) {
         var validation = StringValidationHelpers.notEmpty();
 
-        assertInvalid(validation, value);
-        assertInvalid(validation, null);
+        var result = validation.test(emptyValue);
+
+        assertThat(result.isValid()).isFalse();
+        assertThat(result.getCauseDescription())
+                .isEqualTo("must not be empty");
     }
 
-    @Test
-    void exactly_ShouldReturnValidResult_ForStringOfExactLength() {
+    @ParameterizedTest
+    @CsvSource(value = {"abcde", "12345", "test1"})
+    void exactly_ShouldReturnValidResult_ForStringOfExactLength(String value) {
         var size = 5;
-
         var validation = StringValidationHelpers.exactly(size);
 
-        assertValid(validation, "abcde");
+        var result = validation.test(value);
+
+        assertThat(result.isValid()).isTrue();
     }
 
-    @Test
-    void exactly_ShouldReturnInvalidResult_ForStringOfSmallerLength() {
+    @ParameterizedTest
+    @CsvSource(value = {"abc", "1234", "test"})
+    void exactly_ShouldReturnInvalidResult_ForStringOfSmallerLength(String smallerValue) {
         var size = 5;
-
         var validation = StringValidationHelpers.exactly(size);
 
-        assertInvalid(validation, "abcd");
-        assertInvalid(validation, null);
+        var result = validation.test(smallerValue);
+
+        assertThat(result.isValid()).isFalse();
+        assertThat(result.getCauseDescription())
+                .isEqualTo("must have exactly 5 chars");
     }
 
-    @Test
-    void exactly_ShouldReturnInvalidResult_ForStringOfGreaterLength() {
+    @ParameterizedTest
+    @CsvSource(value = {"abcdef", "123456", "testing"})
+    void exactly_ShouldReturnInvalidResult_ForStringOfGreaterLength(String greaterValue) {
         var size = 5;
-
         var validation = StringValidationHelpers.exactly(size);
 
-        assertInvalid(validation, "abcdef");
-        assertInvalid(validation, null);
+        var result = validation.test(greaterValue);
+
+        assertThat(result.isValid()).isFalse();
+        assertThat(result.getCauseDescription())
+                .isEqualTo("must have exactly 5 chars");
     }
 
     @Test
-    void moreThan_ShouldReturnValidResult_ForStringOfGreaterLengthThanMin() {
-        var minimum = 3;
+    void exactly_ShouldThrowException_ForNullString() {
+        var validation = StringValidationHelpers.exactly(2);
 
+        var thrown = catchThrowable(() -> validation.test(null));
+
+        assertThat(thrown)
+                .isInstanceOf(NullPointerException.class)
+                .hasMessage("String must not be null");
+    }
+
+    @ParameterizedTest
+    @CsvSource(value = {"abcd", "12345", "testing"})
+    void moreThan_ShouldReturnValidResult_ForStringOfGreaterLengthThanMin(String greaterValue) {
+        var minimum = 3;
         var validation = StringValidationHelpers.moreThan(minimum);
 
-        assertValid(validation, "abcd");
-        assertValid(validation, "adcdef");
+        var result = validation.test(greaterValue);
+
+        assertThat(result.isValid()).isTrue();
     }
 
-    @Test
-    void moreThan_ShouldReturnInvalidResult_ForStringOfSameLengthThanMin() {
+    @ParameterizedTest
+    @CsvSource(value = {"abc", "123", "tom"})
+    void moreThan_ShouldReturnInvalidResult_ForStringOfSameLengthThanMin(String value) {
         var minimum = 3;
-
         var validation = StringValidationHelpers.moreThan(minimum);
 
-        assertInvalid(validation, "abc");
-        assertInvalid(validation, null);
+        var result = validation.test(value);
+
+        assertThat(result.isValid()).isFalse();
+        assertThat(result.getCauseDescription())
+                .isEqualTo("must have more than 3 chars");
     }
 
-    @Test
-    void moreThan_ShouldReturnInvalidResult_ForStringOfSmallerLengthThanMin() {
+    @ParameterizedTest
+    @CsvSource(value = {"ab", "12", "is"})
+    void moreThan_ShouldReturnInvalidResult_ForStringOfSmallerLengthThanMin(String smallerValue) {
         var minimum = 3;
-
         var validation = StringValidationHelpers.moreThan(minimum);
 
-        assertInvalid(validation, "ab");
-        assertInvalid(validation, null);
+        var result = validation.test(smallerValue);
+
+        assertThat(result.isValid()).isFalse();
+        assertThat(result.getCauseDescription())
+                .isEqualTo("must have more than 3 chars");
     }
 
     @Test
-    void lessThan_ShouldReturnValidResult_ForStringOfSmallerLengthThanMax() {
-        var maximum = 5;
+    void moreThan_ShouldThrowException_ForNullString() {
+        var validation = StringValidationHelpers.moreThan(2);
 
+        var thrown = catchThrowable(() -> validation.test(null));
+
+        assertThat(thrown)
+                .isInstanceOf(NullPointerException.class)
+                .hasMessage("String must not be null");
+    }
+
+    @ParameterizedTest
+    @CsvSource(value = {"abcd", "123", "is"})
+    void lessThan_ShouldReturnValidResult_ForStringOfSmallerLengthThanMax(String smallerValue) {
+        var maximum = 5;
         var validation = StringValidationHelpers.lessThan(maximum);
 
-        assertValid(validation, "abcd");
-        assertValid(validation, "a");
+        var result = validation.test(smallerValue);
+
+        assertThat(result.isValid()).isTrue();
     }
 
-    @Test
-    void lessThan_ShouldReturnInvalidResult_ForStringOfSameLengthAsMax() {
+    @ParameterizedTest
+    @CsvSource(value = {"abcde", "12345", "test1"})
+    void lessThan_ShouldReturnInvalidResult_ForStringOfSameLengthAsMax(String value) {
         var maximum = 5;
-
         var validation = StringValidationHelpers.lessThan(maximum);
 
-        assertInvalid(validation, "abcde");
-        assertInvalid(validation, null);
+        var result = validation.test(value);
+
+        assertThat(result.isValid()).isFalse();
+        assertThat(result.getCauseDescription())
+                .isEqualTo("must have less than 5 chars");
     }
 
-    @Test
-    void lessThan_ShouldReturnInvalidResult_ForStringOfGreaterLengthThanMax() {
+    @ParameterizedTest
+    @CsvSource(value = {"abcdef", "1234567", "test12345"})
+    void lessThan_ShouldReturnInvalidResult_ForStringOfGreaterLengthThanMax(String greaterValue) {
         var maximum = 5;
-
         var validation = StringValidationHelpers.lessThan(maximum);
 
-        assertInvalid(validation, "abcdef");
-        assertInvalid(validation, null);
+        var result = validation.test(greaterValue);
+
+        assertThat(result.isValid()).isFalse();
+        assertThat(result.getCauseDescription())
+                .isEqualTo("must have less than 5 chars");
     }
 
     @Test
-    void between_ShouldReturnValidResult_ForStringOfLengthSmallerThanMaxAndGreaterThanMin() {
+    void lessThan_ShouldThrowException_ForNullString() {
+        var validation = StringValidationHelpers.lessThan(2);
+
+        var thrown = catchThrowable(() -> validation.test(null));
+
+        assertThat(thrown)
+                .isInstanceOf(NullPointerException.class)
+                .hasMessage("String must not be null");
+    }
+
+    @ParameterizedTest
+    @CsvSource(value = {"abcdef", "1234567", "test12345"})
+    void between_ShouldReturnValidResult_ForStringOfLengthSmallerThanMaxAndGreaterThanMin(String value) {
         var minSize = 3;
         var maxSize = 10;
-
         var validation = StringValidationHelpers.between(minSize, maxSize);
 
-        assertValid(validation, "abcd");
-        assertValid(validation, "abcdefg");
+        var result = validation.test(value);
+
+        assertThat(result.isValid()).isTrue();
     }
 
     @ParameterizedTest(name = "Test with input string: \"{0}\" of length {1}")
@@ -139,92 +201,221 @@ class StringValidationHelpersTest extends BaseTest {
             "ab, 2",           // String smaller length than min
             "abcdefghijk, 11"  // String greater length than max
     })
-    void between_ShouldReturnInvalidResult_ForVariousStringLengths(String input, int length) {
+    void between_ShouldReturnInvalidResult_ForVariousStringLengths(String value, int length) {
         var minSize = 3;
         var maxSize = 10;
-
         var validation = StringValidationHelpers.between(minSize, maxSize);
 
-        assertInvalid(validation, input);
-        assertInvalid(validation, null);
+        var result = validation.test(value);
+
+        assertThat(result.isValid()).isFalse();
     }
 
     @Test
-    void contains_ShouldReturnValidResult_ForContainedString() {
-        var str = "test";
+    void between_ShouldThrowException_ForNullString() {
+        var validation = StringValidationHelpers.between(2, 10);
 
+        var thrown = catchThrowable(() -> validation.test(null));
+
+        assertThat(thrown)
+                .isInstanceOf(NullPointerException.class)
+                .hasMessage("String must not be null");
+    }
+
+    @ParameterizedTest
+    @CsvSource(value = {"this is a test", "testing", "test of the century"})
+    void contains_ShouldReturnValidResult_ForContainedString(String sentence) {
+        var str = "test";
         var validation = StringValidationHelpers.contains(str);
 
-        assertValid(validation, "this is a test");
-        assertValid(validation, "testing");
+        var result = validation.test(sentence);
+
+        assertThat(result.isValid()).isTrue();
     }
 
-    @Test
-    void contains_ShouldReturnInvalidResult_ForCaseSensitiveString() {
+    @ParameterizedTest
+    @CsvSource(value = {"this is a Test", "Testing", "Test of the century"})
+    void contains_ShouldReturnInvalidResult_ForCaseSensitiveString(String sentence) {
         var str = "test";
-
         var validation = StringValidationHelpers.contains(str);
 
-        assertInvalid(validation, "this is a Test");
-        assertInvalid(validation, null);
+        var result = validation.test(sentence);
+
+        assertThat(result.isValid()).isFalse();
+        assertThat(result.getCauseDescription())
+                .isEqualTo("must contain \"test\"");
+    }
+
+    @ParameterizedTest
+    @CsvSource(value = {"this is a Tesk", "Tesling", "Text of the century"})
+    void contains_ShouldReturnInvalidResult_ForNotContainingString(String sentence) {
+        var str = "test";
+        var validation = StringValidationHelpers.contains(str);
+
+        var result = validation.test(sentence);
+
+        assertThat(result.isValid()).isFalse();
+        assertThat(result.getCauseDescription())
+                .isEqualTo("must contain \"test\"");
     }
 
     @Test
-    void containsIgnoreCase_ShouldReturnValidResult_ForCaseInsensitiveString() {
-        var str = "test";
+    void contains_ShouldThrowException_ForNullString() {
+        var validation = StringValidationHelpers.contains("substring");
 
+        var thrown = catchThrowable(() -> validation.test(null));
+
+        assertThat(thrown)
+                .isInstanceOf(NullPointerException.class)
+                .hasMessage("String must not be null");
+    }
+
+    @Test
+    void contains_ShouldThrowException_ForNullSubString() {
+        var validation = StringValidationHelpers.contains(null);
+
+        var thrown = catchThrowable(() -> validation.test("some String"));
+
+        assertThat(thrown)
+                .isInstanceOf(NullPointerException.class)
+                .hasMessage("String which should be contained, must not be null");
+    }
+
+    @ParameterizedTest
+    @CsvSource(value = {"this is a Test", "TeStIng", "TEST of the century"})
+    void containsIgnoreCase_ShouldReturnValidResult_ForCaseInsensitiveString(String sentence) {
+        var str = "test";
         var validation = StringValidationHelpers.containsIgnoreCase(str);
 
-        assertValid(validation, "this is a Test");
-        assertValid(validation, "TeStIng");
+        var result = validation.test(sentence);
+
+        assertThat(result.isValid()).isTrue();
     }
 
-    @Test
-    void containsIgnoreCase_ShouldReturnInvalidResult_ForNotContainedString() {
+    @ParameterizedTest
+    @CsvSource(value = {"this is a Tes", "Tefting", "Terra of the century"})
+    void containsIgnoreCase_ShouldReturnInvalidResult_ForNotContainedString(String sentence) {
         var str = "test";
-
         var validation = StringValidationHelpers.containsIgnoreCase(str);
 
-        assertInvalid(validation, "this is a tes");
-        assertInvalid(validation, null);
+        var result = validation.test(sentence);
+
+        assertThat(result.isValid()).isFalse();
+        assertThat(result.getCauseDescription())
+                .isEqualTo("must contain \"test\"");
     }
 
     @Test
-    void regex_ShouldReturnValidResult_ForMatchingRegex() {
-        var regex = "hello\\d+";
+    void containsIgnoreCase_ShouldThrowException_ForNullString() {
+        var validation = StringValidationHelpers.containsIgnoreCase("substring");
 
+        var thrown = catchThrowable(() -> validation.test(null));
+
+        assertThat(thrown)
+                .isInstanceOf(NullPointerException.class)
+                .hasMessage("String must not be null");
+    }
+
+    @Test
+    void containsIgnoreCase_ShouldThrowException_ForNullSubString() {
+        var validation = StringValidationHelpers.containsIgnoreCase(null);
+
+        var thrown = catchThrowable(() -> validation.test("some String"));
+
+        assertThat(thrown)
+                .isInstanceOf(NullPointerException.class)
+                .hasMessage("String which should be contained, must not be null");
+    }
+
+    @ParameterizedTest
+    @CsvSource(value = {"hello1234", "hello2"})
+    void regex_ShouldReturnValidResult_ForMatchingRegex(String value) {
+        var regex = "hello\\d+";
         var validation = StringValidationHelpers.regex(regex);
 
-        assertValid(validation, "hello1234");
+        var result = validation.test(value);
+
+        assertThat(result.isValid()).isTrue();
     }
 
-    @Test
-    void regex_ShouldReturnInvalidResult_ForNoneMatchingRegex() {
+    @ParameterizedTest
+    @CsvSource(value = {"hello", "Some Text", "123456"})
+    void regex_ShouldReturnInvalidResult_ForNoneMatchingRegex(String value) {
         var regex = "hello\\d+";
-
         var validation = StringValidationHelpers.regex(regex);
 
-        assertInvalid(validation, "hello");
-        assertInvalid(validation, null);
+        var result = validation.test(value);
+
+        assertThat(result.isValid()).isFalse();
+        assertThat(result.getCauseDescription())
+                .isEqualTo("must fully match regex 'hello\\d+'");
     }
 
     @Test
-    void containsRegex_ShouldReturnValidResult_ForSubstringMatchingPattern(){
-        var regex = "\\d+";
+    void regex_ShouldThrowException_ForNullString() {
+        var validation = StringValidationHelpers.regex("hello\\d+");
 
-        var validation = StringValidationHelpers.containsRegex(regex);
+        var thrown = catchThrowable(() -> validation.test(null));
 
-        assertValid(validation, "hello1234");
-        assertValid(validation, "12hello34");
+        assertThat(thrown)
+                .isInstanceOf(NullPointerException.class)
+                .hasMessage("String must not be null");
     }
 
     @Test
-    void containsRegex_ShouldReturnInvalidResult_ForNoSubstringMatchingPattern(){
-        var regex = "\\d+";
+    void regex_ShouldThrowException_ForNullRegex() {
+        var validation = StringValidationHelpers.regex(null);
 
+        var thrown = catchThrowable(() -> validation.test("some String"));
+
+        assertThat(thrown)
+                .isInstanceOf(NullPointerException.class)
+                .hasMessage("Regular Expression must not be null");
+    }
+
+    @ParameterizedTest
+    @CsvSource(value = {"hello1234", "12hello34", "heft hello1"})
+    void containsRegex_ShouldReturnValidResult_ForSubstringMatchingPattern(String value) {
+        var regex = "\\d+";
         var validation = StringValidationHelpers.containsRegex(regex);
 
-        assertInvalid(validation, "hello");
-        assertInvalid(validation, null);
+        var result = validation.test(value);
+
+        assertThat(result.isValid()).isTrue();
+    }
+
+    @ParameterizedTest
+    @CsvSource(value = {"hello", "no numbers here", "hello world"})
+    void containsRegex_ShouldReturnInvalidResult_ForNoSubstringMatchingPattern(String value) {
+        var regex = "\\d+";
+        var validation = StringValidationHelpers.containsRegex(regex);
+
+        var result = validation.test(value);
+
+        assertThat(result.isValid()).isFalse();
+        assertThat(result.getCauseDescription())
+                .isEqualTo("must contain substring matching regex '\\d+'");
+    }
+
+    @Test
+    void containsRegex_ShouldThrowException_ForNullString() {
+        var validation = StringValidationHelpers.containsRegex("\\d+");
+
+        var thrown = catchThrowable(() -> validation.test(null));
+
+        assertThat(thrown)
+                .isInstanceOf(NullPointerException.class)
+                .hasMessage("String must not be null");
+    }
+
+    @Test
+    void containsRegex_ShouldThrowException_ForNullRegex() {
+        var validation = StringValidationHelpers.containsRegex(null);
+
+        var thrown = catchThrowable(() -> validation.test("some String"));
+
+        assertThat(thrown)
+                .isInstanceOf(NullPointerException.class)
+                .hasMessage("Regular Expression must not be null");
     }
 }

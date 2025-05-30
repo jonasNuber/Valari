@@ -1,10 +1,11 @@
 package io.github.jonasnuber.valari.internal;
 
-import io.github.jonasnuber.valari.BaseTest;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-class SimpleValidationTest extends BaseTest {
+import static org.assertj.core.api.Assertions.assertThat;
+
+class SimpleValidationTest {
 
     private static SimpleValidation<Integer> validation;
 
@@ -19,7 +20,7 @@ class SimpleValidationTest extends BaseTest {
 
         var isValid = result.isValid();
 
-        assertValid(isValid);
+        assertThat(isValid).isTrue();
     }
 
     @Test
@@ -28,6 +29,6 @@ class SimpleValidationTest extends BaseTest {
 
         var isInvalid = result.isInvalid();
 
-        assertInvalid(isInvalid);
+        assertThat(isInvalid).isTrue();
     }
 }

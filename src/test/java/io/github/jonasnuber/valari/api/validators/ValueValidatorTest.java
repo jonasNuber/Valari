@@ -173,7 +173,7 @@ class ValueValidatorTest {
 
         assertThat(thrown)
                 .isInstanceOf(InvalidAttributeValueException.class)
-                .hasMessage("The field: \"Value\" is invalid: must not be blank");
+                .hasMessage("The field: \"Value\" is invalid: must not be empty");
     }
 
     @Test
@@ -184,6 +184,6 @@ class ValueValidatorTest {
 
         assertThat(thrown)
                 .isInstanceOf(InvalidAttributeValueException.class)
-                .hasMessage("The field: \"Value\" is invalid: must not be blank");
+                .hasMessage("The field: \"Value\" is invalid: must not be empty");
     }
 }

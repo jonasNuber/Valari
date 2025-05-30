@@ -1,140 +1,172 @@
 package io.github.jonasnuber.valari.api.helpers;
 
-import io.github.jonasnuber.valari.BaseTest;
-import io.github.jonasnuber.valari.api.helpers.IntegerValidationHelpers;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
-class IntegerValidationHelpersTest extends BaseTest {
+import static org.assertj.core.api.Assertions.assertThat;
+
+class IntegerValidationHelpersTest {
 
     @Test
     void sameAmount_ShouldReturnValidResult_ForSameAmount() {
         var exact = 5;
-
         var validation = IntegerValidationHelpers.sameAmount(exact);
 
-        assertValid(validation, exact);
+        var result = validation.test(exact);
+
+        assertThat(result.isValid()).isTrue();
     }
 
-    @Test
-    void sameAmount_ShouldReturnInvalidResult_ForHigherAmount() {
-        var exact = 5;
+    @ParameterizedTest
+    @CsvSource(value = {"6", "12", "25"})
+    void sameAmount_ShouldReturnInvalidResult_ForHigherAmount(int higherValue) {
+        var validation = IntegerValidationHelpers.sameAmount(5);
 
-        var validation = IntegerValidationHelpers.sameAmount(exact);
+        var result = validation.test(higherValue);
 
-        assertInvalid(validation, exact + 1);
+        assertThat(result.isValid()).isFalse();
+        assertThat(result.getCauseDescription())
+                .isEqualTo("must equal 5");
     }
 
-    @Test
-    void sameAmount_ShouldReturnInvalidResult_ForLowerAmount() {
-        var exact = 5;
+    @ParameterizedTest
+    @CsvSource(value = {"2", "4", "0"})
+    void sameAmount_ShouldReturnInvalidResult_ForLowerAmount(int lowerValue) {
+        var validation = IntegerValidationHelpers.sameAmount(5);
 
-        var validation = IntegerValidationHelpers.sameAmount(exact);
+        var result = validation.test(lowerValue);
 
-        assertInvalid(validation, exact - 1);
+        assertThat(result.isValid()).isFalse();
+        assertThat(result.getCauseDescription())
+                .isEqualTo("must equal 5");
     }
 
-    @Test
-    void lowerThan_ShouldReturnValidResult_ForLowerAmountThanMax() {
-        var max = 10;
+    @ParameterizedTest
+    @CsvSource(value = {"2", "4", "9"})
+    void lowerThan_ShouldReturnValidResult_ForLowerAmountThanMax(int lowerValue) {
+        var validation = IntegerValidationHelpers.lowerThan(10);
 
-        var validation = IntegerValidationHelpers.lowerThan(max);
+        var result = validation.test(lowerValue);
 
-        assertValid(validation, max - 1);
+        assertThat(result.isValid()).isTrue();
     }
 
     @Test
     void lowerThan_ShouldReturnInvalidResult_ForSameAmountThanMax() {
         var max = 10;
-
         var validation = IntegerValidationHelpers.lowerThan(max);
 
-        assertInvalid(validation, max);
+        var result = validation.test(max);
+
+        assertThat(result.isValid()).isFalse();
+        assertThat(result.getCauseDescription())
+                .isEqualTo("must be lower than 10");
     }
 
-    @Test
-    void lowerThan_ShouldReturnInValidResult_ForHigherAmountThanMax() {
-        var max = 10;
+    @ParameterizedTest
+    @CsvSource(value = {"11", "20", "100"})
+    void lowerThan_ShouldReturnInValidResult_ForHigherAmountThanMax(int higherValue) {
+        var validation = IntegerValidationHelpers.lowerThan(10);
 
-        var validation = IntegerValidationHelpers.lowerThan(max);
+        var result = validation.test(higherValue);
 
-        assertInvalid(validation, max + 1);
+        assertThat(result.isValid()).isFalse();
+        assertThat(result.getCauseDescription())
+                .isEqualTo("must be lower than 10");
     }
 
-    @Test
-    void greaterThan_ShouldReturnValidResult_ForGreaterAmountThanMin() {
-        var min = 3;
+    @ParameterizedTest
+    @CsvSource(value = {"4", "42", "69"})
+    void greaterThan_ShouldReturnValidResult_ForGreaterAmountThanMin(int greaterValue) {
+        var validation = IntegerValidationHelpers.greaterThan(3);
 
-        var validation = IntegerValidationHelpers.greaterThan(min);
+        var result = validation.test(greaterValue);
 
-        assertValid(validation, min + 1);
+        assertThat(result.isValid()).isTrue();
     }
 
     @Test
     void greaterThan_ShouldReturnInvalidResult_ForSameAmountThanMin() {
         var min = 3;
-
         var validation = IntegerValidationHelpers.greaterThan(min);
 
-        assertInvalid(validation, min);
+        var result = validation.test(min);
+
+        assertThat(result.isValid()).isFalse();
+        assertThat(result.getCauseDescription())
+                .isEqualTo("must be greater than 3");
     }
 
-    @Test
-    void greaterThan_ShouldReturnInvalidResult_ForSmallerAmountThanMin() {
-        var min = 3;
+    @ParameterizedTest
+    @CsvSource(value = {"0", "1", "2"})
+    void greaterThan_ShouldReturnInvalidResult_ForSmallerAmountThanMin(int smallerValue) {
+        var validation = IntegerValidationHelpers.greaterThan(3);
 
-        var validation = IntegerValidationHelpers.greaterThan(min);
+        var result = validation.test(smallerValue);
 
-        assertInvalid(validation, min - 1);
+        assertThat(result.isValid()).isFalse();
+        assertThat(result.getCauseDescription())
+                .isEqualTo("must be greater than 3");
     }
 
-    @Test
-    void inBetween_ShouldReturnValidResult_ForValueInBetweenMinAndMax() {
-        var min = 3;
-        var max = 10;
+    @ParameterizedTest
+    @CsvSource(value = {"4", "9", "6"})
+    void inBetween_ShouldReturnValidResult_ForValueInBetweenMinAndMax(int value) {
+        var validation = IntegerValidationHelpers.inBetween(3, 10);
 
-        var validation = IntegerValidationHelpers.inBetween(min, max);
+        var result = validation.test(value);
 
-        assertValid(validation, min + 1);
-        assertValid(validation, max - 1);
+        assertThat(result.isValid()).isTrue();
     }
 
     @Test
     void inBetween_ShouldReturnInvalidResult_ForSameAmountAsMin() {
         var min = 3;
         var max = 10;
-
         var validation = IntegerValidationHelpers.inBetween(min, max);
 
-        assertInvalid(validation, min);
+        var result = validation.test(min);
+
+        assertThat(result.isValid()).isFalse();
+        assertThat(result.getCauseDescription())
+                .isEqualTo("must be greater than 3");
     }
 
     @Test
     void inBetween_ShouldReturnInvalidResult_ForSameAmountAsMax() {
         var min = 3;
         var max = 10;
-
         var validation = IntegerValidationHelpers.inBetween(min, max);
 
-        assertInvalid(validation, max);
+        var result = validation.test(max);
+
+        assertThat(result.isValid()).isFalse();
+        assertThat(result.getCauseDescription())
+                .isEqualTo("must be lower than 10");
     }
 
-    @Test
-    void inBetween_ShouldReturnInvalidResult_ForSmallerAmountThanMin() {
-        var min = 3;
-        var max = 10;
+    @ParameterizedTest
+    @CsvSource(value = {"0", "1", "2"})
+    void inBetween_ShouldReturnInvalidResult_ForSmallerAmountThanMin(int smallerValue) {
+        var validation = IntegerValidationHelpers.inBetween(3, 10);
 
-        var validation = IntegerValidationHelpers.inBetween(min, max);
+        var result = validation.test(smallerValue);
 
-        assertInvalid(validation, min - 1);
+        assertThat(result.isValid()).isFalse();
+        assertThat(result.getCauseDescription())
+                .isEqualTo("must be greater than 3");
     }
 
-    @Test
-    void inBetween_ShouldReturnInvalidResult_ForGreaterAmountThanMax() {
-        var min = 3;
-        var max = 10;
+    @ParameterizedTest
+    @CsvSource(value = {"11", "13", "23"})
+    void inBetween_ShouldReturnInvalidResult_ForGreaterAmountThanMax(int greaterValue) {
+        var validation = IntegerValidationHelpers.inBetween(3, 10);
 
-        var validation = IntegerValidationHelpers.inBetween(min, max);
+        var result = validation.test(greaterValue);
 
-        assertInvalid(validation, max + 1);
+        assertThat(result.isValid()).isFalse();
+        assertThat(result.getCauseDescription())
+                .isEqualTo("must be lower than 10");
     }
 }

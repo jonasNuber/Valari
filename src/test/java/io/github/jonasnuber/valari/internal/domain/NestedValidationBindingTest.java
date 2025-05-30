@@ -114,7 +114,7 @@ class NestedValidationBindingTest {
         assertThat(result.getFieldName()).isEqualTo("Owner");
         assertThat(result.getCauseDescription()).isEqualTo(
                 "Validation for class io.github.jonasnuber.valari.Person failed with 1 error(s):\n" +
-                " - Field 'Name': must not be blank\n");
+                " - Field 'Name': must not be empty\n");
     }
 
     @Test
@@ -142,6 +142,6 @@ class NestedValidationBindingTest {
         assertThat(result.getFieldName()).isEqualTo("Owner");
         assertThat(result.getCauseDescription()).isEqualTo(
                 "Validation for class io.github.jonasnuber.valari.Person failed with 1 error(s):\n" +
-                        " - Field 'Name': must not be blank\n");
+                        " - Field 'Name': must not be empty\n");
     }
 }

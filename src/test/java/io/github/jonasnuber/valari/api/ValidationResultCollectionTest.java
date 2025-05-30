@@ -1,6 +1,5 @@
 package io.github.jonasnuber.valari.api;
 
-import io.github.jonasnuber.valari.BaseTest;
 import io.github.jonasnuber.valari.api.exceptions.AggregatedValidationException;
 import io.github.jonasnuber.valari.spi.Validation;
 import org.assertj.core.api.ThrowableAssert;
@@ -8,7 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.*;
 
-class ValidationResultCollectionTest extends BaseTest {
+class ValidationResultCollectionTest{
 
     @Test
     void add_ShouldOnlyAddInvalidResults() {

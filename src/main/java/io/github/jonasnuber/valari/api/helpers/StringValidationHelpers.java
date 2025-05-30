@@ -5,6 +5,8 @@ import io.github.jonasnuber.valari.spi.Validation;
 
 import java.util.regex.Pattern;
 
+import static io.github.jonasnuber.valari.api.helpers.ObjectValidationHelpers.notNull;
+
 /**
  * Utility class providing predefined validations for strings.
  * These validations define conditions that a string must meet to be considered valid.
@@ -24,7 +26,13 @@ public final class StringValidationHelpers {
 	 */
 	public static Validation<String> notEmpty(){
 		return SimpleValidation.from(
-				s -> notNull(s) && !s.trim().isEmpty(),
+				s -> s != null && !s.isEmpty(),
+				"must not be empty");
+	}
+
+	public static Validation<String> notBlank(){
+		return SimpleValidation.from(
+				s -> s != null && !s.trim().isEmpty(),
 				"must not be blank");
 	}
 
@@ -36,7 +44,8 @@ public final class StringValidationHelpers {
 	 */
 	public static Validation<String> exactly(int size) {
 		return SimpleValidation.from(
-				s -> notNull(s) && s.length() == size,
+				s -> notNull(s, "String must not be null") &&
+						s.length() == size,
 				String.format("must have exactly %s chars", size));
 	}
 
@@ -48,7 +57,8 @@ public final class StringValidationHelpers {
 	 */
 	public static Validation<String> moreThan(int minimum) {
 		return SimpleValidation.from(
-				s -> notNull(s) && s.length() > minimum,
+				s -> notNull(s, "String must not be null") &&
+						s.length() > minimum,
 				String.format("must have more than %s chars", minimum));
 	}
 
@@ -60,7 +70,8 @@ public final class StringValidationHelpers {
 	 */
 	public static Validation<String> lessThan(int maximum) {
 		return SimpleValidation.from(
-				s -> notNull(s) && s.length() < maximum,
+				s -> notNull(s, "String must not be null") &&
+						s.length() < maximum,
 				String.format("must have less than %s chars", maximum));
 	}
 
@@ -83,7 +94,9 @@ public final class StringValidationHelpers {
 	 */
 	public static Validation<String> contains(String str) {
 		return SimpleValidation.from(
-				s -> notNull(s) && notNull(str) && s.contains(str),
+				s -> notNull(s, "String must not be null") &&
+						notNull(str, "String which should be contained, must not be null") &&
+						s.contains(str),
 				String.format("must contain \"%s\"", str));
 	}
 
@@ -95,7 +108,9 @@ public final class StringValidationHelpers {
 	 */
 	public static Validation<String> containsIgnoreCase(String str) {
 		return SimpleValidation.from(
-				s -> notNull(s) && notNull(str) && s.toLowerCase().contains(str.toLowerCase()),
+				s -> notNull(s, "String must not be null") &&
+						notNull(str, "String which should be contained, must not be null") &&
+						s.toLowerCase().contains(str.toLowerCase()),
 				String.format("must contain \"%s\"", str));
 	}
 
@@ -107,7 +122,9 @@ public final class StringValidationHelpers {
 	 */
 	public static Validation<String> regex(String regex) {
 		return SimpleValidation.from(
-				s -> notNull(s) && notNull(regex) && s.matches(regex),
+				s -> notNull(s, "String must not be null") &&
+						notNull(regex, "Regular Expression must not be null") &&
+						s.matches(regex),
 				String.format("must fully match regex '%s'", regex)
 		);
 	}
@@ -120,12 +137,27 @@ public final class StringValidationHelpers {
 	 */
 	public static Validation<String> containsRegex(String regex) {
 		return SimpleValidation.from(
-				s -> notNull(s) && notNull(regex) && Pattern.compile(regex).matcher(s).find(),
+				s -> notNull(s, "String must not be null") &&
+						notNull(regex, "Regular Expression must not be null") &&
+						Pattern.compile(regex).matcher(s).find(),
 				String.format("must contain substring matching regex '%s'", regex)
 		);
 	}
 
-	private static boolean notNull(String string) {
-		return string != null;
+	public static Validation<String> startsWith(String prefix) {
+		return SimpleValidation.from(
+				s -> notNull(s, "String must not be null") &&
+						notNull(prefix, "Prefix must not be null") &&
+						s.startsWith(prefix),
+				String.format("must start with %s", prefix)
+		);
+	}
+
+	public static Validation<String> endsWith(String suffix) {
+		return SimpleValidation.from(
+				s -> notNull(s, "String must not be null") &&
+						notNull(suffix, "Suffix must not be null") && s.endsWith(suffix),
+				String.format("must end with %s", suffix)
+		);
 	}
 }

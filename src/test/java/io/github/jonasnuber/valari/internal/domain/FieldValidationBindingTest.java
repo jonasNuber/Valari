@@ -109,7 +109,7 @@ class FieldValidationBindingTest {
 
         assertThat(result.isInvalid()).isTrue();
         assertThat(result.getFieldName()).isEqualTo("Name");
-        assertThat(result.getCauseDescription()).isEqualTo("must not be blank");
+        assertThat(result.getCauseDescription()).isEqualTo("must not be empty");
     }
 
     @Test
@@ -133,6 +133,6 @@ class FieldValidationBindingTest {
 
         assertThat(result.isInvalid()).isTrue();
         assertThat(result.getFieldName()).isEqualTo("Name");
-        assertThat(result.getCauseDescription()).isEqualTo("must not be blank");
+        assertThat(result.getCauseDescription()).isEqualTo("must not be empty");
     }
 }
