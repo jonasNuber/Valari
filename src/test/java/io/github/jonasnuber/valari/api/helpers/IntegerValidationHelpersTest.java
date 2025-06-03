@@ -169,4 +169,82 @@ class IntegerValidationHelpersTest {
         assertThat(result.getCauseDescription())
                 .isEqualTo("must be lower than 10");
     }
+
+    @ParameterizedTest
+    @CsvSource(value = {"3", "10", "6"})
+    void inBetweenInclusive_ShouldReturnValidResult_ForValueInBetweenMinAndMax(int value) {
+        var validation = IntegerValidationHelpers.inBetweenInclusive(3, 10);
+
+        var result = validation.test(value);
+
+        assertThat(result.isValid()).isTrue();
+    }
+
+    @ParameterizedTest
+    @CsvSource(value = {"0", "1", "2"})
+    void inBetweenInclusive_ShouldReturnInvalidResult_ForSmallerAmountThanMin(int smallerValue) {
+        var validation = IntegerValidationHelpers.inBetweenInclusive(3, 10);
+
+        var result = validation.test(smallerValue);
+
+        assertThat(result.isValid()).isFalse();
+        assertThat(result.getCauseDescription())
+                .isEqualTo("must be greater than 2");
+    }
+
+    @ParameterizedTest
+    @CsvSource(value = {"11", "13", "23"})
+    void inBetweenInclusive_ShouldReturnInvalidResult_ForGreaterAmountThanMax(int greaterValue) {
+        var validation = IntegerValidationHelpers.inBetweenInclusive(3, 10);
+
+        var result = validation.test(greaterValue);
+
+        assertThat(result.isValid()).isFalse();
+        assertThat(result.getCauseDescription())
+                .isEqualTo("must be lower than 11");
+    }
+
+    @ParameterizedTest
+    @CsvSource(value = {"0", "2", "10"})
+    void isEven_ShouldReturnValidResult_ForEvenNumber(int evenNumber) {
+        var validation = IntegerValidationHelpers.isEven();
+
+        var result = validation.test(evenNumber);
+
+        assertThat(result.isValid()).isTrue();
+    }
+
+    @ParameterizedTest
+    @CsvSource(value = {"1", "3", "239"})
+    void isEven_ShouldReturnInvalidResult_ForOddNumber(int oddNumber) {
+        var validation = IntegerValidationHelpers.isEven();
+
+        var result = validation.test(oddNumber);
+
+        assertThat(result.isValid()).isFalse();
+        assertThat(result.getCauseDescription())
+                .isEqualTo("must be even");
+    }
+
+    @ParameterizedTest
+    @CsvSource(value = {"1", "111", "239"})
+    void isOdd_ShouldReturnValidResult_ForOddNumber(int oddNumber) {
+        var validation = IntegerValidationHelpers.isOdd();
+
+        var result = validation.test(oddNumber);
+
+        assertThat(result.isValid()).isTrue();
+    }
+
+    @ParameterizedTest
+    @CsvSource(value = {"0", "2", "10"})
+    void isOdd_ShouldReturnInvalidResult_ForEvenNumber(int evenNumber) {
+        var validation = IntegerValidationHelpers.isOdd();
+
+        var result = validation.test(evenNumber);
+
+        assertThat(result.isValid()).isFalse();
+        assertThat(result.getCauseDescription())
+                .isEqualTo("must be odd");
+    }
 }

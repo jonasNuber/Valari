@@ -57,10 +57,22 @@ public final class IntegerValidationHelpers {
         return greaterThan(min).and(lowerThan(max));
     }
 
+    /**
+     * Returns a validation that passes only if the integer value is within the specified range, including both endpoints.
+     *
+     * @param min The minimum value the integer can be (inclusive).
+     * @param max The maximum value the integer can be (inclusive).
+     * @return The validation for values within the inclusive range.
+     */
     public static Validation<Integer> inBetweenInclusive(int min, int max) {
         return greaterThan(--min).and(lowerThan(++max));
     }
 
+    /**
+     * Returns a validation that passes only if the integer value is even.
+     *
+     * @return The validation for even numbers.
+     */
     public static Validation<Integer> isEven() {
         return SimpleValidation.from(
                 i -> i % 2 == 0,
@@ -68,6 +80,11 @@ public final class IntegerValidationHelpers {
         );
     }
 
+    /**
+     * Returns a validation that passes only if the integer value is odd.
+     *
+     * @return The validation for odd numbers.
+     */
     public static Validation<Integer> isOdd() {
         return SimpleValidation.from(
                 i -> i % 2 != 0,

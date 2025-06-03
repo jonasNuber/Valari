@@ -1,5 +1,6 @@
 package io.github.jonasnuber.valari.api.helpers;
 
+import io.github.jonasnuber.valari.spi.Validation;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -12,9 +13,13 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 
 class StringValidationHelpersTest {
 
-    @Test
-    void notEmpty_ShouldReturnValidResult_ForNotEmptyString() {
-        var value = "notEmpty";
+    static Stream<String> notEmptyStringValues() {
+        return Stream.of("notEmpty", "   ");
+    }
+
+    @ParameterizedTest
+    @MethodSource("notEmptyStringValues")
+    void notEmpty_ShouldReturnValidResult_ForNotEmptyString(String value) {
         var validation = StringValidationHelpers.notEmpty();
 
         var result = validation.test(value);
@@ -36,6 +41,32 @@ class StringValidationHelpersTest {
         assertThat(result.isValid()).isFalse();
         assertThat(result.getCauseDescription())
                 .isEqualTo("must not be empty");
+    }
+
+    @ParameterizedTest
+    @CsvSource(value = {"notEmpty", "m   "})
+    void notBlank_ShouldReturnValidResult_ForNotBlankString(String value) {
+        var validation = StringValidationHelpers.notBlank();
+
+        var result = validation.test(value);
+
+        assertThat(result.isValid()).isTrue();
+    }
+
+    static Stream<String> blankStringValues() {
+        return Stream.of("", null, "    ");
+    }
+
+    @ParameterizedTest
+    @MethodSource("blankStringValues")
+    void notBlank_ShouldReturnInvalidResult_ForBlankString(String blankValue) {
+        var validation = StringValidationHelpers.notBlank();
+
+        var result = validation.test(blankValue);
+
+        assertThat(result.isValid()).isFalse();
+        assertThat(result.getCauseDescription())
+                .isEqualTo("must not be blank");
     }
 
     @ParameterizedTest
@@ -234,20 +265,7 @@ class StringValidationHelpersTest {
     }
 
     @ParameterizedTest
-    @CsvSource(value = {"this is a Test", "Testing", "Test of the century"})
-    void contains_ShouldReturnInvalidResult_ForCaseSensitiveString(String sentence) {
-        var str = "test";
-        var validation = StringValidationHelpers.contains(str);
-
-        var result = validation.test(sentence);
-
-        assertThat(result.isValid()).isFalse();
-        assertThat(result.getCauseDescription())
-                .isEqualTo("must contain \"test\"");
-    }
-
-    @ParameterizedTest
-    @CsvSource(value = {"this is a Tesk", "Tesling", "Text of the century"})
+    @CsvSource(value = {"this is a Tesk", "Tesling", "Text of the century", "this is a Test", "Testing", "Test of the century"})
     void contains_ShouldReturnInvalidResult_ForNotContainingString(String sentence) {
         var str = "test";
         var validation = StringValidationHelpers.contains(str);
@@ -417,5 +435,179 @@ class StringValidationHelpersTest {
         assertThat(thrown)
                 .isInstanceOf(NullPointerException.class)
                 .hasMessage("Regular Expression must not be null");
+    }
+
+    @Test
+    void startsWith_ShouldReturnValidResult_ForStringWithPrefix() {
+        var validation = StringValidationHelpers.startsWith("prefix");
+
+        var result = validation.test("prefixString");
+
+        assertThat(result.isValid()).isTrue();
+    }
+
+    @ParameterizedTest
+    @CsvSource(value = {"someString", "PrefiXString"})
+    void startsWith_ShouldReturnInvalidResult_ForNotStartingWithPrefix(String value) {
+        var validation = StringValidationHelpers.startsWith("prefix");
+
+        var result = validation.test(value);
+
+        assertThat(result.isValid()).isFalse();
+        assertThat(result.getCauseDescription())
+                .isEqualTo("must start with \"prefix\"");
+    }
+
+    @Test
+    void startsWith_ShouldThrowException_ForNullString() {
+        var validation = StringValidationHelpers.startsWith("prefix");
+
+        var thrown = catchThrowable(() -> validation.test(null));
+
+        assertThat(thrown)
+                .isInstanceOf(NullPointerException.class)
+                .hasMessage("String must not be null");
+    }
+
+    @Test
+    void startsWith_ShouldThrowException_ForNullPrefix() {
+        var validation = StringValidationHelpers.startsWith(null);
+
+        var thrown = catchThrowable(() -> validation.test("someString"));
+
+        assertThat(thrown)
+                .isInstanceOf(NullPointerException.class)
+                .hasMessage("Prefix must not be null");
+    }
+
+    @ParameterizedTest
+    @CsvSource(value = {"PrefixString", "prefixString"})
+    void startsWithIgnoreCase_ShouldReturnValidResult_ForStringWithPrefix(String value) {
+        var validation = StringValidationHelpers.startsWithIgnoreCase("prefix");
+
+        var result = validation.test(value);
+
+        assertThat(result.isValid()).isTrue();
+    }
+
+    @ParameterizedTest
+    @CsvSource(value = {"someString", "PreFiString"})
+    void startsWithIgnoreCase_ShouldReturnInvalidResult_ForNotStartingWithPrefix(String value) {
+        var validation = StringValidationHelpers.startsWithIgnoreCase("Prefix");
+
+        var result = validation.test(value);
+
+        assertThat(result.isValid()).isFalse();
+        assertThat(result.getCauseDescription())
+                .isEqualTo("must start with \"Prefix\" (case-insensitive)");
+    }
+
+    @Test
+    void startsWithIgnoreCase_ShouldThrowException_ForNullString() {
+        var validation = StringValidationHelpers.startsWithIgnoreCase("prefix");
+
+        var thrown = catchThrowable(() -> validation.test(null));
+
+        assertThat(thrown)
+                .isInstanceOf(NullPointerException.class)
+                .hasMessage("String must not be null");
+    }
+
+    @Test
+    void startsWithIgnoreCase_ShouldThrowException_ForNullPrefix() {
+        var validation = StringValidationHelpers.startsWithIgnoreCase(null);
+
+        var thrown = catchThrowable(() -> validation.test("someString"));
+
+        assertThat(thrown)
+                .isInstanceOf(NullPointerException.class)
+                .hasMessage("Prefix must not be null");
+    }
+
+    @Test
+    void endsWith_ShouldReturnValidResult_ForStringWithSuffix() {
+        var validation = StringValidationHelpers.endsWith("Suffix");
+
+        var result = validation.test("stringWithSuffix");
+
+        assertThat(result.isValid()).isTrue();
+    }
+
+    @ParameterizedTest
+    @CsvSource(value = {"string", "strIngsuffiX"})
+    void endsWith_ShouldReturnInvalidResult_ForStringNotEndingWithSuffix(String value) {
+        var validation = StringValidationHelpers.endsWith("Suffix");
+
+        var result = validation.test(value);
+
+        assertThat(result.isValid()).isFalse();
+        assertThat(result.getCauseDescription())
+                .isEqualTo("must end with \"Suffix\"");
+    }
+
+    @Test
+    void endsWith_ShouldThrowException_ForNullString() {
+        var validation = StringValidationHelpers.endsWith("suffix");
+
+        var thrown = catchThrowable(() -> validation.test(null));
+
+        assertThat(thrown)
+                .isInstanceOf(NullPointerException.class)
+                .hasMessage("String must not be null");
+    }
+
+    @Test
+    void endsWith_ShouldThrowException_ForNullSuffix() {
+        var validation = StringValidationHelpers.endsWith(null);
+
+        var thrown = catchThrowable(() -> validation.test("someString"));
+
+        assertThat(thrown)
+                .isInstanceOf(NullPointerException.class)
+                .hasMessage("Suffix must not be null");
+    }
+
+    @ParameterizedTest
+    @CsvSource(value = {"StringWithSuffix", "StringsuFFix"})
+    void endsWithIgnoreCase_ShouldReturnValidResult_ForStringWithSuffix(String value) {
+        var validation = StringValidationHelpers.endsWithIgnoreCase("Suffix");
+
+        var result = validation.test(value);
+
+        assertThat(result.isValid()).isTrue();
+    }
+
+    @ParameterizedTest
+    @CsvSource(value = {"string", "strIngsuffi"})
+    void endsWithIgnoreCase_ShouldReturnInvalidResult_ForStringNotEndingWithSuffix(String value) {
+        var validation = StringValidationHelpers.endsWithIgnoreCase("Suffix");
+
+        var result = validation.test(value);
+
+        assertThat(result.isValid()).isFalse();
+        assertThat(result.getCauseDescription())
+                .isEqualTo("must end with \"Suffix\" (case-insensitive)");
+    }
+
+    @Test
+    void endsWithIgnoreCase_ShouldThrowException_ForNullString() {
+        var validation = StringValidationHelpers.endsWithIgnoreCase("suffix");
+
+        var thrown = catchThrowable(() -> validation.test(null));
+
+        assertThat(thrown)
+                .isInstanceOf(NullPointerException.class)
+                .hasMessage("String must not be null");
+    }
+
+    @Test
+    void endsWithIgnoreCase_ShouldThrowException_ForNullSuffix() {
+        var validation = StringValidationHelpers.endsWithIgnoreCase(null);
+
+        var thrown = catchThrowable(() -> validation.test("someString"));
+
+        assertThat(thrown)
+                .isInstanceOf(NullPointerException.class)
+                .hasMessage("Suffix must not be null");
     }
 }
