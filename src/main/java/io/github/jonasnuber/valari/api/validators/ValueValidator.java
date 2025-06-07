@@ -18,13 +18,13 @@ import java.util.Objects;
  * @author Jonas Nuber
  */
 public class ValueValidator<T> implements Validator<T, ValidationResult> {
-    private final Validation<T> validation;
     private final String valueName;
+    private final Validation<T> validation;
     private final boolean optional;
 
-    private ValueValidator(Validation<T> validation, String valueName, boolean optional) {
-        this.validation = Objects.requireNonNull(validation, "Validation must not be null");
+    private ValueValidator(String valueName, Validation<T> validation, boolean optional) {
         this.valueName = Objects.requireNonNull(valueName, "Value Name must not be null");
+        this.validation = Objects.requireNonNull(validation, "Validation must not be null");
         this.optional = optional;
     }
 
@@ -36,7 +36,7 @@ public class ValueValidator<T> implements Validator<T, ValidationResult> {
      * @return a new {@code ValueValidator} instance
      */
     public static <T> ValueValidator<T> with(Validation<T> validation) {
-        return new ValueValidator<>(validation, "Value", false);
+        return new ValueValidator<>("Value", validation, false);
     }
 
     /**
@@ -47,8 +47,8 @@ public class ValueValidator<T> implements Validator<T, ValidationResult> {
      * @param <T>        the type of the value being validated
      * @return a new {@code ValueValidator} instance
      */
-    public static <T> ValueValidator<T> with(Validation<T> validation, String valueName) {
-        return new ValueValidator<>(validation, valueName, false);
+    public static <T> ValueValidator<T> with(String valueName, Validation<T> validation) {
+        return new ValueValidator<>(valueName, validation, false);
     }
 
     /**
@@ -60,7 +60,7 @@ public class ValueValidator<T> implements Validator<T, ValidationResult> {
      * @return a new optional {@code ValueValidator} instance
      */
     public static <T> ValueValidator<T> optional(Validation<T> validation) {
-        return new ValueValidator<>(validation, "Value", true);
+        return new ValueValidator<>("Value", validation, true);
     }
 
     /**
@@ -72,8 +72,8 @@ public class ValueValidator<T> implements Validator<T, ValidationResult> {
      * @param <T>        the type of the value being validated
      * @return a new optional {@code ValueValidator} instance
      */
-    public static <T> ValueValidator<T> optional(Validation<T> validation, String valueName) {
-        return new ValueValidator<>(validation, valueName, true);
+    public static <T> ValueValidator<T> optional(String valueName, Validation<T> validation) {
+        return new ValueValidator<>(valueName, validation, true);
     }
 
     /**

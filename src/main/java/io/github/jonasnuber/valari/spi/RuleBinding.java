@@ -1,12 +1,15 @@
 package io.github.jonasnuber.valari.spi;
 
+import io.github.jonasnuber.valari.internal.BaseValidator;
+
 /**
- * A fluent interface for associating validation rules with a specific field in a validator.
+ * A fluent interface for associating validation rules with a specific input value,
+ * such as a field, parameter, or attribute, in a validator.
  * <p>
  * This interface is typically used within a {@link Validator} to define rules for validating
- * individual fields of a domain object. It is returned when declaring a field using
- * {@code validator.field(...)} and allows attaching a validation rule using {@link #mustSatisfy(Object)}
- * or {@link #ifPresent(Object)}.
+ * individual named inputs of a domain object. It is returned when declaring a validation
+ * target using {@code validator.field(...)}, {@code validator.parameter(...)}, etc., and
+ * allows attaching validation rules via {@link #mustSatisfy(Object)} or {@link #ifPresent(Object)}.
  * </p>
  *
  * Usage example:
@@ -14,17 +17,17 @@ package io.github.jonasnuber.valari.spi;
  * validator.field(User::getEmail, "email")
  *          .mustSatisfy(validEmail());
  *
- * validator.field(User::getNickname, "nickname")
+ * validator.parameter(User::getNickname, "nickname")
  *          .ifPresent(nonBlank());
  * }</pre>
  *
- * @param <V> the type of the validator (used to return the validator for chaining)
+ * @param <V> the type of the validator (used to return the validator for fluent chaining)
  * @param <T> the type of the validation rule (e.g., {@code Validation<F>})
  *
  * @author Jonas Nuber
  * @see Validator
  */
-public interface ValidationBinding<V extends Validator<?, ?>, T> {
+public interface RuleBinding<V extends BaseValidator, T> {
 
     /**
      * Specifies that the field must satisfy the given validation rule.

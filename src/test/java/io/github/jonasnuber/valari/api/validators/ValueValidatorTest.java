@@ -20,7 +20,7 @@ class ValueValidatorTest {
 
     @Test
     void with_ShouldThrowException_ForNullValueName() {
-        var thrown = catchThrowable(() -> ValueValidator.with(notEmpty(), null));
+        var thrown = catchThrowable(() -> ValueValidator.with(null, notEmpty()));
 
         assertThat(thrown)
                 .isInstanceOf(NullPointerException.class)
@@ -30,7 +30,7 @@ class ValueValidatorTest {
     @Test
     void with_ShouldSetValueNameInException_WhenFieldNameProvided() {
         var valueName = "VName";
-        var validator = ValueValidator.with(notEmpty(), valueName);
+        var validator = ValueValidator.with(valueName, notEmpty());
 
         var thrown = catchThrowable(() -> validator.validateAndThrow(""));
 
@@ -52,7 +52,7 @@ class ValueValidatorTest {
     @Test
     void optional_ShouldSetValueNameInException_WhenFieldNameProvided() {
         var valueName = "VName";
-        var validator = ValueValidator.optional(notEmpty(), valueName);
+        var validator = ValueValidator.optional(valueName, notEmpty());
 
         var thrown = catchThrowable(() -> validator.validateAndThrow(""));
 
@@ -64,7 +64,7 @@ class ValueValidatorTest {
 
     @Test
     void optional_ShouldThrowException_ForNullValueName() {
-        var thrown = catchThrowable(() -> ValueValidator.optional(notEmpty(), null));
+        var thrown = catchThrowable(() -> ValueValidator.optional(null, notEmpty()));
 
         assertThat(thrown)
                 .isInstanceOf(NullPointerException.class)

@@ -3,8 +3,8 @@ package io.github.jonasnuber.valari.api.validators;
 import io.github.jonasnuber.valari.Person;
 import io.github.jonasnuber.valari.api.ValidationResult;
 import io.github.jonasnuber.valari.api.exceptions.AggregatedValidationException;
-import io.github.jonasnuber.valari.internal.domain.FieldValidationBinding;
-import io.github.jonasnuber.valari.internal.domain.NestedValidationBinding;
+import io.github.jonasnuber.valari.internal.domain.FieldRuleBinding;
+import io.github.jonasnuber.valari.internal.domain.NestedRuleBinding;
 import org.assertj.core.api.ThrowableAssert;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -57,7 +57,7 @@ class DomainValidatorTest {
         var fieldValidationBinding = DomainValidator.of(Person.class).field(extractor, fieldName);
 
         assertThat(fieldValidationBinding)
-                .isInstanceOf(FieldValidationBinding.class);
+                .isInstanceOf(FieldRuleBinding.class);
     }
 
     @Test
@@ -81,7 +81,7 @@ class DomainValidatorTest {
         var nestedValidationBinding = DomainValidator.of(Person.class).nested(extractor, fieldName);
 
         assertThat(nestedValidationBinding)
-                .isInstanceOf(NestedValidationBinding.class);
+                .isInstanceOf(NestedRuleBinding.class);
     }
 
     @Test

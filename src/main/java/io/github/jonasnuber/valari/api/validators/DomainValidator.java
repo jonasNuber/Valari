@@ -4,12 +4,12 @@ import io.github.jonasnuber.valari.api.ValidationResult;
 import io.github.jonasnuber.valari.api.ValidationResultCollection;
 import io.github.jonasnuber.valari.api.exceptions.AggregatedValidationException;
 import io.github.jonasnuber.valari.internal.domain.CollectFailuresStrategy;
-import io.github.jonasnuber.valari.internal.domain.NestedValidationBinding;
+import io.github.jonasnuber.valari.internal.domain.NestedRuleBinding;
 import io.github.jonasnuber.valari.internal.domain.FailFastStrategy;
-import io.github.jonasnuber.valari.internal.domain.FieldValidationBinding;
+import io.github.jonasnuber.valari.internal.domain.FieldRuleBinding;
 import io.github.jonasnuber.valari.internal.ValidationStrategy;
 import io.github.jonasnuber.valari.spi.Validation;
-import io.github.jonasnuber.valari.spi.ValidationBinding;
+import io.github.jonasnuber.valari.spi.RuleBinding;
 import io.github.jonasnuber.valari.spi.Validator;
 
 import java.util.ArrayList;
@@ -79,11 +79,11 @@ public class DomainValidator<T> implements Validator<T, ValidationResultCollecti
      * @param <F>       the field type
      * @return a binding that allows attaching a validation rule via {@code mustSatisfy} or {@code ifPresent}
      */
-    public <F> ValidationBinding<DomainValidator<T>, Validation<F>> field(Function<T, F> extractor, String fieldName) {
+    public <F> RuleBinding<DomainValidator<T>, Validation<F>> field(Function<T, F> extractor, String fieldName) {
         Objects.requireNonNull(extractor, "Extractor Function must not be null");
         Objects.requireNonNull(fieldName, "FieldName must not be null");
 
-        FieldValidationBinding<T,F> fieldValidationBinding = new FieldValidationBinding<>(this,
+        FieldRuleBinding<T,F> fieldValidationBinding = new FieldRuleBinding<>(this,
                 extractor, fieldName);
         validationBindings.add(fieldValidationBinding);
 
@@ -117,11 +117,11 @@ public class DomainValidator<T> implements Validator<T, ValidationResultCollecti
      * @param <F>       the type of the nested object
      * @return a binding that allows specifying required or optional nested validation
      */
-    public <F> ValidationBinding<DomainValidator<T>, DomainValidator<F>> nested(Function<T, F> extractor, String fieldName) {
+    public <F> RuleBinding<DomainValidator<T>, DomainValidator<F>> nested(Function<T, F> extractor, String fieldName) {
         Objects.requireNonNull(extractor, "Extractor Function must not be null");
         Objects.requireNonNull(fieldName, "FieldName must not be null");
 
-        NestedValidationBinding<T,F> nestedValidationBinding = new NestedValidationBinding<>(this, extractor, fieldName);
+        NestedRuleBinding<T,F> nestedValidationBinding = new NestedRuleBinding<>(this, extractor, fieldName);
         validationBindings.add(nestedValidationBinding);
 
         return nestedValidationBinding;

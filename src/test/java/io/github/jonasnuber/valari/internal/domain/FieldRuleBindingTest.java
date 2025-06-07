@@ -9,13 +9,13 @@ import static io.github.jonasnuber.valari.api.helpers.StringValidationHelpers.no
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
-class FieldValidationBindingTest {
+class FieldRuleBindingTest {
 
     @Test
     void constructor_ShouldThrowException_ForNullInputs() {
-        var nullParent = catchThrowable(() -> new FieldValidationBinding<>(null, null, null));
-        var nullValueExtractor = catchThrowable(() -> new FieldValidationBinding<>(DomainValidator.of(Person.class), null, null));
-        var nullFieldName = catchThrowable(() -> new FieldValidationBinding<>(DomainValidator.of(Person.class), Person::getName, null));
+        var nullParent = catchThrowable(() -> new FieldRuleBinding<>(null, null, null));
+        var nullValueExtractor = catchThrowable(() -> new FieldRuleBinding<>(DomainValidator.of(Person.class), null, null));
+        var nullFieldName = catchThrowable(() -> new FieldRuleBinding<>(DomainValidator.of(Person.class), Person::getName, null));
 
         assertThat(nullParent)
                 .isInstanceOf(NullPointerException.class)
@@ -30,7 +30,7 @@ class FieldValidationBindingTest {
 
     @Test
     void mustSatisfy_ShouldThrowException_WhenValidationIsNull() {
-        var binding = new FieldValidationBinding<>(DomainValidator.of(Person.class), Person::getName, "Name");
+        var binding = new FieldRuleBinding<>(DomainValidator.of(Person.class), Person::getName, "Name");
 
         var thrown = catchThrowable(() -> binding.mustSatisfy(null));
 
@@ -43,7 +43,7 @@ class FieldValidationBindingTest {
     void mustSatisfy_ShouldSetValidationUsed_ForBinding(){
         var validPerson = new Person("Bob", 25);
         var invalidPerson = new Person(null, 25);
-        var binding = new FieldValidationBinding<>(DomainValidator.of(Person.class), Person::getName, "Name");
+        var binding = new FieldRuleBinding<>(DomainValidator.of(Person.class), Person::getName, "Name");
         binding.mustSatisfy(notEmpty());
 
         var validResult = binding.validate(validPerson);
@@ -56,7 +56,7 @@ class FieldValidationBindingTest {
     @Test
     void mustSatisfy_ShouldOverridePreviousValidation() {
         var person = new Person("Bob", 25);
-        var binding = new FieldValidationBinding<>(DomainValidator.of(Person.class), Person::getName, "Name");
+        var binding = new FieldRuleBinding<>(DomainValidator.of(Person.class), Person::getName, "Name");
         binding.mustSatisfy(value -> ValidationResult.fail("first rule"));
         binding.mustSatisfy(notEmpty()); // overrides previous
 
@@ -67,7 +67,7 @@ class FieldValidationBindingTest {
 
     @Test
     void ifPresent_ShouldThrowException_WhenValidationIsNull() {
-        var binding = new FieldValidationBinding<>(DomainValidator.of(Person.class), Person::getName, "Name");
+        var binding = new FieldRuleBinding<>(DomainValidator.of(Person.class), Person::getName, "Name");
 
         var thrown = catchThrowable(() -> binding.ifPresent(null));
 
@@ -80,7 +80,7 @@ class FieldValidationBindingTest {
     @Test
     void ifPresent_ShouldReturnValid_WhenFieldIsNull() {
         var person = new Person(null, 25);
-        var binding = new FieldValidationBinding<>(DomainValidator.of(Person.class), Person::getName, "Name");
+        var binding = new FieldRuleBinding<>(DomainValidator.of(Person.class), Person::getName, "Name");
         binding.ifPresent(notEmpty());
 
         var result = binding.validate(person);
@@ -91,7 +91,7 @@ class FieldValidationBindingTest {
     @Test
     void ifPresent_ShouldReturnValid_WhenFieldIsPresentAndValid() {
         var person = new Person("Bob", 25);
-        var binding = new FieldValidationBinding<>(DomainValidator.of(Person.class), Person::getName, "Name");
+        var binding = new FieldRuleBinding<>(DomainValidator.of(Person.class), Person::getName, "Name");
         binding.ifPresent(notEmpty());
 
         var result = binding.validate(person);
@@ -102,7 +102,7 @@ class FieldValidationBindingTest {
     @Test
     void ifPresent_ShouldReturnInvalid_WhenFieldIsPresentAndInvalid() {
         var person = new Person("", 25);
-        var binding = new FieldValidationBinding<>(DomainValidator.of(Person.class), Person::getName, "Name");
+        var binding = new FieldRuleBinding<>(DomainValidator.of(Person.class), Person::getName, "Name");
         binding.ifPresent(notEmpty());
 
         var result = binding.validate(person);
@@ -115,7 +115,7 @@ class FieldValidationBindingTest {
     @Test
     void validate_ShouldReturnValidResult_WhenFieldIsValid() {
         var person = new Person("Alice", 25);
-        var binding = new FieldValidationBinding<>(DomainValidator.of(Person.class), Person::getName, "Name");
+        var binding = new FieldRuleBinding<>(DomainValidator.of(Person.class), Person::getName, "Name");
         binding.mustSatisfy(notEmpty());
 
         var result = binding.validate(person);
@@ -126,7 +126,7 @@ class FieldValidationBindingTest {
     @Test
     void validate_ShouldReturnInvalidResult_WhenFieldIsInvalid() {
         var person = new Person(null, 25);
-        var binding = new FieldValidationBinding<>(DomainValidator.of(Person.class), Person::getName, "Name");
+        var binding = new FieldRuleBinding<>(DomainValidator.of(Person.class), Person::getName, "Name");
         binding.mustSatisfy(notEmpty());
 
         var result = binding.validate(person);

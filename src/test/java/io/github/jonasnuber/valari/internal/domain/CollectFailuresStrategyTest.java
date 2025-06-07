@@ -22,7 +22,7 @@ class CollectFailuresStrategyTest {
         var nullValidations = catchThrowable(() -> strategy.validate(new Person("name", 3), null, null));
         var nullClass = catchThrowable(() -> strategy.validate(
                 new Person("name", 3),
-                List.of(new FieldValidationBinding<>(DomainValidator.of(Person.class), Person::getName, "Name")),
+                List.of(new FieldRuleBinding<>(DomainValidator.of(Person.class), Person::getName, "Name")),
                 null));
 
         assertThat(nullToValidate)
@@ -39,9 +39,9 @@ class CollectFailuresStrategyTest {
     @Test
     void validate_ShouldCollectAllValidationFailures_WhenFieldsFail() {
         var strategy = new CollectFailuresStrategy<Person>();
-        var nameValidation = new FieldValidationBinding<>(DomainValidator.of(Person.class), Person::getName, "Name");
+        var nameValidation = new FieldRuleBinding<>(DomainValidator.of(Person.class), Person::getName, "Name");
         nameValidation.mustSatisfy(notEmpty());
-        var ageValidation = new FieldValidationBinding<>(DomainValidator.of(Person.class), Person::getAge, "Age");
+        var ageValidation = new FieldRuleBinding<>(DomainValidator.of(Person.class), Person::getAge, "Age");
         ageValidation.mustSatisfy(greaterThan(0));
         var invalidPerson = new Person(null, -5);
 
@@ -61,7 +61,7 @@ class CollectFailuresStrategyTest {
     @Test
     void validate_ShouldReturnEmptyResult_ForFieldsPassing() {
         var strategy = new CollectFailuresStrategy<Person>();
-        var nameValidation = new FieldValidationBinding<>(DomainValidator.of(Person.class), Person::getName, "Name");
+        var nameValidation = new FieldRuleBinding<>(DomainValidator.of(Person.class), Person::getName, "Name");
         nameValidation.mustSatisfy(notEmpty());
         var validPerson = new Person("Alice", 14);
 

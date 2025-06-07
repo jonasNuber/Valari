@@ -3,7 +3,7 @@ package io.github.jonasnuber.valari.internal.domain;
 import io.github.jonasnuber.valari.api.validators.DomainValidator;
 import io.github.jonasnuber.valari.api.ValidationResult;
 import io.github.jonasnuber.valari.api.ValidationResultCollection;
-import io.github.jonasnuber.valari.spi.ValidationBinding;
+import io.github.jonasnuber.valari.spi.RuleBinding;
 import io.github.jonasnuber.valari.spi.Validator;
 
 import java.util.Objects;
@@ -30,7 +30,7 @@ import java.util.function.Function;
  *
  * @author Jonas Nuber
  */
-public class NestedValidationBinding<T, F> implements ValidationBinding<DomainValidator<T>, DomainValidator<F>>, Validator<T, ValidationResult> {
+public class NestedRuleBinding<T, F> implements RuleBinding<DomainValidator<T>, DomainValidator<F>>, Validator<T, ValidationResult> {
     private final DomainValidator<T> parent;
     private final String fieldName;
     private final Function<T, F> valueExtractor;
@@ -50,7 +50,7 @@ public class NestedValidationBinding<T, F> implements ValidationBinding<DomainVa
      * @param fieldName     the name of the nested field (used for error reporting, must not be {@code null})
      * @throws NullPointerException if any argument is {@code null}
      */
-    public NestedValidationBinding(DomainValidator<T> parent, Function<T, F> valueExtractor, String fieldName) {
+    public NestedRuleBinding(DomainValidator<T> parent, Function<T, F> valueExtractor, String fieldName) {
         Objects.requireNonNull(parent, "Parent Validator must not be null");
         Objects.requireNonNull(valueExtractor, "Extractor Method to get value for validation must not be null");
         Objects.requireNonNull(fieldName, "FieldName of the value to validate must not be null");

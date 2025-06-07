@@ -4,7 +4,7 @@ import io.github.jonasnuber.valari.api.ValidationResult;
 import io.github.jonasnuber.valari.api.validators.DomainValidator;
 import io.github.jonasnuber.valari.internal.SimpleValidation;
 import io.github.jonasnuber.valari.spi.Validation;
-import io.github.jonasnuber.valari.spi.ValidationBinding;
+import io.github.jonasnuber.valari.spi.RuleBinding;
 import io.github.jonasnuber.valari.spi.Validator;
 
 import java.util.Objects;
@@ -14,7 +14,7 @@ import java.util.function.Function;
  * Internal binding between a field of a domain object and a corresponding {@link Validation} rule.
  * <p>
  * This class is used by {@link DomainValidator} to associate field extractors with validation logic
- * in a fluent and composable manner. It implements both {@link ValidationBinding} for rule assignment
+ * in a fluent and composable manner. It implements both {@link RuleBinding} for rule assignment
  * and {@link Validator} for applying the bound rule during validation.
  * </p>
  * <p>
@@ -28,7 +28,7 @@ import java.util.function.Function;
  * @param <F> the type of the field being validated
  * @author Jonas Nuber
  */
-public class FieldValidationBinding<T, F> implements ValidationBinding<DomainValidator<T>, Validation<F>>, Validator<T, ValidationResult> {
+public class FieldRuleBinding<T, F> implements RuleBinding<DomainValidator<T>, Validation<F>>, Validator<T, ValidationResult> {
     private final DomainValidator<T> parent;
     private final String fieldName;
     private final Function<T, F> valueExtractor;
@@ -43,7 +43,7 @@ public class FieldValidationBinding<T, F> implements ValidationBinding<DomainVal
      * @param fieldName      the name of the field being validated (used in error messages); must not be {@code null}
      * @throws NullPointerException if any parameter is {@code null}
      */
-    public FieldValidationBinding(DomainValidator<T> parent, Function<T, F> valueExtractor, String fieldName) {
+    public FieldRuleBinding(DomainValidator<T> parent, Function<T, F> valueExtractor, String fieldName) {
         Objects.requireNonNull(parent, "Parent Validator must not be null");
         Objects.requireNonNull(valueExtractor, "Extractor Method to get value for validation must not be null");
         Objects.requireNonNull(fieldName, "FieldName of the value to validate must not be null");
