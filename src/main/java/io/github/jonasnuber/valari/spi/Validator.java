@@ -1,5 +1,7 @@
 package io.github.jonasnuber.valari.spi;
 
+import io.github.jonasnuber.valari.internal.BaseValidator;
+
 /**
  * A generic interface for performing validation on an object of type {@code T},
  * producing a result of type {@code R}.
@@ -17,7 +19,7 @@ package io.github.jonasnuber.valari.spi;
  *
  * @author Jonas Nuber
  */
-public interface Validator<T, R> {
+public interface Validator<T, R> extends BaseValidator {
 
   /**
    * Validates the given object and returns the result.
