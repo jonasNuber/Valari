@@ -1,7 +1,6 @@
-package io.github.jonasnuber.valari.internal;
+package io.github.jonasnuber.valari.api;
 
 import io.github.jonasnuber.valari.spi.Validation;
-import io.github.jonasnuber.valari.api.ValidationResult;
 
 import java.util.function.Predicate;
 

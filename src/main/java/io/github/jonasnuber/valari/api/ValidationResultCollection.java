@@ -1,6 +1,7 @@
 package io.github.jonasnuber.valari.api;
 
 import io.github.jonasnuber.valari.api.exceptions.AggregatedValidationException;
+import io.github.jonasnuber.valari.spi.ThrowingResult;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +22,7 @@ import java.util.List;
  *
  * @author Jonas Nuber
  */
-public final class ValidationResultCollection {
+public final class ValidationResultCollection implements ThrowingResult {
 
   private final List<ValidationResult> results = new ArrayList<>();
   private final Class<?> clazz;
@@ -64,6 +65,7 @@ public final class ValidationResultCollection {
    *
    * @throws AggregatedValidationException if any invalid results are present
    */
+  @Override
   public void throwIfInvalid() throws AggregatedValidationException {
     if (hasFailures()) {
       throw new AggregatedValidationException(getErrorMessage());

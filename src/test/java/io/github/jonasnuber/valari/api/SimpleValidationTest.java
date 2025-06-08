@@ -1,4 +1,4 @@
-package io.github.jonasnuber.valari.internal;
+package io.github.jonasnuber.valari.api;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;

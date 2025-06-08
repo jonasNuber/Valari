@@ -1,6 +1,7 @@
 package io.github.jonasnuber.valari.api;
 
 import io.github.jonasnuber.valari.api.exceptions.InvalidAttributeValueException;
+import io.github.jonasnuber.valari.spi.ThrowingResult;
 
 /**
  * The ValidationResult class represents the result of a validation process.
@@ -9,7 +10,7 @@ import io.github.jonasnuber.valari.api.exceptions.InvalidAttributeValueException
  *
  * @author Jonas Nuber
  */
-public final class ValidationResult {
+public final class ValidationResult implements ThrowingResult {
 
     private final boolean valid;
     private final String causeDescription;
@@ -91,6 +92,7 @@ public final class ValidationResult {
      *
      * @throws InvalidAttributeValueException The exception thrown on failed validation.
      */
+    @Override
     public void throwIfInvalid() throws InvalidAttributeValueException {
         if (isInvalid()) {
             throw new InvalidAttributeValueException(getErrorMessage());

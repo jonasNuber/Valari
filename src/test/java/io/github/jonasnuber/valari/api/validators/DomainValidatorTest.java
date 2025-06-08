@@ -3,8 +3,8 @@ package io.github.jonasnuber.valari.api.validators;
 import io.github.jonasnuber.valari.Person;
 import io.github.jonasnuber.valari.api.ValidationResult;
 import io.github.jonasnuber.valari.api.exceptions.AggregatedValidationException;
-import io.github.jonasnuber.valari.internal.domain.FieldRuleBinding;
-import io.github.jonasnuber.valari.internal.domain.NestedRuleBinding;
+import io.github.jonasnuber.valari.internal.bindings.FieldRuleBinding;
+import io.github.jonasnuber.valari.internal.bindings.NestedRuleBinding;
 import org.assertj.core.api.ThrowableAssert;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -21,9 +21,9 @@ class DomainValidatorTest {
     @BeforeAll
     static void init() {
         validator = DomainValidator.of(Person.class)
-                .field(Person::getName, "Name")
+                .field("Name", Person::getName)
                 .mustSatisfy(notEmpty())
-                .field(Person::getAge, "Age")
+                .field("Age", Person::getAge)
                 .mustSatisfy(greaterThan(0));
     }
 
@@ -38,15 +38,15 @@ class DomainValidatorTest {
 
     @Test
     void field_ShouldThrowException_ForNullInput() {
-        var nullExtractor = catchThrowable(() -> DomainValidator.of(Person.class).field(null, null));
-        var nullFieldName = catchThrowable(() -> DomainValidator.of(Person.class).field(Person::getAge, null));
+        var nullFieldName = catchThrowable(() -> DomainValidator.of(Person.class).field(null, null));
+        var nullExtractor = catchThrowable(() -> DomainValidator.of(Person.class).field("someFieldName", null));
 
-        assertThat(nullExtractor)
-                .isInstanceOf(NullPointerException.class)
-                .hasMessage("Extractor Function must not be null");
         assertThat(nullFieldName)
                 .isInstanceOf(NullPointerException.class)
                 .hasMessage("FieldName must not be null");
+        assertThat(nullExtractor)
+                .isInstanceOf(NullPointerException.class)
+                .hasMessage("Extractor Function must not be null");
     }
 
     @Test
@@ -54,7 +54,7 @@ class DomainValidatorTest {
         Function<Person, Integer> extractor = Person::getAge;
         var fieldName = "Age";
 
-        var fieldValidationBinding = DomainValidator.of(Person.class).field(extractor, fieldName);
+        var fieldValidationBinding = DomainValidator.of(Person.class).field(fieldName, extractor);
 
         assertThat(fieldValidationBinding)
                 .isInstanceOf(FieldRuleBinding.class);
@@ -62,15 +62,15 @@ class DomainValidatorTest {
 
     @Test
     void nested_ShouldThrowException_ForNullInput() {
-        var nullExtractor = catchThrowable(() -> DomainValidator.of(Person.class).nested(null, null));
-        var nullFieldName = catchThrowable(() -> DomainValidator.of(Person.class).nested(Person::getAge, null));
+        var nullFieldName = catchThrowable(() -> DomainValidator.of(Person.class).nested(null, null));
+        var nullExtractor = catchThrowable(() -> DomainValidator.of(Person.class).nested("someFieldName", null));
 
-        assertThat(nullExtractor)
-                .isInstanceOf(NullPointerException.class)
-                .hasMessage("Extractor Function must not be null");
         assertThat(nullFieldName)
                 .isInstanceOf(NullPointerException.class)
                 .hasMessage("FieldName must not be null");
+        assertThat(nullExtractor)
+                .isInstanceOf(NullPointerException.class)
+                .hasMessage("Extractor Function must not be null");
     }
 
     @Test
@@ -78,7 +78,7 @@ class DomainValidatorTest {
         Function<Person, Integer> extractor = Person::getAge;
         var fieldName = "Age";
 
-        var nestedValidationBinding = DomainValidator.of(Person.class).nested(extractor, fieldName);
+        var nestedValidationBinding = DomainValidator.of(Person.class).nested(fieldName, extractor);
 
         assertThat(nestedValidationBinding)
                 .isInstanceOf(NestedRuleBinding.class);
@@ -119,9 +119,9 @@ class DomainValidatorTest {
     @Test
     void validate_ShouldIgnoreNullFields_WhenUsingIfPresent() {
         var validatorWithOptionalName = DomainValidator.of(Person.class)
-                .field(Person::getName, "Name")
+                .field("Name", Person::getName)
                 .ifPresent(notEmpty())
-                .field(Person::getAge, "Age")
+                .field("Age", Person::getAge)
                 .mustSatisfy(greaterThan(0));
         var person = new Person(null, 42);
 
@@ -133,9 +133,9 @@ class DomainValidatorTest {
     @Test
     void validate_ShouldFail_WhenPresentFieldIsInvalid_UsingIfPresent() {
         var validatorWithOptionalName = DomainValidator.of(Person.class)
-                .field(Person::getName, "Name")
+                .field("Name", Person::getName)
                 .ifPresent(notEmpty())
-                .field(Person::getAge, "Age")
+                .field("Age", Person::getAge)
                 .mustSatisfy(greaterThan(0));
         var person = new Person("", 42);
 
@@ -221,10 +221,10 @@ class DomainValidatorTest {
     @Test
     void and_ShouldNotAffectValidation() {
         var andValidator = DomainValidator.of(Person.class)
-                .field(Person::getName, "Name")
+                .field("Name", Person::getName)
                 .mustSatisfy(notEmpty())
                 .and()
-                .field(Person::getAge, "Age")
+                .field("Age", Person::getAge)
                 .mustSatisfy(greaterThan(0));
         var age = -1;
 

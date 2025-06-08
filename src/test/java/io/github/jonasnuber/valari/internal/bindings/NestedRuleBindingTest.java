@@ -1,4 +1,4 @@
-package io.github.jonasnuber.valari.internal.domain;
+package io.github.jonasnuber.valari.internal.bindings;
 
 import io.github.jonasnuber.valari.CreditCard;
 import io.github.jonasnuber.valari.Person;
@@ -14,24 +14,24 @@ class NestedRuleBindingTest {
 
     @Test
     void constructor_ShouldThrowException_ForNullInputs() {
-        var nullParent = catchThrowable(() -> new NestedRuleBinding<>(null, null, null));
-        var nullValueExtractor = catchThrowable(() -> new NestedRuleBinding<>(DomainValidator.of(Person.class), null, null));
-        var nullFieldName = catchThrowable(() -> new NestedRuleBinding<>(DomainValidator.of(Person.class), Person::getName, null));
+        var nullFieldName = catchThrowable(() -> new NestedRuleBinding<>(null, null, null));
+        var nullValueExtractor = catchThrowable(() -> new NestedRuleBinding<>("someFieldName", null, null));
+        var nullParent = catchThrowable(() -> new NestedRuleBinding<>("someFieldName", Person::getName, null));
 
-        assertThat(nullParent)
-                .isInstanceOf(NullPointerException.class)
-                .hasMessage("Parent Validator must not be null");
-        assertThat(nullValueExtractor)
-                .isInstanceOf(NullPointerException.class)
-                .hasMessage("Extractor Method to get value for validation must not be null");
         assertThat(nullFieldName)
                 .isInstanceOf(NullPointerException.class)
                 .hasMessage("FieldName of the value to validate must not be null");
+        assertThat(nullValueExtractor)
+                .isInstanceOf(NullPointerException.class)
+                .hasMessage("Extractor Method to get value for validation must not be null");
+        assertThat(nullParent)
+                .isInstanceOf(NullPointerException.class)
+                .hasMessage("Parent Validator must not be null");
     }
 
     @Test
     void mustSatisfy_ShouldThrowException_WhenValidationIsNull() {
-        var binding = new NestedRuleBinding<>(DomainValidator.of(Person.class), Person::getName, "Name");
+        var binding = new NestedRuleBinding<>("Name", Person::getName, DomainValidator.of(Person.class));
 
         var thrown = catchThrowable(() -> binding.mustSatisfy(null));
 
@@ -44,8 +44,8 @@ class NestedRuleBindingTest {
     void mustSatisfy_ShouldSetValidationUsed_ForBinding(){
         var validCreditCard = new CreditCard("someId", new Person("Bob", 25));
         var invalidCreditCard = new CreditCard("someId", new Person(null, 25));
-        var binding = new NestedRuleBinding<>(DomainValidator.of(CreditCard.class), CreditCard::getOwner, "Owner");
-        binding.mustSatisfy(DomainValidator.of(Person.class).field(Person::getName, "Name").mustSatisfy(notEmpty()));
+        var binding = new NestedRuleBinding<>("Owner", CreditCard::getOwner, DomainValidator.of(CreditCard.class));
+        binding.mustSatisfy(DomainValidator.of(Person.class).field("Name", Person::getName).mustSatisfy(notEmpty()));
 
         var validResult = binding.validate(validCreditCard);
         var invalidResult = binding.validate(invalidCreditCard);
@@ -57,9 +57,9 @@ class NestedRuleBindingTest {
     @Test
     void mustSatisfy_ShouldOverridePreviousValidation() {
         var creditCard = new CreditCard("someId", new Person("Bob", 25));
-        var binding = new NestedRuleBinding<>(DomainValidator.of(CreditCard.class), CreditCard::getOwner, "Owner");
-        binding.mustSatisfy(DomainValidator.of(Person.class).field(Person::getAge, "Age").mustSatisfy(greaterThan(26)));
-        binding.mustSatisfy(DomainValidator.of(Person.class).field(Person::getAge, "Age").mustSatisfy(greaterThan(24))); // overrides previous
+        var binding = new NestedRuleBinding<>("Owner", CreditCard::getOwner, DomainValidator.of(CreditCard.class));
+        binding.mustSatisfy(DomainValidator.of(Person.class).field("Age", Person::getAge).mustSatisfy(greaterThan(26)));
+        binding.mustSatisfy(DomainValidator.of(Person.class).field("Age", Person::getAge).mustSatisfy(greaterThan(24))); // overrides previous
 
         var result = binding.validate(creditCard);
 
@@ -68,7 +68,7 @@ class NestedRuleBindingTest {
 
     @Test
     void ifPresent_ShouldThrowException_WhenValidationIsNull() {
-        var binding = new NestedRuleBinding<>(DomainValidator.of(CreditCard.class), CreditCard::getOwner, "Owner");
+        var binding = new NestedRuleBinding<>("Owner", CreditCard::getOwner, DomainValidator.of(CreditCard.class));
 
         var thrown = catchThrowable(() -> binding.ifPresent(null));
 
@@ -81,8 +81,8 @@ class NestedRuleBindingTest {
     void ifPresent_ShouldReturnValid_WhenFieldIsNull() {
         var creditCard = new CreditCard("someId", null);
 
-        var binding = new NestedRuleBinding<>(DomainValidator.of(CreditCard.class), CreditCard::getOwner, "Owner");
-        binding.ifPresent(DomainValidator.of(Person.class).field(Person::getName, "Name").mustSatisfy(notEmpty()));
+        var binding = new NestedRuleBinding<>("Owner", CreditCard::getOwner, DomainValidator.of(CreditCard.class));
+        binding.ifPresent(DomainValidator.of(Person.class).field("Name", Person::getName).mustSatisfy(notEmpty()));
 
         var result = binding.validate(creditCard);
 
@@ -93,8 +93,8 @@ class NestedRuleBindingTest {
     void ifPresent_ShouldReturnValid_WhenFieldIsPresentAndValid() {
         var creditCard = new CreditCard("someId", new Person("Bob", 25));
 
-        var binding = new NestedRuleBinding<>(DomainValidator.of(CreditCard.class), CreditCard::getOwner, "Owner");
-        binding.ifPresent(DomainValidator.of(Person.class).field(Person::getName, "Name").mustSatisfy(notEmpty()));
+        var binding = new NestedRuleBinding<>("Owner", CreditCard::getOwner, DomainValidator.of(CreditCard.class));
+        binding.ifPresent(DomainValidator.of(Person.class).field("Name", Person::getName).mustSatisfy(notEmpty()));
 
         var result = binding.validate(creditCard);
 
@@ -105,8 +105,8 @@ class NestedRuleBindingTest {
     void ifPresent_ShouldReturnInvalid_WhenFieldIsPresentAndInvalid() {
         var creditCard = new CreditCard("someId", new Person(null, 25));
 
-        var binding = new NestedRuleBinding<>(DomainValidator.of(CreditCard.class), CreditCard::getOwner, "Owner");
-        binding.ifPresent(DomainValidator.of(Person.class).field(Person::getName, "Name").mustSatisfy(notEmpty()));
+        var binding = new NestedRuleBinding<>("Owner", CreditCard::getOwner, DomainValidator.of(CreditCard.class));
+        binding.ifPresent(DomainValidator.of(Person.class).field("Name", Person::getName).mustSatisfy(notEmpty()));
 
         var result = binding.validate(creditCard);
 
@@ -121,8 +121,8 @@ class NestedRuleBindingTest {
     void validate_ShouldReturnValidResult_WhenFieldIsValid() {
         var creditCard = new CreditCard("someId", new Person("Bob", 25));
 
-        var binding = new NestedRuleBinding<>(DomainValidator.of(CreditCard.class), CreditCard::getOwner, "Owner");
-        binding.mustSatisfy(DomainValidator.of(Person.class).field(Person::getName, "Name").mustSatisfy(notEmpty()));
+        var binding = new NestedRuleBinding<>("Owner", CreditCard::getOwner, DomainValidator.of(CreditCard.class));
+        binding.mustSatisfy(DomainValidator.of(Person.class).field("Name", Person::getName).mustSatisfy(notEmpty()));
 
         var result = binding.validate(creditCard);
 
@@ -133,8 +133,8 @@ class NestedRuleBindingTest {
     void validate_ShouldReturnInvalidResult_WhenFieldIsInvalid() {
         var creditCard = new CreditCard("someId", new Person(null, 25));
 
-        var binding = new NestedRuleBinding<>(DomainValidator.of(CreditCard.class), CreditCard::getOwner, "Owner");
-        binding.mustSatisfy(DomainValidator.of(Person.class).field(Person::getName, "Name").mustSatisfy(notEmpty()));
+        var binding = new NestedRuleBinding<>("Owner", CreditCard::getOwner, DomainValidator.of(CreditCard.class));
+        binding.mustSatisfy(DomainValidator.of(Person.class).field("Name", Person::getName).mustSatisfy(notEmpty()));
 
         var result = binding.validate(creditCard);
 

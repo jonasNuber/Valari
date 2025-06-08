@@ -1,4 +1,4 @@
-package io.github.jonasnuber.valari.internal.domain;
+package io.github.jonasnuber.valari.internal.bindings;
 
 import io.github.jonasnuber.valari.api.validators.DomainValidator;
 import io.github.jonasnuber.valari.api.ValidationResult;
@@ -21,7 +21,7 @@ import java.util.function.Function;
  *
  * Example:
  * <pre>{@code
- * validator.field(User::getAddress, "address")
+ * validator.field("address", User::getAddress)
  *          .mustSatisfy(addressValidator);
  * }</pre>
  *
@@ -30,7 +30,7 @@ import java.util.function.Function;
  *
  * @author Jonas Nuber
  */
-public class NestedRuleBinding<T, F> implements RuleBinding<DomainValidator<T>, DomainValidator<F>>, Validator<T, ValidationResult> {
+public final class NestedRuleBinding<T, F> implements RuleBinding<DomainValidator<T>, DomainValidator<F>>, Validator<T, ValidationResult> {
     private final DomainValidator<T> parent;
     private final String fieldName;
     private final Function<T, F> valueExtractor;
@@ -45,19 +45,15 @@ public class NestedRuleBinding<T, F> implements RuleBinding<DomainValidator<T>, 
      * enabling recursive validation logic for complex object graphs.
      * </p>
      *
-     * @param parent        the parent domain validator (must not be {@code null})
-     * @param valueExtractor a function to extract the nested field value from the parent object (must not be {@code null})
      * @param fieldName     the name of the nested field (used for error reporting, must not be {@code null})
+     * @param valueExtractor a function to extract the nested field value from the parent object (must not be {@code null})
+     * @param parent        the parent domain validator (must not be {@code null})
      * @throws NullPointerException if any argument is {@code null}
      */
-    public NestedRuleBinding(DomainValidator<T> parent, Function<T, F> valueExtractor, String fieldName) {
-        Objects.requireNonNull(parent, "Parent Validator must not be null");
-        Objects.requireNonNull(valueExtractor, "Extractor Method to get value for validation must not be null");
-        Objects.requireNonNull(fieldName, "FieldName of the value to validate must not be null");
-
-        this.parent = parent;
-        this.valueExtractor = valueExtractor;
-        this.fieldName = fieldName;
+    public NestedRuleBinding(String fieldName, Function<T, F> valueExtractor, DomainValidator<T> parent) {
+        this.fieldName = Objects.requireNonNull(fieldName, "FieldName of the value to validate must not be null");
+        this.valueExtractor = Objects.requireNonNull(valueExtractor, "Extractor Method to get value for validation must not be null");
+        this.parent = Objects.requireNonNull(parent, "Parent Validator must not be null");
     }
 
     /**
@@ -140,16 +136,5 @@ public class NestedRuleBinding<T, F> implements RuleBinding<DomainValidator<T>, 
         }
 
         return ValidationResult.ok();
-    }
-
-    /**
-     * Validates the object and throws an exception if validation fails.
-     *
-     * @param toValidate the object to validate
-     * @throws io.github.jonasnuber.valari.api.exceptions.InvalidAttributeValueException if validation fails
-     */
-    @Override
-    public void validateAndThrow(T toValidate) {
-        validate(toValidate).throwIfInvalid();
     }
 }

@@ -98,15 +98,4 @@ public class ValueValidator<T> implements Validator<T, ValidationResult> {
 
         return validation.test(toValidate).withFieldName(valueName);
     }
-
-    /**
-     * Validates the provided value and throws an exception if the result is invalid.
-     *
-     * @param toValidate the value to validate
-     * @throws RuntimeException if validation fails
-     */
-    @Override
-    public void validateAndThrow(T toValidate) {
-        validate(toValidate).throwIfInvalid();
-    }
 }

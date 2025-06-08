@@ -19,7 +19,8 @@ import io.github.jonasnuber.valari.internal.BaseValidator;
  *
  * @author Jonas Nuber
  */
-public interface Validator<T, R> extends BaseValidator {
+@FunctionalInterface
+public interface Validator<T, R extends ThrowingResult> extends BaseValidator {
 
   /**
    * Validates the given object and returns the result.
@@ -32,11 +33,13 @@ public interface Validator<T, R> extends BaseValidator {
   /**
    * Validates the given object and throws an exception if the validation fails.
    * <p>
-   * The type and content of the exception is defined by the implementing class.
+   * The type and content of the exception is defined by the result's {@link ThrowingResult#throwIfInvalid()} method
    * </p>
    *
    * @param toValidate the object to validate
    * @throws RuntimeException if the validation fails
    */
-  void validateAndThrow(T toValidate);
+  default void validateAndThrow(T toValidate) {
+    validate(toValidate).throwIfInvalid();
+  }
 }
