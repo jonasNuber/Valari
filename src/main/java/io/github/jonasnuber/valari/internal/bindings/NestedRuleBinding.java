@@ -107,6 +107,12 @@ public final class NestedRuleBinding<T, F> implements RuleBinding<DomainValidato
     public ValidationResult validate(T toValidate) {
         Objects.requireNonNull(toValidate, "Object to validate must not be null");
 
+        if (compositeValidator == null) {
+            throw new IllegalStateException(
+                    "No validator was set. Call mustSatisfy(...) or ifPresent(...) before validation"
+            );
+        }
+
         F value = extractValue(toValidate);
 
         if (shouldSkipValidation(value)) {

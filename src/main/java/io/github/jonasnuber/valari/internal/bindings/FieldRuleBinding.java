@@ -95,14 +95,16 @@ public final class FieldRuleBinding<T, F> implements RuleBinding<DomainValidator
     public ValidationResult validate(T toValidate) {
         Objects.requireNonNull(toValidate, "Object to validate must not be null");
 
+        if(validation == null) {
+            throw new IllegalStateException("No validation rule was set. Call mustSatisfy(...) or ifPresent(...) before validation");
+        }
+
         F value = valueExtractor.apply(toValidate);
         ValidationResult result = validation.test(value);
 
-        if (result.isInvalid()) {
-            return ValidationResult.fail(result.getCauseDescription(), fieldName);
-        }
-
-        return result;
+        return result.isInvalid()
+                ? ValidationResult.fail(result.getCauseDescription(), fieldName)
+                : result;
     }
 
     /**
