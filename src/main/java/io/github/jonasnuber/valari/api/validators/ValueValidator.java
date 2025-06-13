@@ -94,8 +94,6 @@ public class ValueValidator<T> implements Validator<T, ValidationResult> {
             return ValidationResult.ok();
         }
 
-        Objects.requireNonNull(toValidate, "Object to validate must not be null");
-
         return validation.test(toValidate).withFieldName(valueName);
     }
 }

@@ -50,13 +50,13 @@ class DomainValidatorTest {
     }
 
     @Test
-    void field_ShouldReturnFieldValidationBinding_ForValidInput() {
-        Function<Person, Integer> extractor = Person::getAge;
+    void field_ShouldReturnFieldRuleBinding_ForValidInput() {
         var fieldName = "Age";
+        Function<Person, Integer> extractor = Person::getAge;
 
-        var fieldValidationBinding = DomainValidator.of(Person.class).field(fieldName, extractor);
+        var fieldRuleBinding = DomainValidator.of(Person.class).field(fieldName, extractor);
 
-        assertThat(fieldValidationBinding)
+        assertThat(fieldRuleBinding)
                 .isInstanceOf(FieldRuleBinding.class);
     }
 
@@ -131,7 +131,7 @@ class DomainValidatorTest {
     }
 
     @Test
-    void validate_ShouldFail_WhenPresentFieldIsInvalid_UsingIfPresent() {
+    void validate_ShouldFail_WhenIfPresentFieldIsInvalid() {
         var validatorWithOptionalName = DomainValidator.of(Person.class)
                 .field("Name", Person::getName)
                 .ifPresent(notEmpty())

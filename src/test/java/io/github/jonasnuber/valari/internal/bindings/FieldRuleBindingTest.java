@@ -50,7 +50,7 @@ class FieldRuleBindingTest {
         var invalidResult = binding.validate(invalidPerson);
 
         assertThat(validResult.isValid()).isTrue();
-        assertThat(invalidResult.isInvalid()).isTrue();
+        assertThat(invalidResult.isValid()).isFalse();
     }
 
     @Test

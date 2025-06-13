@@ -72,17 +72,6 @@ class ValueValidatorTest {
     }
 
     @Test
-    void validate_ShouldThrowException_WhenWithAndNullObject() {
-        var validator = ValueValidator.with(notEmpty());
-
-        var nullToValidate = catchThrowable(() -> validator.validate(null));
-
-        assertThat(nullToValidate)
-                .isInstanceOf(NullPointerException.class)
-                .hasMessage("Object to validate must not be null");
-    }
-
-    @Test
     void validate_ShouldReturnValid_WhenValidationPasses() {
         var validator = ValueValidator.with(notEmpty());
 
@@ -125,17 +114,6 @@ class ValueValidatorTest {
         var result = validator.validate("");
 
         assertThat(result.isInvalid()).isTrue();
-    }
-
-    @Test
-    void validateAndThrow_ShouldThrowException_ForNullObjectToValidate() {
-        var validator = ValueValidator.with(notEmpty());
-
-        var thrown = catchThrowable(() -> validator.validateAndThrow(null));
-
-        assertThat(thrown)
-                .isInstanceOf(NullPointerException.class)
-                .hasMessage("Object to validate must not be null");
     }
 
     @Test
