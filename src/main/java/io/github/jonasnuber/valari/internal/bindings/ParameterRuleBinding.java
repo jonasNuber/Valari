@@ -33,7 +33,7 @@ import java.util.Objects;
  *
  * @author Jonas Nuber
  */
-public class ParameterRuleBinding<T, F> implements RuleBinding<ConstructorValidator<T>, Validation<F>>, NoInputValidator<ValidationResult> {
+public final class ParameterRuleBinding<T, F> implements RuleBinding<ConstructorValidator<T>, Validation<F>>, NoInputValidator<ValidationResult> {
     private final String parameterName;
     private final F parameter;
     private final ConstructorValidator<T> parent;

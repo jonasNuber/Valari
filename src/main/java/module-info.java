@@ -10,6 +10,7 @@
  *   <li>{@code api.helpers} – Utility classes to simplify validator creation</li>
  *   <li>{@code api.exceptions} – Custom exceptions for validation failures</li>
  *   <li>{@code api.validators} – Built-in validators for common use cases</li>
+ *   <li>{@code api.builders} - Built-in builders for creating validated objects</li>
  *   <li>{@code spi} – Service provider interface for custom validator extensions</li>
  * </ul>
  *
@@ -21,5 +22,6 @@ module io.github.jonasnuber.valari {
     exports io.github.jonasnuber.valari.api.helpers;
     exports io.github.jonasnuber.valari.api.exceptions;
     exports io.github.jonasnuber.valari.api.validators;
+    exports io.github.jonasnuber.valari.api.builders;
     exports io.github.jonasnuber.valari.spi;
 }
