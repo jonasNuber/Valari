@@ -1,6 +1,7 @@
 package io.github.jonasnuber.valari.api.helpers;
 
 import io.github.jonasnuber.valari.api.SimpleValidation;
+import io.github.jonasnuber.valari.api.results.ValidationResult;
 import io.github.jonasnuber.valari.spi.Validation;
 
 import java.util.regex.Pattern;
@@ -29,7 +30,9 @@ public final class StringValidationHelpers {
 	public static Validation<String> notEmpty(){
 		return SimpleValidation.from(
 				s -> s != null && !s.isEmpty(),
-				"must not be empty");
+				new ValidationResult.Builder("must not be empty")
+						.messageKey("validation.string.notEmpty")
+		);
 	}
 
 	/**
@@ -40,7 +43,9 @@ public final class StringValidationHelpers {
 	public static Validation<String> notBlank(){
 		return SimpleValidation.from(
 				s -> s != null && !s.trim().isEmpty(),
-				"must not be blank");
+				new ValidationResult.Builder("must not be blank")
+						.messageKey("validation.string.notBlank")
+		);
 	}
 
 	/**
@@ -53,7 +58,10 @@ public final class StringValidationHelpers {
 		return SimpleValidation.from(
 				s -> notNull(s, STRING_MUST_NOT_BE_NULL) &&
 						s.length() == size,
-				String.format("must have exactly %s chars", size));
+				new ValidationResult.Builder("must have exactly {0} chars")
+						.messageKey("validation.string.exactly")
+						.messageArgument(size)
+		);
 	}
 
 	/**
@@ -66,7 +74,10 @@ public final class StringValidationHelpers {
 		return SimpleValidation.from(
 				s -> notNull(s, STRING_MUST_NOT_BE_NULL) &&
 						s.length() > minimum,
-				String.format("must have more than %s chars", minimum));
+				new ValidationResult.Builder("must have more than {0} chars")
+						.messageKey("validation.string.moreThan")
+						.messageArgument(minimum)
+		);
 	}
 
 	/**
@@ -79,7 +90,10 @@ public final class StringValidationHelpers {
 		return SimpleValidation.from(
 				s -> notNull(s, STRING_MUST_NOT_BE_NULL) &&
 						s.length() < maximum,
-				String.format("must have less than %s chars", maximum));
+				new ValidationResult.Builder("must have less than {0} chars")
+						.messageKey("validation.string.lessThan")
+						.messageArgument(maximum)
+		);
 	}
 
 	/**
@@ -104,7 +118,10 @@ public final class StringValidationHelpers {
 				s -> notNull(s, STRING_MUST_NOT_BE_NULL) &&
 						notNull(str, "String which should be contained, must not be null") &&
 						s.contains(str),
-				String.format("must contain \"%s\"", str));
+				new ValidationResult.Builder("must contain \"{0}\"")
+						.messageKey("validation.string.contains")
+						.messageArgument(str)
+		);
 	}
 
 	/**
@@ -118,7 +135,10 @@ public final class StringValidationHelpers {
 				s -> notNull(s, STRING_MUST_NOT_BE_NULL) &&
 						notNull(str, "String which should be contained, must not be null") &&
 						s.toLowerCase().contains(str.toLowerCase()),
-				String.format("must contain \"%s\"", str));
+				new ValidationResult.Builder("must contain \"{0}\"")
+						.messageKey("validation.string.contains")
+						.messageArgument(str)
+		);
 	}
 
 	/**
@@ -132,7 +152,9 @@ public final class StringValidationHelpers {
 				s -> notNull(s, STRING_MUST_NOT_BE_NULL) &&
 						notNull(regex, "Regular Expression must not be null") &&
 						s.matches(regex),
-				String.format("must fully match regex '%s'", regex)
+				new ValidationResult.Builder("must fully match regex ' {0} '")
+						.messageKey("validation.string.matchRegex")
+						.messageArgument(regex)
 		);
 	}
 
@@ -147,7 +169,9 @@ public final class StringValidationHelpers {
 				s -> notNull(s, STRING_MUST_NOT_BE_NULL) &&
 						notNull(regex, "Regular Expression must not be null") &&
 						Pattern.compile(regex).matcher(s).find(),
-				String.format("must contain substring matching regex '%s'", regex)
+				new ValidationResult.Builder("must contain substring matching regex ' {0} '")
+						.messageKey("validation.string.containRegex")
+						.messageArgument(regex)
 		);
 	}
 
@@ -162,7 +186,9 @@ public final class StringValidationHelpers {
 				s -> notNull(s, STRING_MUST_NOT_BE_NULL) &&
 						notNull(prefix, "Prefix must not be null") &&
 						s.startsWith(prefix),
-				String.format("must start with \"%s\"", prefix)
+				new ValidationResult.Builder("must start with \"{0}\"")
+						.messageKey("validation.string.startsWith")
+						.messageArgument(prefix)
 		);
 	}
 
@@ -177,7 +203,9 @@ public final class StringValidationHelpers {
 				s -> notNull(s, STRING_MUST_NOT_BE_NULL) &&
 						notNull(prefix, "Prefix must not be null") &&
 						s.toLowerCase().startsWith(prefix.toLowerCase()),
-				String.format("must start with \"%s\" (case-insensitive)", prefix)
+				new ValidationResult.Builder("must start with \"{0}\"")
+						.messageKey("validation.string.startsWith")
+						.messageArgument("(case-insensitive) " + prefix)
 		);
 	}
 
@@ -192,7 +220,9 @@ public final class StringValidationHelpers {
 				s -> notNull(s, STRING_MUST_NOT_BE_NULL) &&
 						notNull(suffix, "Suffix must not be null") &&
 						s.endsWith(suffix),
-				String.format("must end with \"%s\"", suffix)
+				new ValidationResult.Builder("must end with \"{0}\"")
+						.messageKey("validation.string.endsWith")
+						.messageArgument(suffix)
 		);
 	}
 
@@ -207,7 +237,9 @@ public final class StringValidationHelpers {
 				s -> notNull(s, STRING_MUST_NOT_BE_NULL) &&
 						notNull(suffix, "Suffix must not be null") &&
 						s.toLowerCase().endsWith(suffix.toLowerCase()),
-				String.format("must end with \"%s\" (case-insensitive)", suffix)
+				new ValidationResult.Builder("must end with \"{0}\"")
+						.messageKey("validation.string.endsWith")
+						.messageArgument("(case-insensitive) " + suffix)
 		);
 	}
 }

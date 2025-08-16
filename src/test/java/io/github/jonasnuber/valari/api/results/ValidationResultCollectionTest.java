@@ -1,4 +1,4 @@
-package io.github.jonasnuber.valari.api;
+package io.github.jonasnuber.valari.api.results;
 
 import io.github.jonasnuber.valari.api.exceptions.AggregatedValidationException;
 import io.github.jonasnuber.valari.spi.Validation;

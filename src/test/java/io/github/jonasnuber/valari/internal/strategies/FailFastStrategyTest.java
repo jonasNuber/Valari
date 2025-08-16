@@ -3,7 +3,7 @@ package io.github.jonasnuber.valari.internal.strategies;
 import io.github.jonasnuber.valari.Person;
 import io.github.jonasnuber.valari.api.validators.ConstructorValidator;
 import io.github.jonasnuber.valari.api.validators.DomainValidator;
-import io.github.jonasnuber.valari.api.ValidationResult;
+import io.github.jonasnuber.valari.api.results.ValidationResult;
 import io.github.jonasnuber.valari.internal.bindings.ParameterRuleBinding;
 import io.github.jonasnuber.valari.internal.bindings.FieldRuleBinding;
 import io.github.jonasnuber.valari.spi.NoInputValidator;
@@ -53,7 +53,7 @@ class FailFastStrategyTest {
                         .toList(), Person.class
         );
 
-        assertThat(result.hasFailures()).isTrue();
+        assertThat(result.isInvalid()).isTrue();
         assertThat(result.getResults())
                 .hasSize(1)
                 .extracting(ValidationResult::getFieldName)
@@ -72,7 +72,7 @@ class FailFastStrategyTest {
                 Person.class
         );
 
-        assertThat(result.hasFailures()).isFalse();
+        assertThat(result.isInvalid()).isFalse();
         assertThat(result.getResults()).isEmpty();
     }
 }

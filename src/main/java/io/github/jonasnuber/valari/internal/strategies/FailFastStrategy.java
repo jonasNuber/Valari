@@ -1,7 +1,7 @@
 package io.github.jonasnuber.valari.internal.strategies;
 
-import io.github.jonasnuber.valari.api.ValidationResult;
-import io.github.jonasnuber.valari.api.ValidationResultCollection;
+import io.github.jonasnuber.valari.api.results.ValidationResult;
+import io.github.jonasnuber.valari.api.results.ValidationResultCollection;
 import io.github.jonasnuber.valari.spi.NoInputValidator;
 
 import java.util.List;

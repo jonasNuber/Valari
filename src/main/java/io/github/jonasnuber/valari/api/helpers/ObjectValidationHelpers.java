@@ -1,6 +1,7 @@
 package io.github.jonasnuber.valari.api.helpers;
 
 import io.github.jonasnuber.valari.api.SimpleValidation;
+import io.github.jonasnuber.valari.api.results.ValidationResult;
 import io.github.jonasnuber.valari.spi.Validation;
 
 import java.util.Objects;
@@ -24,7 +25,11 @@ public final class ObjectValidationHelpers {
      * @return The validation for not null.
      */
     public static <K> Validation<K> notNull(){
-        return SimpleValidation.from(Objects::nonNull, "must not be null");
+        return SimpleValidation.from(
+                Objects::nonNull,
+                new ValidationResult.Builder("must not be null")
+                        .messageKey("validation.object.notNull")
+        );
     }
 
     /**
@@ -39,7 +44,10 @@ public final class ObjectValidationHelpers {
                 o -> notNull(o, "Object must not be null") &&
                         notNull(other, "Object to equal must not be null") &&
                         other.equals(o),
-                String.format("must be equal to \"%s\"", other));
+                new ValidationResult.Builder("must be equal to \"{0}\"")
+                        .messageKey("validation.object.equalTo")
+                        .messageArgument(other)
+        );
     }
 
     static boolean notNull(Object o, String errorMessage) throws NullPointerException {

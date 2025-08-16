@@ -1,7 +1,7 @@
 package io.github.jonasnuber.valari.internal.bindings;
 
 import io.github.jonasnuber.valari.Person;
-import io.github.jonasnuber.valari.api.ValidationResult;
+import io.github.jonasnuber.valari.api.results.ValidationResult;
 import io.github.jonasnuber.valari.api.exceptions.InvalidAttributeValueException;
 import io.github.jonasnuber.valari.api.validators.ConstructorValidator;
 import org.junit.jupiter.api.Test;

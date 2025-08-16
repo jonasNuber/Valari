@@ -1,6 +1,7 @@
 package io.github.jonasnuber.valari.internal.strategies;
 
-import io.github.jonasnuber.valari.api.ValidationResult;
+import io.github.jonasnuber.valari.api.results.ValidationResult;
+import io.github.jonasnuber.valari.api.results.ValidationResultCollection;
 import io.github.jonasnuber.valari.spi.NoInputValidator;
 import io.github.jonasnuber.valari.spi.ThrowingResult;
 
@@ -25,7 +26,7 @@ import java.util.List;
  * </p>
  *
  * @param <T> the type of the object being validated (used for result context only)
- * @param <R> the result type returned by the strategy (e.g., {@link io.github.jonasnuber.valari.api.ValidationResultCollection})
+ * @param <R> the result type returned by the strategy (e.g., {@link ValidationResultCollection})
  *
  * @author Jonas Nuber
  */

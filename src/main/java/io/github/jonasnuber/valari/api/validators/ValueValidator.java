@@ -1,6 +1,6 @@
 package io.github.jonasnuber.valari.api.validators;
 
-import io.github.jonasnuber.valari.api.ValidationResult;
+import io.github.jonasnuber.valari.api.results.ValidationResult;
 import io.github.jonasnuber.valari.spi.Validation;
 import io.github.jonasnuber.valari.spi.Validator;
 
@@ -91,7 +91,7 @@ public class ValueValidator<T> implements Validator<T, ValidationResult> {
     @Override
     public ValidationResult validate(T toValidate) {
         if (optional && Objects.isNull(toValidate)) {
-            return ValidationResult.ok();
+            return ValidationResult.skip().withFieldName(valueName);
         }
 
         return validation.test(toValidate).withFieldName(valueName);

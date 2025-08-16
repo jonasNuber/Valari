@@ -1,6 +1,6 @@
 package io.github.jonasnuber.valari.internal.bindings;
 
-import io.github.jonasnuber.valari.api.ValidationResult;
+import io.github.jonasnuber.valari.api.results.ValidationResult;
 import io.github.jonasnuber.valari.api.validators.ConstructorValidator;
 import io.github.jonasnuber.valari.api.validators.ValueValidator;
 import io.github.jonasnuber.valari.spi.NoInputValidator;

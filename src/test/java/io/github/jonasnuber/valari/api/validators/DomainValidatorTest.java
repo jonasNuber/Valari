@@ -1,7 +1,7 @@
 package io.github.jonasnuber.valari.api.validators;
 
 import io.github.jonasnuber.valari.Person;
-import io.github.jonasnuber.valari.api.ValidationResult;
+import io.github.jonasnuber.valari.api.results.ValidationResult;
 import io.github.jonasnuber.valari.api.exceptions.AggregatedValidationException;
 import io.github.jonasnuber.valari.internal.bindings.FieldRuleBinding;
 import io.github.jonasnuber.valari.internal.bindings.NestedRuleBinding;
@@ -100,7 +100,7 @@ class DomainValidatorTest {
 
         var result = validator.validate(new Person(name, age));
 
-        assertThat(result.hasFailures()).isFalse();
+        assertThat(result.isInvalid()).isFalse();
         assertThat(result.getResults()).isEmpty();
     }
 
@@ -110,7 +110,7 @@ class DomainValidatorTest {
 
         var result = validator.validate(new Person(null, age));
 
-        assertThat(result.hasFailures()).isTrue();
+        assertThat(result.isInvalid()).isTrue();
         assertThat(result.getResults())
                 .extracting(ValidationResult::getFieldName)
                 .containsExactlyInAnyOrder("Name", "Age");
@@ -127,7 +127,7 @@ class DomainValidatorTest {
 
         var result = validatorWithOptionalName.validate(person);
 
-        assertThat(result.hasFailures()).isFalse();
+        assertThat(result.isInvalid()).isFalse();
     }
 
     @Test
@@ -141,7 +141,7 @@ class DomainValidatorTest {
 
         var result = validatorWithOptionalName.validate(person);
 
-        assertThat(result.hasFailures()).isTrue();
+        assertThat(result.isInvalid()).isTrue();
         assertThat(result.getResults())
                 .extracting(ValidationResult::getFieldName)
                 .containsExactly("Name");
@@ -187,7 +187,7 @@ class DomainValidatorTest {
                 .failFast()
                 .validate(new Person(null, age));
 
-        assertThat(result.hasFailures()).isTrue();
+        assertThat(result.isInvalid()).isTrue();
         assertThat(result.getResults())
                 .hasSize(1)
                 .extracting(ValidationResult::getFieldName)
@@ -202,7 +202,7 @@ class DomainValidatorTest {
                 .collectFailures()
                 .validate(new Person(null, age));
 
-        assertThat(result.hasFailures()).isTrue();
+        assertThat(result.isInvalid()).isTrue();
         assertThat(result.getResults())
                 .hasSize(2)
                 .extracting(ValidationResult::getFieldName)
@@ -230,7 +230,7 @@ class DomainValidatorTest {
 
         var result = andValidator.validate(new Person(null, age));
 
-        assertThat(result.hasFailures()).isTrue();
+        assertThat(result.isInvalid()).isTrue();
         assertThat(result.getResults())
                 .extracting(ValidationResult::getFieldName)
                 .containsExactlyInAnyOrder("Name", "Age");
@@ -245,7 +245,7 @@ class DomainValidatorTest {
                 .collectFailures()
                 .validate(new Person(null, age));
 
-        assertThat(result.hasFailures()).isTrue();
+        assertThat(result.isInvalid()).isTrue();
         assertThat(result.getResults())
                 .hasSize(2)
                 .extracting(ValidationResult::getFieldName)

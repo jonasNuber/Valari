@@ -1,8 +1,9 @@
 package io.github.jonasnuber.valari.internal.bindings;
 
-import io.github.jonasnuber.valari.api.ValidationResult;
+import io.github.jonasnuber.valari.api.results.ValidationResult;
 import io.github.jonasnuber.valari.api.validators.DomainValidator;
 import io.github.jonasnuber.valari.api.SimpleValidation;
+import io.github.jonasnuber.valari.api.validators.ValueValidator;
 import io.github.jonasnuber.valari.spi.Validation;
 import io.github.jonasnuber.valari.spi.RuleBinding;
 import io.github.jonasnuber.valari.spi.Validator;
@@ -79,8 +80,14 @@ public final class FieldRuleBinding<T, F> implements RuleBinding<DomainValidator
      */
     @Override
     public DomainValidator<T> ifPresent(Validation<F> rule) {
-        this.validation = SimpleValidation.<F>from(Objects::isNull, "")
-                .or(Objects.requireNonNull(rule, "validation must not be null"));
+        this.validation = value -> Objects.isNull(value) ?
+                ValidationResult
+                        .skip()
+                        .withFieldName(fieldName) :
+                Objects.requireNonNull(rule, "validation must not be null")
+                        .test(value)
+                        .withFieldName(fieldName);
+
         return parent;
     }
 
@@ -100,11 +107,8 @@ public final class FieldRuleBinding<T, F> implements RuleBinding<DomainValidator
         }
 
         F value = valueExtractor.apply(toValidate);
-        ValidationResult result = validation.test(value);
 
-        return result.isInvalid()
-                ? ValidationResult.fail(result.getCauseDescription(), fieldName)
-                : result;
+        return validation.test(value).withFieldName(fieldName);
     }
 
     /**
@@ -115,6 +119,6 @@ public final class FieldRuleBinding<T, F> implements RuleBinding<DomainValidator
      */
     @Override
     public void validateAndThrow(T toValidate) {
-        validate(toValidate).throwIfInvalid(fieldName);
+        validate(toValidate).throwIfInvalid();
     }
 }

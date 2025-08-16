@@ -1,7 +1,7 @@
 package io.github.jonasnuber.valari.api.exceptions;
 
-import io.github.jonasnuber.valari.api.ValidationResult;
-import io.github.jonasnuber.valari.api.ValidationResultCollection;
+import io.github.jonasnuber.valari.api.results.ValidationResult;
+import io.github.jonasnuber.valari.api.results.ValidationResultCollection;
 
 import java.io.Serial;
 

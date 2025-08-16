@@ -1,5 +1,6 @@
 package io.github.jonasnuber.valari.api;
 
+import io.github.jonasnuber.valari.api.results.ValidationResult;
 import io.github.jonasnuber.valari.spi.Validation;
 
 import java.util.function.Predicate;
@@ -14,7 +15,7 @@ import java.util.function.Predicate;
 public class SimpleValidation<K> implements Validation<K> {
 
 	private final Predicate<K> predicate;
-	private final String onErrorMessage;
+	private final ValidationResult.Builder resultBuilder;
 
 	/**
 	 * Constructs a new SimpleValidation object with the specified predicate and error message.
@@ -22,9 +23,9 @@ public class SimpleValidation<K> implements Validation<K> {
 	 * @param predicate      The predicate to validate against.
 	 * @param onErrorMessage The error message indicating why the validation failed.
 	 */
-	private SimpleValidation(Predicate<K> predicate, String onErrorMessage) {
+	private SimpleValidation(Predicate<K> predicate, ValidationResult.Builder resultBuilder) {
 		this.predicate = predicate;
-		this.onErrorMessage = onErrorMessage;
+		this.resultBuilder = resultBuilder;
 	}
 
 	/**
@@ -35,8 +36,8 @@ public class SimpleValidation<K> implements Validation<K> {
 	 * @param onErrorMessage The error message indicating why the validation failed.
 	 * @return The SimpleValidation object.
 	 */
-	public static <K> SimpleValidation<K> from(Predicate<K> predicate, String onErrorMessage) {
-		return new SimpleValidation<>(predicate, onErrorMessage);
+	public static <K> SimpleValidation<K> from(Predicate<K> predicate, ValidationResult.Builder resultBuilder) {
+		return new SimpleValidation<>(predicate, resultBuilder);
 	}
 
 	/**
@@ -47,6 +48,8 @@ public class SimpleValidation<K> implements Validation<K> {
 	 */
 	@Override
 	public ValidationResult test(K param) {
-		return predicate.test(param) ? ValidationResult.ok() : ValidationResult.fail(onErrorMessage);
+		resultBuilder.value(param);
+
+		return predicate.test(param) ? resultBuilder.ok() : resultBuilder.fail();
 	}
 }

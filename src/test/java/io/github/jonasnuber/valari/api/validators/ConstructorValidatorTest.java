@@ -1,7 +1,7 @@
 package io.github.jonasnuber.valari.api.validators;
 
 import io.github.jonasnuber.valari.Person;
-import io.github.jonasnuber.valari.api.ValidationResult;
+import io.github.jonasnuber.valari.api.results.ValidationResult;
 import io.github.jonasnuber.valari.api.exceptions.AggregatedValidationException;
 import io.github.jonasnuber.valari.internal.bindings.ParameterRuleBinding;
 import org.junit.jupiter.api.BeforeEach;
@@ -58,7 +58,7 @@ class ConstructorValidatorTest {
     void validate_ShouldReturnValid_WhenAllFieldsPass() {
         var result = validator.validate();
 
-        assertThat(result.hasFailures()).isFalse();
+        assertThat(result.isInvalid()).isFalse();
         assertThat(result.getResults()).isEmpty();
     }
 
@@ -68,7 +68,7 @@ class ConstructorValidatorTest {
 
         var result = validator.validate();
 
-        assertThat(result.hasFailures()).isTrue();
+        assertThat(result.isInvalid()).isTrue();
         assertThat(result.getResults())
                 .extracting(ValidationResult::getFieldName)
                 .containsExactly("invalidParam");
@@ -80,7 +80,7 @@ class ConstructorValidatorTest {
 
         var result = validator.validate();
 
-        assertThat(result.hasFailures()).isFalse();
+        assertThat(result.isInvalid()).isFalse();
         assertThat(result.getResults()).isEmpty();
     }
 
@@ -90,7 +90,7 @@ class ConstructorValidatorTest {
 
         var result = validator.validate();
 
-        assertThat(result.hasFailures()).isTrue();
+        assertThat(result.isInvalid()).isTrue();
         assertThat(result.getResults())
                 .extracting(ValidationResult::getFieldName)
                 .containsExactly("optionalPresent");
@@ -126,7 +126,7 @@ class ConstructorValidatorTest {
                 .failFast()
                 .validate();
 
-        assertThat(result.hasFailures()).isTrue();
+        assertThat(result.isInvalid()).isTrue();
         assertThat(result.getResults())
                 .extracting(ValidationResult::getFieldName)
                 .containsExactly("invalidParam1");
@@ -144,7 +144,7 @@ class ConstructorValidatorTest {
                 .collectFailures()
                 .validate();
 
-        assertThat(result.hasFailures()).isTrue();
+        assertThat(result.isInvalid()).isTrue();
         assertThat(result.getResults())
                 .hasSize(2)
                 .extracting(ValidationResult::getFieldName)
@@ -171,7 +171,7 @@ class ConstructorValidatorTest {
 
         var result = andValidator.validate();
 
-        assertThat(result.hasFailures()).isFalse();
+        assertThat(result.isInvalid()).isFalse();
         assertThat(result.getResults()).isEmpty();
     }
 
@@ -188,7 +188,7 @@ class ConstructorValidatorTest {
                 .collectFailures()
                 .validate();
 
-        assertThat(result.hasFailures()).isTrue();
+        assertThat(result.isInvalid()).isTrue();
         assertThat(result.getResults())
                 .hasSize(2)
                 .extracting(ValidationResult::getFieldName)

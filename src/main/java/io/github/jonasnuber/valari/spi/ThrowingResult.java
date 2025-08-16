@@ -1,5 +1,12 @@
 package io.github.jonasnuber.valari.spi;
 
+import io.github.jonasnuber.valari.api.results.MessageResolutionContext;
+import io.github.jonasnuber.valari.api.results.ValidationState;
+
+import java.util.Locale;
+import java.util.function.Function;
+import java.util.function.Supplier;
+
 /**
  * Common contract for validation result types that can throw an exception
  * if the validation failed.
@@ -7,6 +14,30 @@ package io.github.jonasnuber.valari.spi;
  * @author Jonas Nuber
  */
 public interface ThrowingResult {
+
+    default String getMessage() {
+        return getMessage(MessageResolutionContext.getResolver(), MessageResolutionContext.getLocale());
+    }
+
+    default void throwIfInvalid(Function<String, ? extends RuntimeException> exceptionFactory, String message) {
+        if (isInvalid()) throw exceptionFactory.apply(getMessage());
+    }
+
+    default void throwIfInvalid(Supplier<? extends RuntimeException> exceptionSupplier) {
+        if(isInvalid()) throw exceptionSupplier.get();
+    }
+
+    default boolean isValid() {
+        return getState().isValid();
+    }
+
+    default boolean isInvalid() {
+        return getState().isInvalid();
+    }
+
+    ValidationState getState();
+
+    String getMessage(MessageResolver resolver, Locale locale);
 
     /**
      * Throws an exception if the validation result is invalid.

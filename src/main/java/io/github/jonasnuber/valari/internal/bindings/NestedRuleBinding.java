@@ -1,8 +1,8 @@
 package io.github.jonasnuber.valari.internal.bindings;
 
 import io.github.jonasnuber.valari.api.validators.DomainValidator;
-import io.github.jonasnuber.valari.api.ValidationResult;
-import io.github.jonasnuber.valari.api.ValidationResultCollection;
+import io.github.jonasnuber.valari.api.results.ValidationResult;
+import io.github.jonasnuber.valari.api.results.ValidationResultCollection;
 import io.github.jonasnuber.valari.spi.RuleBinding;
 import io.github.jonasnuber.valari.spi.Validator;
 
@@ -113,17 +113,13 @@ public final class NestedRuleBinding<T, F> implements RuleBinding<DomainValidato
             );
         }
 
-        F value = extractValue(toValidate);
+        F value = valueExtractor.apply(toValidate);
 
         if (shouldSkipValidation(value)) {
-            return ValidationResult.ok();
+            return ValidationResult.skip().withFieldName(fieldName);
         }
 
-        return validateNested(value);
-    }
-
-    private F extractValue(T toValidate) {
-        return valueExtractor.apply(toValidate);
+        return compositeValidator.validate(value).toValidationResult();
     }
 
     private boolean shouldSkipValidation(F value) {
@@ -132,15 +128,5 @@ public final class NestedRuleBinding<T, F> implements RuleBinding<DomainValidato
             return false;
         }
         return value == null;
-    }
-
-    private ValidationResult validateNested(F value) {
-        ValidationResultCollection results = compositeValidator.validate(value);
-
-        if (results.hasFailures()) {
-            return ValidationResult.fail(results.getErrorMessage(), fieldName);
-        }
-
-        return ValidationResult.ok();
     }
 }
