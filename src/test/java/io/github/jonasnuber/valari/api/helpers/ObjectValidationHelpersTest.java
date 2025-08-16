@@ -1,12 +1,26 @@
 package io.github.jonasnuber.valari.api.helpers;
 
+import io.github.jonasnuber.valari.api.results.MessageResolutionContext;
+import io.github.jonasnuber.valari.spi.MessageResolver;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+
+import java.util.Locale;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
 class ObjectValidationHelpersTest {
 
+    private static MessageResolver resolver;
+    private static Locale locale;
+
+    @BeforeAll
+    static void init() {
+        resolver = MessageResolutionContext.getResolver();
+        locale = MessageResolutionContext.getLocale();
+    }
+    
     @Test
     void notNull_ShouldReturnValidResult_ForNotNullObject() {
         var validation = ObjectValidationHelpers.notNull();
@@ -23,7 +37,7 @@ class ObjectValidationHelpersTest {
         var result = validation.test(null);
 
         assertThat(result.isValid()).isFalse();
-        assertThat(result.getCauseDescription())
+        assertThat(result.resolveValidationMessage(resolver, locale))
                 .isEqualTo("must not be null");
     }
 
@@ -45,7 +59,7 @@ class ObjectValidationHelpersTest {
         var result = validation.test("different");
 
         assertThat(result.isValid()).isFalse();
-        assertThat(result.getCauseDescription())
+        assertThat(result.resolveValidationMessage(resolver, locale))
                 .isEqualTo("must be equal to \"test\"");
     }
 

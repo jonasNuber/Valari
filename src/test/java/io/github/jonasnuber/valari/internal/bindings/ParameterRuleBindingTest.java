@@ -1,6 +1,7 @@
 package io.github.jonasnuber.valari.internal.bindings;
 
 import io.github.jonasnuber.valari.Person;
+import io.github.jonasnuber.valari.api.results.MessageResolutionContext;
 import io.github.jonasnuber.valari.api.results.ValidationResult;
 import io.github.jonasnuber.valari.api.exceptions.InvalidAttributeValueException;
 import io.github.jonasnuber.valari.api.validators.ConstructorValidator;
@@ -54,7 +55,7 @@ class ParameterRuleBindingTest {
     @Test
     void mustSatisfy_ShouldOverridePreviousValidation() {
         var binding = new ParameterRuleBinding<>("SomeName", "Value", ConstructorValidator.of(Person.class));
-        binding.mustSatisfy(value -> ValidationResult.fail("first rule"));
+        binding.mustSatisfy(value -> new ValidationResult.Builder("first rule").fail());
         binding.mustSatisfy(notEmpty()); // overrides previous
 
         var result = binding.validate();
@@ -102,7 +103,8 @@ class ParameterRuleBindingTest {
 
         assertThat(result.isInvalid()).isTrue();
         assertThat(result.getFieldName()).isEqualTo("SomeName");
-        assertThat(result.getCauseDescription()).isEqualTo("must not be blank");
+        assertThat(result.resolveValidationMessage(MessageResolutionContext.getResolver(), MessageResolutionContext.getLocale()))
+                .isEqualTo("must not be blank");
     }
     @Test
     void validate_ShouldReturnValidResult_WhenFieldIsValid() {

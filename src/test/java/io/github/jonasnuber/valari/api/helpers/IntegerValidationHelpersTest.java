@@ -1,13 +1,27 @@
 package io.github.jonasnuber.valari.api.helpers;
 
+import io.github.jonasnuber.valari.api.results.MessageResolutionContext;
+import io.github.jonasnuber.valari.spi.MessageResolver;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+
+import java.util.Locale;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class IntegerValidationHelpersTest {
 
+    private static MessageResolver resolver;
+    private static Locale locale;
+
+    @BeforeAll
+    static void init() {
+        resolver = MessageResolutionContext.getResolver();
+        locale = MessageResolutionContext.getLocale();
+    }
+    
     @Test
     void sameAmount_ShouldReturnValidResult_ForSameAmount() {
         var exact = 5;
@@ -26,7 +40,7 @@ class IntegerValidationHelpersTest {
         var result = validation.test(higherValue);
 
         assertThat(result.isValid()).isFalse();
-        assertThat(result.getCauseDescription())
+        assertThat(result.resolveValidationMessage(resolver, locale))
                 .isEqualTo("must equal 5");
     }
 
@@ -38,7 +52,7 @@ class IntegerValidationHelpersTest {
         var result = validation.test(lowerValue);
 
         assertThat(result.isValid()).isFalse();
-        assertThat(result.getCauseDescription())
+        assertThat(result.resolveValidationMessage(resolver, locale))
                 .isEqualTo("must equal 5");
     }
 
@@ -60,7 +74,7 @@ class IntegerValidationHelpersTest {
         var result = validation.test(max);
 
         assertThat(result.isValid()).isFalse();
-        assertThat(result.getCauseDescription())
+        assertThat(result.resolveValidationMessage(resolver, locale))
                 .isEqualTo("must be lower than 10");
     }
 
@@ -72,7 +86,7 @@ class IntegerValidationHelpersTest {
         var result = validation.test(higherValue);
 
         assertThat(result.isValid()).isFalse();
-        assertThat(result.getCauseDescription())
+        assertThat(result.resolveValidationMessage(resolver, locale))
                 .isEqualTo("must be lower than 10");
     }
 
@@ -94,7 +108,7 @@ class IntegerValidationHelpersTest {
         var result = validation.test(min);
 
         assertThat(result.isValid()).isFalse();
-        assertThat(result.getCauseDescription())
+        assertThat(result.resolveValidationMessage(resolver, locale))
                 .isEqualTo("must be greater than 3");
     }
 
@@ -106,7 +120,7 @@ class IntegerValidationHelpersTest {
         var result = validation.test(smallerValue);
 
         assertThat(result.isValid()).isFalse();
-        assertThat(result.getCauseDescription())
+        assertThat(result.resolveValidationMessage(resolver, locale))
                 .isEqualTo("must be greater than 3");
     }
 
@@ -129,7 +143,7 @@ class IntegerValidationHelpersTest {
         var result = validation.test(min);
 
         assertThat(result.isValid()).isFalse();
-        assertThat(result.getCauseDescription())
+        assertThat(result.resolveValidationMessage(resolver, locale))
                 .isEqualTo("must be greater than 3");
     }
 
@@ -142,7 +156,7 @@ class IntegerValidationHelpersTest {
         var result = validation.test(max);
 
         assertThat(result.isValid()).isFalse();
-        assertThat(result.getCauseDescription())
+        assertThat(result.resolveValidationMessage(resolver, locale))
                 .isEqualTo("must be lower than 10");
     }
 
@@ -154,7 +168,7 @@ class IntegerValidationHelpersTest {
         var result = validation.test(smallerValue);
 
         assertThat(result.isValid()).isFalse();
-        assertThat(result.getCauseDescription())
+        assertThat(result.resolveValidationMessage(resolver, locale))
                 .isEqualTo("must be greater than 3");
     }
 
@@ -166,7 +180,7 @@ class IntegerValidationHelpersTest {
         var result = validation.test(greaterValue);
 
         assertThat(result.isValid()).isFalse();
-        assertThat(result.getCauseDescription())
+        assertThat(result.resolveValidationMessage(resolver, locale))
                 .isEqualTo("must be lower than 10");
     }
 
@@ -188,7 +202,7 @@ class IntegerValidationHelpersTest {
         var result = validation.test(smallerValue);
 
         assertThat(result.isValid()).isFalse();
-        assertThat(result.getCauseDescription())
+        assertThat(result.resolveValidationMessage(resolver, locale))
                 .isEqualTo("must be greater than 2");
     }
 
@@ -200,7 +214,7 @@ class IntegerValidationHelpersTest {
         var result = validation.test(greaterValue);
 
         assertThat(result.isValid()).isFalse();
-        assertThat(result.getCauseDescription())
+        assertThat(result.resolveValidationMessage(resolver, locale))
                 .isEqualTo("must be lower than 11");
     }
 
@@ -222,7 +236,7 @@ class IntegerValidationHelpersTest {
         var result = validation.test(oddNumber);
 
         assertThat(result.isValid()).isFalse();
-        assertThat(result.getCauseDescription())
+        assertThat(result.resolveValidationMessage(resolver, locale))
                 .isEqualTo("must be even");
     }
 
@@ -244,7 +258,7 @@ class IntegerValidationHelpersTest {
         var result = validation.test(evenNumber);
 
         assertThat(result.isValid()).isFalse();
-        assertThat(result.getCauseDescription())
+        assertThat(result.resolveValidationMessage(resolver, locale))
                 .isEqualTo("must be odd");
     }
 }

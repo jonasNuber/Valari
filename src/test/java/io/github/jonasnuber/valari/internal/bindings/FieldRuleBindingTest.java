@@ -2,6 +2,7 @@ package io.github.jonasnuber.valari.internal.bindings;
 
 import io.github.jonasnuber.valari.Person;
 import io.github.jonasnuber.valari.api.exceptions.InvalidAttributeValueException;
+import io.github.jonasnuber.valari.api.results.MessageResolutionContext;
 import io.github.jonasnuber.valari.api.validators.DomainValidator;
 import io.github.jonasnuber.valari.api.results.ValidationResult;
 import org.junit.jupiter.api.Test;
@@ -57,7 +58,7 @@ class FieldRuleBindingTest {
     void mustSatisfy_ShouldOverridePreviousValidation() {
         var person = new Person("Bob", 25);
         var binding = new FieldRuleBinding<>("Name", Person::getName, DomainValidator.of(Person.class));
-        binding.mustSatisfy(value -> ValidationResult.fail("first rule"));
+        binding.mustSatisfy(value -> new ValidationResult.Builder("first rule").fail());
         binding.mustSatisfy(notEmpty()); // overrides previous
 
         var result = binding.validate(person);
@@ -109,7 +110,8 @@ class FieldRuleBindingTest {
 
         assertThat(result.isInvalid()).isTrue();
         assertThat(result.getFieldName()).isEqualTo("Name");
-        assertThat(result.getCauseDescription()).isEqualTo("must not be empty");
+        assertThat(result.resolveValidationMessage(MessageResolutionContext.getResolver(), MessageResolutionContext.getLocale()))
+                .isEqualTo("must not be empty");
     }
 
     @Test
@@ -133,7 +135,8 @@ class FieldRuleBindingTest {
 
         assertThat(result.isInvalid()).isTrue();
         assertThat(result.getFieldName()).isEqualTo("Name");
-        assertThat(result.getCauseDescription()).isEqualTo("must not be empty");
+        assertThat(result.resolveValidationMessage(MessageResolutionContext.getResolver(), MessageResolutionContext.getLocale()))
+                .isEqualTo("must not be empty");
     }
 
     @Test

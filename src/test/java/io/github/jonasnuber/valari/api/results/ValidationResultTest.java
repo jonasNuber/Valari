@@ -10,7 +10,7 @@ class ValidationResultTest{
 
     @Test
     void ok_ShouldReturnValidResult() {
-        var result = ValidationResult.ok();
+        var result = new ValidationResult.Builder("Some Success Message").ok();
 
         var isValid = result.isValid();
         var isInvalid = result.isInvalid();
@@ -22,7 +22,7 @@ class ValidationResultTest{
     @Test
     void fail_ShouldReturnInvalidResult() {
         var causeDescription = "error message";
-        var result = ValidationResult.fail(causeDescription);
+        var result = new ValidationResult.Builder(causeDescription).fail();
 
         var isValid = result.isValid();
         var isInvalid = result.isInvalid();
@@ -36,7 +36,7 @@ class ValidationResultTest{
     void fail_ShouldReturnInvalidResult_WithFieldConstruction(){
         var causeDescription = "error message";
         var fieldName = "fieldName";
-        var result = ValidationResult.fail(causeDescription, fieldName);
+        var result = new ValidationResult.Builder(causeDescription).fail().withFieldName(fieldName);
 
         var isValid = result.isValid();
         var isInvalid = result.isInvalid();
@@ -47,9 +47,9 @@ class ValidationResultTest{
 
     @Test
     void throwIfInvalid_ShouldNotThrowException_ForValidResult() {
-        var result = ValidationResult.ok();
+        var result = new ValidationResult.Builder("Some Success Message").ok();
 
-        ThrowingCallable executable = () -> result.throwIfInvalid("fieldName");
+        ThrowingCallable executable = result::throwIfInvalid;
 
         assertThatCode(executable).doesNotThrowAnyException();
     }
@@ -57,9 +57,9 @@ class ValidationResultTest{
     @Test
     void throwIfInvalid_ShouldThrowException_ForInvalidResult() {
         var causeDescription = "is not valid";
-        var result = ValidationResult.fail(causeDescription);
+        var result = new ValidationResult.Builder(causeDescription).fail().withFieldName("fieldname");
 
-        var thrown = catchThrowable(() -> result.throwIfInvalid("fieldName"));
+        var thrown = catchThrowable(result::throwIfInvalid);
 
         assertThat(thrown)
                 .isInstanceOf(InvalidAttributeValueException.class)
@@ -69,7 +69,7 @@ class ValidationResultTest{
     @Test
     void throwIfInvalid_ShouldThrowException_ForInvalidResultWithoutFieldName() {
         var causeDescription = "is not valid";
-        var result = ValidationResult.fail(causeDescription);
+        var result = new ValidationResult.Builder(causeDescription).fail();
 
         var thrown = catchThrowable(result::throwIfInvalid);
 

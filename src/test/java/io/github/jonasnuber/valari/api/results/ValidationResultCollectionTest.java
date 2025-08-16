@@ -12,9 +12,9 @@ class ValidationResultCollectionTest{
     @Test
     void add_ShouldOnlyAddInvalidResults() {
         var resultCollection = new ValidationResultCollection(Validation.class);
-        var firstFailedResult = ValidationResult.fail("Some Error Message");
-        var secondFailedResult = ValidationResult.fail("Some other Error Message");
-        var firstSucceededResult = ValidationResult.ok();
+        var firstFailedResult = new ValidationResult.Builder("Some Error Message").fail();
+        var secondFailedResult = new ValidationResult.Builder("Some Other Error Message").fail();
+        var firstSucceededResult = new ValidationResult.Builder("Some Success Message").ok();
         resultCollection.add(firstFailedResult);
         resultCollection.add(secondFailedResult);
         resultCollection.add(firstSucceededResult);
@@ -30,7 +30,7 @@ class ValidationResultCollectionTest{
     @Test
     void throwIfInvalid_ShouldNotThrowException_ForNoInvalidResults() {
         var resultCollection = new ValidationResultCollection(Validation.class);
-        resultCollection.add(ValidationResult.ok());
+        resultCollection.add(new ValidationResult.Builder("Some Success Message").ok());
 
         ThrowableAssert.ThrowingCallable executable = resultCollection::throwIfInvalid;
 
@@ -42,8 +42,8 @@ class ValidationResultCollectionTest{
         var causeDescription = "some Error Message";
         var fieldName = "fieldName";
         var resultCollection = new ValidationResultCollection((Validation.class));
-        resultCollection.add(ValidationResult.fail(causeDescription));
-        resultCollection.add(ValidationResult.fail(causeDescription, fieldName));
+        resultCollection.add(new ValidationResult.Builder("Some Error Message").fail());
+        resultCollection.add(new ValidationResult.Builder("Some Other Error Message").fail());
 
         var thrown = catchThrowable(resultCollection::throwIfInvalid);
 

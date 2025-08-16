@@ -1,22 +1,34 @@
 package io.github.jonasnuber.valari.api.helpers;
 
-import io.github.jonasnuber.valari.spi.Validation;
+import io.github.jonasnuber.valari.api.results.MessageResolutionContext;
+import io.github.jonasnuber.valari.spi.MessageResolver;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.util.Locale;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
 class StringValidationHelpersTest {
+    
+    private static MessageResolver resolver;
+    private static Locale locale;
 
-    static Stream<String> notEmptyStringValues() {
-        return Stream.of("notEmpty", "   ");
+    @BeforeAll
+    static void init() {
+        resolver = MessageResolutionContext.getResolver();
+        locale = MessageResolutionContext.getLocale();
     }
 
+    private static Stream<String> notEmptyStringValues() {
+        return Stream.of("notEmpty", "   ");
+    }
+    
     @ParameterizedTest
     @MethodSource("notEmptyStringValues")
     void notEmpty_ShouldReturnValidResult_ForNotEmptyString(String value) {
@@ -39,7 +51,7 @@ class StringValidationHelpersTest {
         var result = validation.test(emptyValue);
 
         assertThat(result.isValid()).isFalse();
-        assertThat(result.getCauseDescription())
+        assertThat(result.resolveValidationMessage(resolver, locale))
                 .isEqualTo("must not be empty");
     }
 
@@ -65,7 +77,7 @@ class StringValidationHelpersTest {
         var result = validation.test(blankValue);
 
         assertThat(result.isValid()).isFalse();
-        assertThat(result.getCauseDescription())
+        assertThat(result.resolveValidationMessage(resolver, locale))
                 .isEqualTo("must not be blank");
     }
 
@@ -89,7 +101,7 @@ class StringValidationHelpersTest {
         var result = validation.test(smallerValue);
 
         assertThat(result.isValid()).isFalse();
-        assertThat(result.getCauseDescription())
+        assertThat(result.resolveValidationMessage(resolver, locale))
                 .isEqualTo("must have exactly 5 chars");
     }
 
@@ -102,7 +114,7 @@ class StringValidationHelpersTest {
         var result = validation.test(greaterValue);
 
         assertThat(result.isValid()).isFalse();
-        assertThat(result.getCauseDescription())
+        assertThat(result.resolveValidationMessage(resolver, locale))
                 .isEqualTo("must have exactly 5 chars");
     }
 
@@ -137,7 +149,7 @@ class StringValidationHelpersTest {
         var result = validation.test(value);
 
         assertThat(result.isValid()).isFalse();
-        assertThat(result.getCauseDescription())
+        assertThat(result.resolveValidationMessage(resolver, locale))
                 .isEqualTo("must have more than 3 chars");
     }
 
@@ -150,7 +162,7 @@ class StringValidationHelpersTest {
         var result = validation.test(smallerValue);
 
         assertThat(result.isValid()).isFalse();
-        assertThat(result.getCauseDescription())
+        assertThat(result.resolveValidationMessage(resolver, locale))
                 .isEqualTo("must have more than 3 chars");
     }
 
@@ -185,7 +197,7 @@ class StringValidationHelpersTest {
         var result = validation.test(value);
 
         assertThat(result.isValid()).isFalse();
-        assertThat(result.getCauseDescription())
+        assertThat(result.resolveValidationMessage(resolver, locale))
                 .isEqualTo("must have less than 5 chars");
     }
 
@@ -198,7 +210,7 @@ class StringValidationHelpersTest {
         var result = validation.test(greaterValue);
 
         assertThat(result.isValid()).isFalse();
-        assertThat(result.getCauseDescription())
+        assertThat(result.resolveValidationMessage(resolver, locale))
                 .isEqualTo("must have less than 5 chars");
     }
 
@@ -273,7 +285,7 @@ class StringValidationHelpersTest {
         var result = validation.test(sentence);
 
         assertThat(result.isValid()).isFalse();
-        assertThat(result.getCauseDescription())
+        assertThat(result.resolveValidationMessage(resolver, locale))
                 .isEqualTo("must contain \"test\"");
     }
 
@@ -319,7 +331,7 @@ class StringValidationHelpersTest {
         var result = validation.test(sentence);
 
         assertThat(result.isValid()).isFalse();
-        assertThat(result.getCauseDescription())
+        assertThat(result.resolveValidationMessage(resolver, locale))
                 .isEqualTo("must contain \"test\"");
     }
 
@@ -365,7 +377,7 @@ class StringValidationHelpersTest {
         var result = validation.test(value);
 
         assertThat(result.isValid()).isFalse();
-        assertThat(result.getCauseDescription())
+        assertThat(result.resolveValidationMessage(resolver, locale))
                 .isEqualTo("must fully match regex 'hello\\d+'");
     }
 
@@ -411,7 +423,7 @@ class StringValidationHelpersTest {
         var result = validation.test(value);
 
         assertThat(result.isValid()).isFalse();
-        assertThat(result.getCauseDescription())
+        assertThat(result.resolveValidationMessage(resolver, locale))
                 .isEqualTo("must contain substring matching regex '\\d+'");
     }
 
@@ -454,7 +466,7 @@ class StringValidationHelpersTest {
         var result = validation.test(value);
 
         assertThat(result.isValid()).isFalse();
-        assertThat(result.getCauseDescription())
+        assertThat(result.resolveValidationMessage(resolver, locale))
                 .isEqualTo("must start with \"prefix\"");
     }
 
@@ -498,7 +510,7 @@ class StringValidationHelpersTest {
         var result = validation.test(value);
 
         assertThat(result.isValid()).isFalse();
-        assertThat(result.getCauseDescription())
+        assertThat(result.resolveValidationMessage(resolver, locale))
                 .isEqualTo("must start with \"Prefix\" (case-insensitive)");
     }
 
@@ -541,7 +553,7 @@ class StringValidationHelpersTest {
         var result = validation.test(value);
 
         assertThat(result.isValid()).isFalse();
-        assertThat(result.getCauseDescription())
+        assertThat(result.resolveValidationMessage(resolver, locale))
                 .isEqualTo("must end with \"Suffix\"");
     }
 
@@ -585,7 +597,7 @@ class StringValidationHelpersTest {
         var result = validation.test(value);
 
         assertThat(result.isValid()).isFalse();
-        assertThat(result.getCauseDescription())
+        assertThat(result.resolveValidationMessage(resolver, locale))
                 .isEqualTo("must end with \"Suffix\" (case-insensitive)");
     }
 

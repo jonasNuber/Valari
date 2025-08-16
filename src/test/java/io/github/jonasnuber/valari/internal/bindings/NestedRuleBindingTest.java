@@ -3,6 +3,7 @@ package io.github.jonasnuber.valari.internal.bindings;
 import io.github.jonasnuber.valari.CreditCard;
 import io.github.jonasnuber.valari.Person;
 import io.github.jonasnuber.valari.api.exceptions.InvalidAttributeValueException;
+import io.github.jonasnuber.valari.api.results.MessageResolutionContext;
 import io.github.jonasnuber.valari.api.validators.DomainValidator;
 import org.junit.jupiter.api.Test;
 
@@ -127,7 +128,8 @@ class NestedRuleBindingTest {
 
         assertThat(result.isInvalid()).isTrue();
         assertThat(result.getFieldName()).isEqualTo("Owner");
-        assertThat(result.getCauseDescription()).isEqualTo(
+        assertThat(result.resolveValidationMessage(MessageResolutionContext.getResolver(), MessageResolutionContext.getLocale()))
+                .isEqualTo(
                 "Validation for class io.github.jonasnuber.valari.Person failed with 1 error(s):\n" +
                 " - Field 'Name': must not be empty\n");
     }
@@ -159,7 +161,8 @@ class NestedRuleBindingTest {
 
         assertThat(result.isInvalid()).isTrue();
         assertThat(result.getFieldName()).isEqualTo("Owner");
-        assertThat(result.getCauseDescription()).isEqualTo(
+        assertThat(result.resolveValidationMessage(MessageResolutionContext.getResolver(), MessageResolutionContext.getLocale()))
+                .isEqualTo(
                 "Validation for class io.github.jonasnuber.valari.Person failed with 1 error(s):\n" +
                         " - Field 'Name': must not be empty\n");
     }

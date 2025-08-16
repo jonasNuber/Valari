@@ -13,8 +13,8 @@ class ValidationTest {
 
     @BeforeAll
     static void init() {
-        valid = k -> ValidationResult.ok();
-        inValid = k -> ValidationResult.fail("Validation failed");
+        valid = k -> new ValidationResult.Builder("Validation succeeded").ok();
+        inValid = k -> new ValidationResult.Builder("Validation failed").fail();
     }
 
     @Test
