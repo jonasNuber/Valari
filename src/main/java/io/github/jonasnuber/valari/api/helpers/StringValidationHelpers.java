@@ -4,13 +4,18 @@ import io.github.jonasnuber.valari.api.SimpleValidation;
 import io.github.jonasnuber.valari.api.results.ValidationResult;
 import io.github.jonasnuber.valari.spi.Validation;
 
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 import static io.github.jonasnuber.valari.api.helpers.ObjectValidationHelpers.notNull;
 
 /**
  * Utility class providing predefined validations for strings.
- * These validations define conditions that a string must meet to be considered valid.
+ *
+ * <p>
+ *      Each method returns a {@link Validation} that encapsulates a specific rule
+ *   	a string must satisfy to be considered valid.
+ * </p>
  *
  * @author  Jonas Nuber
  */
@@ -23,9 +28,9 @@ public final class StringValidationHelpers {
 	}
 
 	/**
-	 * Returns a validation that passes only if the string is neither null nor empty.
+	 * Returns a validation that passes if the string is not {@code null} and not empty.
 	 *
-	 * @return the Validation for not empty
+	 * @return a validation that rejects {@code null} or empty strings
 	 */
 	public static Validation<String> notEmpty(){
 		return SimpleValidation.from(
@@ -36,9 +41,10 @@ public final class StringValidationHelpers {
 	}
 
 	/**
-	 * Returns a validation that passes only if the string is neither null nor blank.
+	 * Returns a validation that passes if the string is not {@code null} and contains
+	 * at least one non-whitespace character.
 	 *
-	 * @return the Validation for not blank
+	 * @return a validation that rejects {@code null} or blank strings
 	 */
 	public static Validation<String> notBlank(){
 		return SimpleValidation.from(
@@ -49,10 +55,10 @@ public final class StringValidationHelpers {
 	}
 
 	/**
-	 * Returns a validation that passes only if the string has exactly the specified number of characters.
+	 * Returns a validation that passes if the string has exactly the specified length.
 	 *
-	 * @param size The exact number of characters.
-	 * @return The validation for exact string length.
+	 * @param size the required number of characters
+	 * @return a validation that rejects strings not exactly {@code size} characters long
 	 */
 	public static Validation<String> exactly(int size) {
 		return SimpleValidation.from(
@@ -65,10 +71,10 @@ public final class StringValidationHelpers {
 	}
 
 	/**
-	 * Returns a validation that passes only if the string has more than the specified number of characters.
+	 * Returns a validation that passes if the string has more than the given number of characters.
 	 *
-	 * @param minimum The minimum number of characters.
-	 * @return The validation for minimum string length.
+	 * @param minimum the minimum exclusive length
+	 * @return a validation that rejects strings with length {@code <= minimum}
 	 */
 	public static Validation<String> moreThan(int minimum) {
 		return SimpleValidation.from(
@@ -81,10 +87,10 @@ public final class StringValidationHelpers {
 	}
 
 	/**
-	 * Returns a validation that passes only if the string has fewer than the specified number of characters.
+	 * Returns a validation that passes if the string has fewer than the given number of characters.
 	 *
-	 * @param maximum The maximum number of characters.
-	 * @return The validation for maximum string length.
+	 * @param maximum the maximum exclusive length
+	 * @return a validation that rejects strings with length {@code >= maximum}
 	 */
 	public static Validation<String> lessThan(int maximum) {
 		return SimpleValidation.from(
@@ -97,26 +103,30 @@ public final class StringValidationHelpers {
 	}
 
 	/**
-	 * Returns a validation that passes only if the string length is between the specified minimum and maximum values (exclusive).
+	 * Returns a validation that passes if the string length is strictly between
+	 * the given minimum and maximum values.
 	 *
-	 * @param minSize The minimum number of characters.
-	 * @param maxSize The maximum number of characters.
-	 * @return The validation for string length within a range.
+	 * @param minSize the minimum exclusive length
+	 * @param maxSize the maximum exclusive length
+	 * @return a validation that rejects strings outside the given range
 	 */
 	public static Validation<String> between(int minSize, int maxSize) {
 		return moreThan(minSize).and(lessThan(maxSize));
 	}
 
 	/**
-	 * Returns a validation that passes only if the string contains the specified substring (case-sensitive).
+	 * Returns a validation that passes if the string contains the given substring
+	 * (case-sensitive).
 	 *
-	 * @param str The substring to search for.
-	 * @return The validation for string containment.
+	 * @param str the substring to search for, must not be {@code null}
+	 * @return a validation that rejects strings not containing {@code str}
+	 * @throws NullPointerException if {@code str} is {@code null}
 	 */
 	public static Validation<String> contains(String str) {
+		Objects.requireNonNull(str, "String which should be contained, must not be null");
+
 		return SimpleValidation.from(
 				s -> notNull(s, STRING_MUST_NOT_BE_NULL) &&
-						notNull(str, "String which should be contained, must not be null") &&
 						s.contains(str),
 				new ValidationResult.Builder("must contain \"{0}\"")
 						.messageKey("validation.string.contains")
@@ -125,15 +135,18 @@ public final class StringValidationHelpers {
 	}
 
 	/**
-	 * Returns a validation that passes only if the string contains the specified substring (case-insensitive).
+	 * Returns a validation that passes if the string contains the given substring,
+	 * ignoring case.
 	 *
-	 * @param str The substring to search for.
-	 * @return The validation for case-insensitive string containment.
+	 * @param str the substring to search for, must not be {@code null}
+	 * @return a validation that rejects strings not containing {@code str} (case-insensitive)
+	 * @throws NullPointerException if {@code str} is {@code null}
 	 */
 	public static Validation<String> containsIgnoreCase(String str) {
+		Objects.requireNonNull(str, "String which should be contained, must not be null");
+
 		return SimpleValidation.from(
 				s -> notNull(s, STRING_MUST_NOT_BE_NULL) &&
-						notNull(str, "String which should be contained, must not be null") &&
 						s.toLowerCase().contains(str.toLowerCase()),
 				new ValidationResult.Builder("must contain \"{0}\"")
 						.messageKey("validation.string.contains")
@@ -142,49 +155,59 @@ public final class StringValidationHelpers {
 	}
 
 	/**
-	 * Returns a validation that passes only if the entire string matches the given regex.
+	 * Returns a validation that passes if the string fully matches the given regular expression.
 	 *
-	 * @param regex The regular expression to match against the whole string.
-	 * @return The validation for full regex match.
+	 * @param regex the regex pattern to match against, must not be {@code null}
+	 * @return a validation that rejects strings that do not match the regex completely
+	 * @throws NullPointerException if {@code regex} is {@code null}
 	 */
 	public static Validation<String> regex(String regex) {
+		Objects.requireNonNull(regex, "Regular Expression must not be null");
+
 		return SimpleValidation.from(
 				s -> notNull(s, STRING_MUST_NOT_BE_NULL) &&
-						notNull(regex, "Regular Expression must not be null") &&
 						s.matches(regex),
-				new ValidationResult.Builder("must fully match regex ' {0} '")
+				new ValidationResult.Builder("must fully match regex \" {0} \"")
 						.messageKey("validation.string.matchRegex")
 						.messageArgument(regex)
 		);
 	}
 
 	/**
-	 * Returns a validation that passes if any substring of the string matches the given regex.
+	 * Returns a validation that passes if the string contains a substring matching
+	 * the given regular expression.
 	 *
-	 * @param regex The regular expression to search for within the string.
-	 * @return The validation for substring regex match.
+	 * @param regex the regex pattern to search for, must not be {@code null}
+	 * @return a validation that rejects strings that do not contain a matching substring
+	 * @throws NullPointerException if {@code regex} is {@code null}
 	 */
 	public static Validation<String> containsRegex(String regex) {
+		Objects.requireNonNull(regex, "Regular Expression must not be null");
+		Pattern pattern = Pattern.compile(regex);
+
 		return SimpleValidation.from(
 				s -> notNull(s, STRING_MUST_NOT_BE_NULL) &&
-						notNull(regex, "Regular Expression must not be null") &&
-						Pattern.compile(regex).matcher(s).find(),
-				new ValidationResult.Builder("must contain substring matching regex ' {0} '")
+						pattern.matcher(s).find(),
+				new ValidationResult.Builder("must contain substring matching regex \" {0} \"")
 						.messageKey("validation.string.containRegex")
 						.messageArgument(regex)
 		);
 	}
 
 	/**
-	 * Returns a validation that passes only if the string starts with the specified prefix (case-sensitive).
+	 * Returns a validation that passes if the string starts with the given prefix
+	 * (case-sensitive).
 	 *
-	 * @param prefix The prefix the string must start with.
-	 * @return The validation for string starting pattern.
+	 * @param prefix the required starting substring, must not be {@code null}
+	 * @return a validation that rejects strings not starting with {@code prefix}
+	 * @throws NullPointerException if {@code prefix} is {@code null}
 	 */
+
 	public static Validation<String> startsWith(String prefix) {
+		Objects.requireNonNull(prefix, "Prefix must not be null");
+
 		return SimpleValidation.from(
 				s -> notNull(s, STRING_MUST_NOT_BE_NULL) &&
-						notNull(prefix, "Prefix must not be null") &&
 						s.startsWith(prefix),
 				new ValidationResult.Builder("must start with \"{0}\"")
 						.messageKey("validation.string.startsWith")
@@ -193,10 +216,12 @@ public final class StringValidationHelpers {
 	}
 
 	/**
-	 * Returns a validation that passes only if the string starts with the specified prefix, ignoring case.
+	 * Returns a validation that passes if the string starts with the given prefix,
+	 * ignoring case.
 	 *
-	 * @param prefix The prefix the string must start with (case-insensitive).
-	 * @return The validation for case-insensitive string starting pattern.
+	 * @param prefix the required starting substring, must not be {@code null}
+	 * @return a validation that rejects strings not starting with {@code prefix} (case-insensitive)
+	 * @throws NullPointerException if {@code prefix} is {@code null}
 	 */
 	public static Validation<String> startsWithIgnoreCase(String prefix) {
 		return SimpleValidation.from(
@@ -210,15 +235,19 @@ public final class StringValidationHelpers {
 	}
 
 	/**
-	 * Returns a validation that passes only if the string ends with the specified suffix (case-sensitive).
+	 * Returns a validation that passes if the string ends with the given suffix
+	 * (case-sensitive).
 	 *
-	 * @param suffix The suffix the string must end with.
-	 * @return The validation for string ending pattern.
+	 * @param suffix the required ending substring, must not be {@code null}
+	 * @return a validation that rejects strings not ending with {@code suffix}
+	 * @throws NullPointerException if {@code suffix} is {@code null}
 	 */
+
 	public static Validation<String> endsWith(String suffix) {
+		Objects.requireNonNull(suffix, "Suffix must not be null");
+
 		return SimpleValidation.from(
 				s -> notNull(s, STRING_MUST_NOT_BE_NULL) &&
-						notNull(suffix, "Suffix must not be null") &&
 						s.endsWith(suffix),
 				new ValidationResult.Builder("must end with \"{0}\"")
 						.messageKey("validation.string.endsWith")
@@ -227,10 +256,12 @@ public final class StringValidationHelpers {
 	}
 
 	/**
-	 * Returns a validation that passes only if the string ends with the specified suffix, ignoring case.
+	 * Returns a validation that passes if the string ends with the given suffix,
+	 * ignoring case.
 	 *
-	 * @param suffix The suffix the string must end with (case-insensitive).
-	 * @return The validation for case-insensitive string ending pattern.
+	 * @param suffix the required ending substring, must not be {@code null}
+	 * @return a validation that rejects strings not ending with {@code suffix} (case-insensitive)
+	 * @throws NullPointerException if {@code suffix} is {@code null}
 	 */
 	public static Validation<String> endsWithIgnoreCase(String suffix) {
 		return SimpleValidation.from(

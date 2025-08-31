@@ -28,17 +28,18 @@ import java.util.Objects;
  *
  * <p>This class is internal to the validation infrastructure and should not be used directly outside of {@code valari}'s fluent API.</p>
  *
- * @param <T> the type of the target object being constructed
- * @param <F> the type of the constructor parameter being validated
+ * @param <TYPE> the type of the target object being constructed
+ * @param <PARAMETER> the type of the constructor parameter being validated
  *
  * @author Jonas Nuber
  */
-public class ParameterRuleBinding<T, F> implements RuleBinding<ConstructorValidator<T>, Validation<F>>, NoInputValidator<ValidationResult> {
+@SuppressWarnings("java:S119")
+public class ParameterRuleBinding<TYPE, PARAMETER> implements RuleBinding<ConstructorValidator<TYPE>, Validation<PARAMETER>>, NoInputValidator<ValidationResult> {
     private final String parameterName;
-    private final F parameter;
-    private final ConstructorValidator<T> parent;
+    private final PARAMETER parameter;
+    private final ConstructorValidator<TYPE> parent;
 
-    private Validator<F, ValidationResult> delegate;
+    private Validator<PARAMETER, ValidationResult> delegate;
 
     /**
      * Creates a new binding between a constructor parameter and its validation logic.
@@ -48,7 +49,7 @@ public class ParameterRuleBinding<T, F> implements RuleBinding<ConstructorValida
      * @param parent        the parent {@link ConstructorValidator} managing this binding; must not be {@code null}
      * @throws NullPointerException if {@code parameterName} or {@code parent} is {@code null}
      */
-    public ParameterRuleBinding(String parameterName, F parameter, ConstructorValidator<T> parent) {
+    public ParameterRuleBinding(String parameterName, PARAMETER parameter, ConstructorValidator<TYPE> parent) {
         this.parameterName = Objects.requireNonNull(parameterName, "ParameterName must not be null");
         this.parameter = parameter;
         this.parent = Objects.requireNonNull(parent, "Constructor Validator must not be null");
@@ -62,7 +63,7 @@ public class ParameterRuleBinding<T, F> implements RuleBinding<ConstructorValida
      * @throws NullPointerException if {@code validation} is {@code null}
      */
     @Override
-    public ConstructorValidator<T> mustSatisfy(Validation<F> validation) {
+    public ConstructorValidator<TYPE> mustSatisfy(Validation<PARAMETER> validation) {
         delegate = ValueValidator.with(parameterName, validation);
 
         return parent;
@@ -79,7 +80,7 @@ public class ParameterRuleBinding<T, F> implements RuleBinding<ConstructorValida
      * @throws NullPointerException if {@code validation} is {@code null}
      */
     @Override
-    public ConstructorValidator<T> ifPresent(Validation<F> validation) {
+    public ConstructorValidator<TYPE> ifPresent(Validation<PARAMETER> validation) {
         delegate = ValueValidator.optional(parameterName, validation);
 
         return parent;

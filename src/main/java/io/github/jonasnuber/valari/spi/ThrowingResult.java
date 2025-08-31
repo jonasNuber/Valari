@@ -15,6 +15,15 @@ import java.util.function.Supplier;
  */
 public interface ThrowingResult {
 
+    /**
+     * Throws an exception if the validation result is invalid.
+     */
+    void throwIfInvalid();
+
+    ValidationState getState();
+
+    String getMessage(MessageResolver resolver, Locale locale);
+
     default String getMessage() {
         return getMessage(MessageResolutionContext.getResolver(), MessageResolutionContext.getLocale());
     }
@@ -34,13 +43,4 @@ public interface ThrowingResult {
     default boolean isInvalid() {
         return getState().isInvalid();
     }
-
-    ValidationState getState();
-
-    String getMessage(MessageResolver resolver, Locale locale);
-
-    /**
-     * Throws an exception if the validation result is invalid.
-     */
-    void throwIfInvalid();
 }

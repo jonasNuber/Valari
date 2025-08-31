@@ -15,10 +15,11 @@ import java.util.Objects;
  * of all validation issues present in the object.
  * </p>
  *
- * @param <T> the type of object being validated
+ * @param <TYPE> the type of object being validated
  * @author Jonas Nuber
  */
-public final class CollectFailuresStrategy<T> implements ValidationStrategy<T, ValidationResultCollection> {
+@SuppressWarnings("java:S119")
+public final class CollectFailuresStrategy<TYPE> implements ValidationStrategy<TYPE, ValidationResultCollection> {
 
     /**
      * Constructs a new {@code CollectFailuresStrategy}.
@@ -40,7 +41,7 @@ public final class CollectFailuresStrategy<T> implements ValidationStrategy<T, V
      * @throws NullPointerException if either parameter is {@code null}
      */
     @Override
-    public ValidationResultCollection validate(List<NoInputValidator<ValidationResult>> validators, Class<T> validationContextClass) {
+    public ValidationResultCollection validate(List<NoInputValidator<ValidationResult>> validators, Class<TYPE> validationContextClass) {
         Objects.requireNonNull(validators, "Validations to validate Object by must not be null");
         Objects.requireNonNull(validationContextClass, "The class of the Object to validate must not be null");
 

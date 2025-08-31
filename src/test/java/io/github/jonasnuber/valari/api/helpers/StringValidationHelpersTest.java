@@ -302,9 +302,7 @@ class StringValidationHelpersTest {
 
     @Test
     void contains_ShouldThrowException_ForNullSubString() {
-        var validation = StringValidationHelpers.contains(null);
-
-        var thrown = catchThrowable(() -> validation.test("some String"));
+        var thrown = catchThrowable(() -> StringValidationHelpers.contains(null));
 
         assertThat(thrown)
                 .isInstanceOf(NullPointerException.class)
@@ -348,9 +346,7 @@ class StringValidationHelpersTest {
 
     @Test
     void containsIgnoreCase_ShouldThrowException_ForNullSubString() {
-        var validation = StringValidationHelpers.containsIgnoreCase(null);
-
-        var thrown = catchThrowable(() -> validation.test("some String"));
+        var thrown = catchThrowable(() -> StringValidationHelpers.containsIgnoreCase(null));
 
         assertThat(thrown)
                 .isInstanceOf(NullPointerException.class)
@@ -378,7 +374,7 @@ class StringValidationHelpersTest {
 
         assertThat(result.isValid()).isFalse();
         assertThat(result.resolveValidationMessage(resolver, locale))
-                .isEqualTo("must fully match regex 'hello\\d+'");
+                .isEqualTo("must fully match regex \" hello\\d+ \"");
     }
 
     @Test
@@ -394,9 +390,7 @@ class StringValidationHelpersTest {
 
     @Test
     void regex_ShouldThrowException_ForNullRegex() {
-        var validation = StringValidationHelpers.regex(null);
-
-        var thrown = catchThrowable(() -> validation.test("some String"));
+        var thrown = catchThrowable(() -> StringValidationHelpers.regex(null));
 
         assertThat(thrown)
                 .isInstanceOf(NullPointerException.class)
@@ -424,7 +418,7 @@ class StringValidationHelpersTest {
 
         assertThat(result.isValid()).isFalse();
         assertThat(result.resolveValidationMessage(resolver, locale))
-                .isEqualTo("must contain substring matching regex '\\d+'");
+                .isEqualTo("must contain substring matching regex \" \\d+ \"");
     }
 
     @Test
@@ -440,9 +434,7 @@ class StringValidationHelpersTest {
 
     @Test
     void containsRegex_ShouldThrowException_ForNullRegex() {
-        var validation = StringValidationHelpers.containsRegex(null);
-
-        var thrown = catchThrowable(() -> validation.test("some String"));
+        var thrown = catchThrowable(() -> StringValidationHelpers.containsRegex(null));
 
         assertThat(thrown)
                 .isInstanceOf(NullPointerException.class)
@@ -483,9 +475,7 @@ class StringValidationHelpersTest {
 
     @Test
     void startsWith_ShouldThrowException_ForNullPrefix() {
-        var validation = StringValidationHelpers.startsWith(null);
-
-        var thrown = catchThrowable(() -> validation.test("someString"));
+       var thrown = catchThrowable(() -> StringValidationHelpers.startsWith(null));
 
         assertThat(thrown)
                 .isInstanceOf(NullPointerException.class)
@@ -511,7 +501,7 @@ class StringValidationHelpersTest {
 
         assertThat(result.isValid()).isFalse();
         assertThat(result.resolveValidationMessage(resolver, locale))
-                .isEqualTo("must start with \"Prefix\" (case-insensitive)");
+                .isEqualTo("must start with \"(case-insensitive) Prefix\"");
     }
 
     @Test
@@ -570,9 +560,7 @@ class StringValidationHelpersTest {
 
     @Test
     void endsWith_ShouldThrowException_ForNullSuffix() {
-        var validation = StringValidationHelpers.endsWith(null);
-
-        var thrown = catchThrowable(() -> validation.test("someString"));
+        var thrown = catchThrowable(() -> StringValidationHelpers.endsWith(null));
 
         assertThat(thrown)
                 .isInstanceOf(NullPointerException.class)
@@ -598,7 +586,7 @@ class StringValidationHelpersTest {
 
         assertThat(result.isValid()).isFalse();
         assertThat(result.resolveValidationMessage(resolver, locale))
-                .isEqualTo("must end with \"Suffix\" (case-insensitive)");
+                .isEqualTo("must end with \"(case-insensitive) Suffix\"");
     }
 
     @Test

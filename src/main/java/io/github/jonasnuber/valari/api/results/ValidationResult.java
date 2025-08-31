@@ -40,7 +40,11 @@ public class ValidationResult implements ThrowingResult {
     }
 
     public static ValidationResult skip() {
-        return new Builder().skip();
+        return new Builder("Validation was skipped").skip();
+    }
+
+    public String resolveValidationMessage() {
+        return resolveValidationMessage(MessageResolutionContext.getResolver(), MessageResolutionContext.getLocale());
     }
 
     public String resolveValidationMessage(MessageResolver resolver, Locale locale) {
@@ -140,10 +144,8 @@ public class ValidationResult implements ThrowingResult {
         private ValidationState state;
 
         public Builder(String defaultMessage) {
-            this.defaultMessage = defaultMessage;
+            this.defaultMessage = Objects.requireNonNull(defaultMessage, "DefaultMessage must not be null");
         }
-
-        private Builder() {}
 
         private Builder(ValidationResult existing) {
             Objects.requireNonNull(existing, "Validation Result to extend cannot be null");

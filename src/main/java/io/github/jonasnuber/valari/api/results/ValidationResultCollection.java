@@ -5,8 +5,6 @@ import io.github.jonasnuber.valari.spi.MessageResolver;
 import io.github.jonasnuber.valari.spi.ThrowingResult;
 
 import java.util.*;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 /**
  * A container class for collecting multiple {@link ValidationResult} instances

@@ -15,19 +15,20 @@ import io.github.jonasnuber.valari.internal.BaseValidator;
  * and can optionally throw an exception if the result is invalid.
  * </p>
  *
- * @param <R> the type of result returned by the validation process
+ * @param <RESULT> the type of result returned by the validation process
  *
  * @author Jonas Nuber
  */
 @FunctionalInterface
-public interface NoInputValidator<R extends ThrowingResult> extends BaseValidator {
+@SuppressWarnings("java:S119")
+public interface NoInputValidator<RESULT extends ThrowingResult> extends BaseValidator {
 
     /**
      * Executes the validation logic and returns the result.
      *
      * @return the result of the validation
      */
-    R validate();
+    RESULT validate();
 
     /**
      * Executes the validation and throws an exception if the result is invalid.

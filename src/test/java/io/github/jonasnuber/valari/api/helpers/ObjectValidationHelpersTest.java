@@ -77,9 +77,7 @@ class ObjectValidationHelpersTest {
 
     @Test
     void isEqualTo_ShouldThrowException_ForNullToEqualObject() {
-        var validation = ObjectValidationHelpers.isEqualTo(null);
-
-        var thrown = catchThrowable(() -> validation.test(new Object()));
+        var thrown = catchThrowable(() -> ObjectValidationHelpers.isEqualTo(null));
 
         assertThat(thrown)
                 .isInstanceOf(NullPointerException.class)

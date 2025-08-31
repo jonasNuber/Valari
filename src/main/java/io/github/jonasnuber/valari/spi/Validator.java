@@ -14,13 +14,14 @@ import io.github.jonasnuber.valari.internal.BaseValidator;
  * information, and optionally throw an exception for invalid objects.
  * </p>
  *
- * @param <T> the type of object to validate
- * @param <R> the type of result returned by the validation process
+ * @param <TYPE> the type of object to validate
+ * @param <RESULT> the type of result returned by the validation process
  *
  * @author Jonas Nuber
  */
 @FunctionalInterface
-public interface Validator<T, R extends ThrowingResult> extends BaseValidator {
+@SuppressWarnings("java:S119")
+public interface Validator<TYPE, RESULT extends ThrowingResult> extends BaseValidator {
 
   /**
    * Validates the given object and returns the result.
@@ -28,7 +29,7 @@ public interface Validator<T, R extends ThrowingResult> extends BaseValidator {
    * @param toValidate the object to validate
    * @return the result of the validation
    */
-  R validate(T toValidate);
+  RESULT validate(TYPE toValidate);
 
   /**
    * Validates the given object and throws an exception if the validation fails.
@@ -39,7 +40,7 @@ public interface Validator<T, R extends ThrowingResult> extends BaseValidator {
    * @param toValidate the object to validate
    * @throws RuntimeException if the validation fails
    */
-  default void validateAndThrow(T toValidate) {
+  default void validateAndThrow(TYPE toValidate) {
     validate(toValidate).throwIfInvalid();
   }
 }

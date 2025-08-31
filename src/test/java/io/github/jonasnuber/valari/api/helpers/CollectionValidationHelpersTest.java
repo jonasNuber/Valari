@@ -26,7 +26,7 @@ class CollectionValidationHelpersTest {
     }
 
     @Test
-    void notBlank_ShouldReturnValidResult_ForNotEmptyCollection() {
+    void notEmpty_ShouldReturnValidResult_ForNotEmptyCollection() {
         var collection = List.of("String1", "String2");
         var validation = CollectionValidationHelpers.notEmpty();
 
@@ -45,7 +45,7 @@ class CollectionValidationHelpersTest {
 
     @ParameterizedTest(name = "Test with empty input collection: {0}")
     @MethodSource("emptyCollectionValues")
-    void notBlank_ShouldReturnInvalidResult_ForEmptyCollection(Collection<?> emptyCollection) {
+    void notEmpty_ShouldReturnInvalidResult_ForEmptyCollection(Collection<?> emptyCollection) {
         var validation = CollectionValidationHelpers.notEmpty();
 
         var result = validation.test(emptyCollection);
@@ -113,7 +113,7 @@ class CollectionValidationHelpersTest {
     }
 
     @Test
-    void contains_ShouldReturnInvalid_ForNotContainingObject() {
+    void contains_ShouldReturnInvalidResult_ForNotContainingObject() {
         var objectToContain = "String";
         var collection = Set.of("OtherString");
         var validation = CollectionValidationHelpers.contains(objectToContain);
@@ -138,13 +138,81 @@ class CollectionValidationHelpersTest {
 
     @Test
     void contains_ShouldThrowException_ForNullValueToContain() {
-        var validation = CollectionValidationHelpers.contains(null);
-
-        var thrown = catchThrowable(() -> validation.test(Collections.emptySet()));
+        var thrown = catchThrowable(() -> CollectionValidationHelpers.contains(null));
 
         assertThat(thrown)
                 .isInstanceOf(NullPointerException.class)
                 .hasMessage("Object which should be contained, must not be null");
+    }
+
+    @Test
+    void hasNullElements_ShouldReturnValidResult_ForContainedNullElements() {
+        var collection = new ArrayList<String>();
+        collection.add("someValue");
+        collection.add(null);
+        var validation = CollectionValidationHelpers.<String>hasNullElements();
+
+        var result = validation.test(collection);
+
+        assertThat(result.isValid()).isTrue();
+    }
+
+    @Test
+    void hasNullElements_ShouldReturnInvalidResult_ForNoNullElements() {
+        var collection = List.of("someValue", "SomeOtherValue");
+        var validation = CollectionValidationHelpers.<String>hasNullElements();
+
+        var result = validation.test(collection);
+
+        assertThat(result.isValid()).isFalse();
+        assertThat(result.resolveValidationMessage(resolver, locale))
+                .isEqualTo("Collection must contain at least one null element");
+    }
+
+    @Test
+    void hasNullElements_ShouldThrowException_ForNullCollection() {
+        var validation = CollectionValidationHelpers.hasNullElements();
+
+        var thrown = catchThrowable(() -> validation.test(null));
+
+        assertThat(thrown)
+                .isInstanceOf(NullPointerException.class)
+                .hasMessage("Collection must not be null");
+    }
+
+    @Test
+    void noNullElements_ShouldReturnValidResult_ForNoNullElements() {
+        var collection = List.of("someValue", "SomeOtherValue");
+        var validation = CollectionValidationHelpers.<String>noNullElements();
+
+        var result = validation.test(collection);
+
+        assertThat(result.isValid()).isTrue();
+    }
+
+    @Test
+    void noNullElements_ShouldReturnInvalidResult_ForContainingNullElements() {
+        var collection = new ArrayList<String>();
+        collection.add("someValue");
+        collection.add(null);
+        var validation = CollectionValidationHelpers.<String>noNullElements();
+
+        var result = validation.test(collection);
+
+        assertThat(result.isValid()).isFalse();
+        assertThat(result.resolveValidationMessage(resolver, locale))
+                .isEqualTo("Collection must not contain null elements");
+    }
+
+    @Test
+    void noNullElements_ShouldThrowException_ForNullCollection() {
+        var validation = CollectionValidationHelpers.noNullElements();
+
+        var thrown = catchThrowable(() -> validation.test(null));
+
+        assertThat(thrown)
+                .isInstanceOf(NullPointerException.class)
+                .hasMessage("Collection must not be null");
     }
 
     @Test

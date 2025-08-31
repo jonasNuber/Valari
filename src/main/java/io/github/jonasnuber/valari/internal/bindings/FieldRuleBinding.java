@@ -2,8 +2,6 @@ package io.github.jonasnuber.valari.internal.bindings;
 
 import io.github.jonasnuber.valari.api.results.ValidationResult;
 import io.github.jonasnuber.valari.api.validators.DomainValidator;
-import io.github.jonasnuber.valari.api.SimpleValidation;
-import io.github.jonasnuber.valari.api.validators.ValueValidator;
 import io.github.jonasnuber.valari.spi.Validation;
 import io.github.jonasnuber.valari.spi.RuleBinding;
 import io.github.jonasnuber.valari.spi.Validator;
@@ -29,16 +27,17 @@ import java.util.function.Function;
  *
  * <p>This class is internal to the validation infrastructure and should not be used directly outside of {@code valari}'s fluent API.</p>
  *
- * @param <T> the type of the object being validated
- * @param <F> the type of the field extracted from the object for validation
+ * @param <TYPE> the type of the object being validated
+ * @param <FIELD> the type of the field extracted from the object for validation
  * @author Jonas Nuber
  */
-public final class FieldRuleBinding<T, F> implements RuleBinding<DomainValidator<T>, Validation<F>>, Validator<T, ValidationResult> {
-    private final DomainValidator<T> parent;
+@SuppressWarnings("java:S119")
+public final class FieldRuleBinding<TYPE, FIELD> implements RuleBinding<DomainValidator<TYPE>, Validation<FIELD>>, Validator<TYPE, ValidationResult> {
+    private final DomainValidator<TYPE> parent;
     private final String fieldName;
-    private final Function<T, F> valueExtractor;
+    private final Function<TYPE, FIELD> valueExtractor;
 
-    private Validation<F> validation;
+    private Validation<FIELD> validation;
 
     /**
      * Creates a new binding between a domain object's field and its validation logic.
@@ -48,7 +47,7 @@ public final class FieldRuleBinding<T, F> implements RuleBinding<DomainValidator
      * @param parent         the parent {@link DomainValidator} managing this binding; must not be {@code null}
      * @throws NullPointerException if any parameter is {@code null}
      */
-    public FieldRuleBinding(String fieldName, Function<T, F> valueExtractor, DomainValidator<T> parent) {
+    public FieldRuleBinding(String fieldName, Function<TYPE, FIELD> valueExtractor, DomainValidator<TYPE> parent) {
         this.fieldName = Objects.requireNonNull(fieldName, "FieldName of the value to validate must not be null");
         this.valueExtractor = Objects.requireNonNull(valueExtractor, "Extractor Method to get value for validation must not be null");
         this.parent = Objects.requireNonNull(parent, "Parent Validator must not be null");
@@ -62,7 +61,7 @@ public final class FieldRuleBinding<T, F> implements RuleBinding<DomainValidator
      * @throws NullPointerException if {@code rule} is {@code null}
      */
     @Override
-    public DomainValidator<T> mustSatisfy(Validation<F> rule) {
+    public DomainValidator<TYPE> mustSatisfy(Validation<FIELD> rule) {
         this.validation = Objects.requireNonNull(rule, "validation must not be null");
 
         return parent;
@@ -79,7 +78,7 @@ public final class FieldRuleBinding<T, F> implements RuleBinding<DomainValidator
      * @throws NullPointerException if {@code rule} is {@code null}
      */
     @Override
-    public DomainValidator<T> ifPresent(Validation<F> rule) {
+    public DomainValidator<TYPE> ifPresent(Validation<FIELD> rule) {
         this.validation = value -> Objects.isNull(value) ?
                 ValidationResult
                         .skip()
@@ -99,14 +98,14 @@ public final class FieldRuleBinding<T, F> implements RuleBinding<DomainValidator
      * @throws NullPointerException if {@code toValidate} is {@code null}
      */
     @Override
-    public ValidationResult validate(T toValidate) {
+    public ValidationResult validate(TYPE toValidate) {
         Objects.requireNonNull(toValidate, "Object to validate must not be null");
 
         if(validation == null) {
             throw new IllegalStateException("No validation rule was set. Call mustSatisfy(...) or ifPresent(...) before validation");
         }
 
-        F value = valueExtractor.apply(toValidate);
+        FIELD value = valueExtractor.apply(toValidate);
 
         return validation.test(value).withFieldName(fieldName);
     }
@@ -118,7 +117,7 @@ public final class FieldRuleBinding<T, F> implements RuleBinding<DomainValidator
      * @throws io.github.jonasnuber.valari.api.exceptions.InvalidAttributeValueException if validation fails
      */
     @Override
-    public void validateAndThrow(T toValidate) {
+    public void validateAndThrow(TYPE toValidate) {
         validate(toValidate).throwIfInvalid();
     }
 }

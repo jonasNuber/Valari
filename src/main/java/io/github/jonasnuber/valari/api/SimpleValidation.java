@@ -10,11 +10,12 @@ import java.util.function.Predicate;
  *
  * @author Jonas Nuber
  *
- * @param <K> Type of the field to test.
+ * @param <TYPE> Type of the field to test.
  */
-public class SimpleValidation<K> implements Validation<K> {
+@SuppressWarnings("java:S119")
+public class SimpleValidation<TYPE> implements Validation<TYPE> {
 
-	private final Predicate<K> predicate;
+	private final Predicate<TYPE> predicate;
 	private final ValidationResult.Builder resultBuilder;
 
 	/**
@@ -23,7 +24,7 @@ public class SimpleValidation<K> implements Validation<K> {
 	 * @param predicate      The predicate to validate against.
 	 * @param onErrorMessage The error message indicating why the validation failed.
 	 */
-	private SimpleValidation(Predicate<K> predicate, ValidationResult.Builder resultBuilder) {
+	private SimpleValidation(Predicate<TYPE> predicate, ValidationResult.Builder resultBuilder) {
 		this.predicate = predicate;
 		this.resultBuilder = resultBuilder;
 	}
@@ -31,12 +32,12 @@ public class SimpleValidation<K> implements Validation<K> {
 	/**
 	 * Creates a new SimpleValidation object with the specified predicate and error message.
 	 *
-	 * @param <K>            The type of the field to test.
+	 * @param <TYPE>            The type of the field to test.
 	 * @param predicate      The predicate to validate against.
 	 * @param onErrorMessage The error message indicating why the validation failed.
 	 * @return The SimpleValidation object.
 	 */
-	public static <K> SimpleValidation<K> from(Predicate<K> predicate, ValidationResult.Builder resultBuilder) {
+	public static <TYPE> SimpleValidation<TYPE> from(Predicate<TYPE> predicate, ValidationResult.Builder resultBuilder) {
 		return new SimpleValidation<>(predicate, resultBuilder);
 	}
 
@@ -47,7 +48,7 @@ public class SimpleValidation<K> implements Validation<K> {
 	 * @return The ValidationResult of the validation.
 	 */
 	@Override
-	public ValidationResult test(K param) {
+	public ValidationResult test(TYPE param) {
 		resultBuilder.value(param);
 
 		return predicate.test(param) ? resultBuilder.ok() : resultBuilder.fail();

@@ -6,8 +6,8 @@ import io.github.jonasnuber.valari.api.results.ValidationResult;
 import io.github.jonasnuber.valari.spi.Validation;
 
 /**
- * Utility class providing predefined validations for integer values.
- * These validations define conditions that an integer must meet to be considered valid.
+ * Utility class providing predefined validations for {@link Integer} values.
+ * These validations define conditions that an integer must satisfy to be considered valid.
  *
  * @author Jonas Nuber
  */
@@ -20,8 +20,8 @@ public final class IntegerValidationHelpers {
     /**
      * Returns a validation that passes only if the integer value equals the specified amount.
      *
-     * @param exact The exact amount the integer value must equal.
-     * @return The validation for equality.
+     * @param exact the exact integer value required
+     * @return the validation for equality
      */
     public static Validation<Integer> sameAmount(int exact) {
         return SimpleValidation.from(
@@ -33,10 +33,10 @@ public final class IntegerValidationHelpers {
     }
 
     /**
-     * Returns a validation that passes only if the integer value is lower than the specified maximum.
+     * Returns a validation that passes only if the integer value is strictly less than the specified maximum.
      *
-     * @param max The maximum value the integer must not exceed.
-     * @return The validation for values lower than the maximum.
+     * @param max the maximum value (exclusive)
+     * @return the validation for values lower than the maximum
      */
     public static Validation<Integer> lowerThan(int max) {
         return SimpleValidation.from(
@@ -48,10 +48,10 @@ public final class IntegerValidationHelpers {
     }
 
     /**
-     * Returns a validation that passes only if the integer value is greater than the specified minimum.
+     * Returns a validation that passes only if the integer value is strictly greater than the specified minimum.
      *
-     * @param min The minimum value the integer must exceed.
-     * @return The validation for values greater than the minimum.
+     * @param min the minimum value (exclusive)
+     * @return the validation for values greater than the minimum
      */
     public static Validation<Integer> greaterThan(int min) {
         return SimpleValidation.from(
@@ -63,22 +63,22 @@ public final class IntegerValidationHelpers {
     }
 
     /**
-     * Returns a validation that passes only if the integer value is within the specified range (exclusive).
+     * Returns a validation that passes only if the integer value is strictly between the specified minimum and maximum.
      *
-     * @param min The minimum value the integer must not be less than.
-     * @param max The maximum value the integer must not exceed.
-     * @return The validation for values within the range.
+     * @param min the minimum value (exclusive)
+     * @param max the maximum value (exclusive)
+     * @return the validation for values within the exclusive range
      */
     public static Validation<Integer> inBetween(int min, int max) {
         return greaterThan(min).and(lowerThan(max));
     }
 
     /**
-     * Returns a validation that passes only if the integer value is within the specified range, including both endpoints.
+     * Returns a validation that passes only if the integer value is between the specified minimum and maximum, inclusive.
      *
-     * @param min The minimum value the integer can be (inclusive).
-     * @param max The maximum value the integer can be (inclusive).
-     * @return The validation for values within the inclusive range.
+     * @param min the minimum value (inclusive)
+     * @param max the maximum value (inclusive)
+     * @return the validation for values within the inclusive range
      */
     public static Validation<Integer> inBetweenInclusive(int min, int max) {
         return greaterThan(--min).and(lowerThan(++max));
@@ -87,7 +87,7 @@ public final class IntegerValidationHelpers {
     /**
      * Returns a validation that passes only if the integer value is even.
      *
-     * @return The validation for even numbers.
+     * @return the validation for even numbers
      */
     public static Validation<Integer> isEven() {
         return SimpleValidation.from(
@@ -100,7 +100,7 @@ public final class IntegerValidationHelpers {
     /**
      * Returns a validation that passes only if the integer value is odd.
      *
-     * @return The validation for odd numbers.
+     * @return the validation for odd numbers
      */
     public static Validation<Integer> isOdd() {
         return SimpleValidation.from(

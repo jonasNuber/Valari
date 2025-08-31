@@ -14,15 +14,16 @@ import java.util.Objects;
  * making the resulting {@link ValidationResult} more meaningful and easier to trace back in error reporting.
  * </p>
  *
- * @param <T> the type of the value being validated
+ * @param <TYPE> the type of the value being validated
  * @author Jonas Nuber
  */
-public class ValueValidator<T> implements Validator<T, ValidationResult> {
+@SuppressWarnings("java:S119")
+public class ValueValidator<TYPE> implements Validator<TYPE, ValidationResult> {
     private final String valueName;
-    private final Validation<T> validation;
+    private final Validation<TYPE> validation;
     private final boolean optional;
 
-    private ValueValidator(String valueName, Validation<T> validation, boolean optional) {
+    private ValueValidator(String valueName, Validation<TYPE> validation, boolean optional) {
         this.valueName = Objects.requireNonNull(valueName, "Value Name must not be null");
         this.validation = Objects.requireNonNull(validation, "Validation must not be null");
         this.optional = optional;
@@ -32,10 +33,10 @@ public class ValueValidator<T> implements Validator<T, ValidationResult> {
      * Creates a {@code ValueValidator} for the given validation with a default name {@code "Value"}.
      *
      * @param validation the validation to wrap
-     * @param <T>        the type of the value being validated
+     * @param <TYPE>        the type of the value being validated
      * @return a new {@code ValueValidator} instance
      */
-    public static <T> ValueValidator<T> with(Validation<T> validation) {
+    public static <TYPE> ValueValidator<TYPE> with(Validation<TYPE> validation) {
         return new ValueValidator<>("Value", validation, false);
     }
 
@@ -44,10 +45,10 @@ public class ValueValidator<T> implements Validator<T, ValidationResult> {
      *
      * @param validation the validation to wrap
      * @param valueName  the name of the value being validated (used for error messages)
-     * @param <T>        the type of the value being validated
+     * @param <TYPE>        the type of the value being validated
      * @return a new {@code ValueValidator} instance
      */
-    public static <T> ValueValidator<T> with(String valueName, Validation<T> validation) {
+    public static <TYPE> ValueValidator<TYPE> with(String valueName, Validation<TYPE> validation) {
         return new ValueValidator<>(valueName, validation, false);
     }
 
@@ -56,10 +57,10 @@ public class ValueValidator<T> implements Validator<T, ValidationResult> {
      * If the value is {@code null}, validation passes.
      *
      * @param validation the validation to wrap
-     * @param <T>        the type of the value being validated
+     * @param <TYPE>        the type of the value being validated
      * @return a new optional {@code ValueValidator} instance
      */
-    public static <T> ValueValidator<T> optional(Validation<T> validation) {
+    public static <TYPE> ValueValidator<TYPE> optional(Validation<TYPE> validation) {
         return new ValueValidator<>("Value", validation, true);
     }
 
@@ -69,10 +70,10 @@ public class ValueValidator<T> implements Validator<T, ValidationResult> {
      *
      * @param validation the validation to wrap
      * @param valueName  the name of the value being validated (used for error messages)
-     * @param <T>        the type of the value being validated
+     * @param <TYPE>        the type of the value being validated
      * @return a new optional {@code ValueValidator} instance
      */
-    public static <T> ValueValidator<T> optional(String valueName, Validation<T> validation) {
+    public static <TYPE> ValueValidator<TYPE> optional(String valueName, Validation<TYPE> validation) {
         return new ValueValidator<>(valueName, validation, true);
     }
 
@@ -89,7 +90,7 @@ public class ValueValidator<T> implements Validator<T, ValidationResult> {
      * @throws NullPointerException if the input value is {@code null} and {@code optional} is {@code false}
      */
     @Override
-    public ValidationResult validate(T toValidate) {
+    public ValidationResult validate(TYPE toValidate) {
         if (optional && Objects.isNull(toValidate)) {
             return ValidationResult.skip().withFieldName(valueName);
         }

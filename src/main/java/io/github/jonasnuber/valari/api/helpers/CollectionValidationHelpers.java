@@ -5,13 +5,20 @@ import io.github.jonasnuber.valari.api.results.ValidationResult;
 import io.github.jonasnuber.valari.spi.Validation;
 
 import java.util.Collection;
+import java.util.Objects;
 import java.util.function.Predicate;
 
 import static io.github.jonasnuber.valari.api.helpers.ObjectValidationHelpers.notNull;
 
 /**
- * Utility class providing predefined validations for Collection values.
- * These validations define conditions that a collection, or elements of a collection must meet to be considered valid.
+ * Utility class providing predefined validations for {@link Collection} values.
+ * <p>
+ * These validations define conditions that a collection or its elements must meet to be considered valid.
+ * They are intended as reusable building blocks for common collection-related validation scenarios.
+ * </p>
+ *
+ * <p>All validations returned by this class ensure that the input collection itself is not {@code null},
+ * unless explicitly documented otherwise.</p>
  *
  * @author Jonas Nuber
  */
@@ -24,9 +31,9 @@ public final class CollectionValidationHelpers {
     }
 
     /**
-     * Returns a validation that passes only if the collection is neither null nor empty.
+     * Returns a validation that passes only if the collection is neither {@code null} nor empty.
      *
-     * @return the Validation for not empty
+     * @return a validation ensuring the collection is not empty
      */
     public static Validation<Collection<?>> notEmpty() {
         return SimpleValidation.from(
@@ -37,11 +44,12 @@ public final class CollectionValidationHelpers {
     }
 
     /**
-     * Returns a validation that checks if the collection size is between the specified minimum and maximum values (exclusive).
+     * Returns a validation that passes if the collection size is strictly greater than {@code min}
+     * and strictly less than {@code max}.
      *
-     * @param min The minimum number of elements.
-     * @param max The maximum number of elements.
-     * @return The validation for collection size within a range.
+     * @param min the minimum number of elements (exclusive)
+     * @param max the maximum number of elements (exclusive)
+     * @return a validation ensuring the collection size is within the given range
      */
     public static Validation<Collection<?>> sizeBetween(int min, int max) {
         return SimpleValidation.from(
@@ -58,14 +66,16 @@ public final class CollectionValidationHelpers {
     /**
      * Returns a validation that passes only if the collection contains the specified value.
      *
-     * @param value The value that must be contained in the collection.
-     * @param <T>   The type of elements in the collection.
-     * @return The validation for checking presence of the value in the collection.
+     * @param value the value that must be present in the collection (must not be {@code null})
+     * @param <T>   the type of elements in the collection
+     * @return a validation ensuring the collection contains the given value
+     * @throws NullPointerException if {@code value} is {@code null}
      */
     public static <T> Validation<Collection<T>> contains(T value) {
+        Objects.requireNonNull(value, "Object which should be contained, must not be null");
+
         return SimpleValidation.from(
                 c -> notNull(c, COLLECTION_MUST_NOT_BE_NULL) &&
-                        notNull(value, "Object which should be contained, must not be null") &&
                         c.contains(value),
                 new ValidationResult.Builder("Collection must contain Object \"{0}\"")
                         .messageKey("validation.collection.contains")
@@ -74,11 +84,42 @@ public final class CollectionValidationHelpers {
     }
 
     /**
+     * Returns a validation that passes only if the collection contains at least one {@code null} element.
+     *
+     * @param <T> the type of elements in the collection
+     * @return a validation ensuring the collection contains at least one {@code null} element
+     */
+    public static <T> Validation<Collection<T>> hasNullElements() {
+        return SimpleValidation.from(
+                c -> notNull(c, COLLECTION_MUST_NOT_BE_NULL) &&
+                        c.stream().anyMatch(Objects::isNull),
+                new ValidationResult.Builder("Collection must contain at least one null element")
+                        .messageKey("validation.collection.hasNullElements")
+        );
+    }
+
+    /**
+     * Returns a validation that passes only if the collection does not contain any {@code null} elements.
+     *
+     * @param <T> the type of elements in the collection
+     * @return a validation ensuring no {@code null} elements are present
+     */
+    public static <T> Validation<Collection<T>> noNullElements() {
+        return SimpleValidation.from(
+                c -> notNull(c, COLLECTION_MUST_NOT_BE_NULL) &&
+                        c.stream().noneMatch(Objects::isNull),
+                new ValidationResult.Builder("Collection must not contain null elements")
+                        .messageKey("validation.collection.noNullElements")
+        );
+    }
+
+    /**
      * Returns a validation that passes only if all elements in the collection match the given predicate.
      *
-     * @param predicate The predicate to test each element against.
-     * @param <T>       The type of elements in the collection.
-     * @return The validation ensuring all elements match the predicate.
+     * @param predicate the predicate that all elements must satisfy (must not be {@code null})
+     * @param <T>       the type of elements in the collection
+     * @return a validation ensuring all elements match the predicate
+     * @throws NullPointerException if {@code predicate} is {@code null}
      */
     public static <T> Validation<Collection<T>> allMatch(Predicate<T> predicate) {
         return SimpleValidation.from(
@@ -93,9 +134,10 @@ public final class CollectionValidationHelpers {
     /**
      * Returns a validation that passes if at least one element in the collection matches the given predicate.
      *
-     * @param predicate The predicate to test elements against.
-     * @param <T>       The type of elements in the collection.
-     * @return The validation ensuring any element matches the predicate.
+     * @param predicate the predicate that at least one element must satisfy (must not be {@code null})
+     * @param <T>       the type of elements in the collection
+     * @return a validation ensuring at least one element matches the predicate
+     * @throws NullPointerException if {@code predicate} is {@code null}
      */
     public static <T> Validation<Collection<T>> anyMatch(Predicate<T> predicate) {
         return SimpleValidation.from(
@@ -108,11 +150,12 @@ public final class CollectionValidationHelpers {
     }
 
     /**
-     * Returns a validation that passes only if no elements in the collection match the given predicate.
+     * Returns a validation that passes only if no element in the collection matches the given predicate.
      *
-     * @param predicate The predicate to test elements against.
-     * @param <T>       The type of elements in the collection.
-     * @return The validation ensuring no element matches the predicate.
+     * @param predicate the predicate that no element should satisfy (must not be {@code null})
+     * @param <T>       the type of elements in the collection
+     * @return a validation ensuring no element matches the predicate
+     * @throws NullPointerException if {@code predicate} is {@code null}
      */
     public static <T> Validation<Collection<T>> noneMatch(Predicate<T> predicate) {
         return SimpleValidation.from(

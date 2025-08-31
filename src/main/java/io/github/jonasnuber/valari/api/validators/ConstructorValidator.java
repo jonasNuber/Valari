@@ -35,18 +35,19 @@ import java.util.Objects;
  * results.throwIfInvalid(); // throws AggregatedValidationException if any validation failed
  * }</pre>
  *
- * @param <T> the target class for which parameters are being validated (for context/reference only)
+ * @param <TYPE> the target class for which parameters are being validated (for context/reference only)
  * @see ValidationResultCollection
  * @see io.github.jonasnuber.valari.api.exceptions.AggregatedValidationException
  * @author Jonas Nuber
  */
-public class ConstructorValidator<T> implements NoInputValidator<ValidationResultCollection> {
-    private final Class<T> clazz;
+@SuppressWarnings("java:S119")
+public class ConstructorValidator<TYPE> implements NoInputValidator<ValidationResultCollection> {
+    private final Class<TYPE> clazz;
     private final List<NoInputValidator<ValidationResult>> parameterValidators = new ArrayList<>();
 
-    private ValidationStrategy<T, ValidationResultCollection> validationStrategy;
+    private ValidationStrategy<TYPE, ValidationResultCollection> validationStrategy;
 
-    private ConstructorValidator(Class<T> clazz) {
+    private ConstructorValidator(Class<TYPE> clazz) {
         this.clazz = Objects.requireNonNull(clazz, "Class must not be null");
         validationStrategy = new CollectFailuresStrategy<>();
     }
@@ -55,10 +56,10 @@ public class ConstructorValidator<T> implements NoInputValidator<ValidationResul
      * Creates a new {@code ConstructorValidator} instance for the specified target class.
      *
      * @param clazz the class representing the target of validation
-     * @param <T>   the type parameter
+     * @param <TYPE>   the type parameter
      * @return a new instance of {@code ConstructorValidator}
      */
-    public static <T> ConstructorValidator<T> of(Class<T> clazz) {
+    public static <TYPE> ConstructorValidator<TYPE> of(Class<TYPE> clazz) {
         return new ConstructorValidator<>(clazz);
     }
 
@@ -76,13 +77,13 @@ public class ConstructorValidator<T> implements NoInputValidator<ValidationResul
      *
      * @param parameterName the logical name of the parameter (used in error messages)
      * @param parameter     the value to validate
-     * @param <F>           the type of the parameter
+     * @param <PARAMETER>           the type of the parameter
      * @return a binding that allows attaching a validation rule via {@code mustSatisfy} or {@code ifPresent}
      */
-    public <F> RuleBinding<ConstructorValidator<T>, Validation<F>> parameter(String parameterName, F parameter) {
+    public <PARAMETER> RuleBinding<ConstructorValidator<TYPE>, Validation<PARAMETER>> parameter(String parameterName, PARAMETER parameter) {
         Objects.requireNonNull(parameterName, "ParameterName must not be null");
 
-        ParameterRuleBinding<T, F> parameterBinding = new ParameterRuleBinding<>(parameterName, parameter, this);
+        ParameterRuleBinding<TYPE, PARAMETER> parameterBinding = new ParameterRuleBinding<>(parameterName, parameter, this);
         parameterValidators.add(parameterBinding);
 
         return parameterBinding;
@@ -97,7 +98,7 @@ public class ConstructorValidator<T> implements NoInputValidator<ValidationResul
      *
      * @return this validator instance (for chaining)
      */
-    public ConstructorValidator<T> and() {return this;}
+    public ConstructorValidator<TYPE> and() {return this;}
 
     /**
      * Sets the validation strategy to fail-fast mode.
@@ -107,7 +108,7 @@ public class ConstructorValidator<T> implements NoInputValidator<ValidationResul
      *
      * @return this validator instance (for chaining)
      */
-    public ConstructorValidator<T> failFast() {
+    public ConstructorValidator<TYPE> failFast() {
         validationStrategy = new FailFastStrategy<>();
         return this;
     }
@@ -121,7 +122,7 @@ public class ConstructorValidator<T> implements NoInputValidator<ValidationResul
      *
      * @return this validator instance (for chaining)
      */
-    public ConstructorValidator<T> collectFailures() {
+    public ConstructorValidator<TYPE> collectFailures() {
         validationStrategy = new CollectFailuresStrategy<>();
         return this;
     }

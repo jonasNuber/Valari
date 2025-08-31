@@ -14,11 +14,12 @@ import io.github.jonasnuber.valari.api.results.ValidationResult;
  * Default functionality is provided for logical {@linkplain #and} and {@linkplain #or} Validation chaining.
  * </p>
  *
- * @param <K> Type of object to be validated.
+ * @param <TYPE> Type of object to be validated.
  * @author Jonas Nuber
  */
 @FunctionalInterface
-public interface Validation<K> {
+@SuppressWarnings("java:S119")
+public interface Validation<TYPE> {
 
     /**
      * Tests the given object against the validation logic.
@@ -26,7 +27,7 @@ public interface Validation<K> {
      * @param param The object to be validated.
      * @return ValidationResult indicating the outcome of the validation.
      */
-    ValidationResult test(K param);
+    ValidationResult test(TYPE param);
 
     /**
      * Combines the current Validation with another one using logical conjunction.
@@ -35,7 +36,7 @@ public interface Validation<K> {
      * @param other The validation to conjunct.
      * @return A new Validation representing the conjunction of the current validation with the provided one.
      */
-    default Validation<K> and(Validation<K> other) {
+    default Validation<TYPE> and(Validation<TYPE> other) {
         return param -> {
             var firstResult = this.test(param);
             return !firstResult.isValid() ? firstResult : other.test(param);
@@ -49,7 +50,7 @@ public interface Validation<K> {
      * @param other The validation to disjunct.
      * @return A new Validation representing the disjunction of the current validation with the provided one.
      */
-    default Validation<K> or(Validation<K> other) {
+    default Validation<TYPE> or(Validation<TYPE> other) {
         return param -> {
             var firstResult = this.test(param);
             return firstResult.isValid() ? firstResult : other.test(param);

@@ -15,10 +15,11 @@ import java.util.Objects;
  * such as when only the first error is needed or validation is expensive.
  * </p>
  *
- * @param <T> the type of object being validated
+ * @param <TYPE> the type of object being validated
  * @author Jonas Nuber
  */
-public final class FailFastStrategy<T> implements ValidationStrategy<T, ValidationResultCollection> {
+@SuppressWarnings("java:S119")
+public final class FailFastStrategy<TYPE> implements ValidationStrategy<TYPE, ValidationResultCollection> {
 
     /**
      * Constructs a new {@code FailFastStrategy}.
@@ -40,7 +41,7 @@ public final class FailFastStrategy<T> implements ValidationStrategy<T, Validati
      * @throws NullPointerException if either parameter is {@code null}
      */
     @Override
-    public ValidationResultCollection validate(List<NoInputValidator<ValidationResult>> validators, Class<T> validationContextClass) {
+    public ValidationResultCollection validate(List<NoInputValidator<ValidationResult>> validators, Class<TYPE> validationContextClass) {
         Objects.requireNonNull(validators, "Validations to validate Object by must not be null");
         Objects.requireNonNull(validationContextClass, "The class of the Object to validate must not be null");
 

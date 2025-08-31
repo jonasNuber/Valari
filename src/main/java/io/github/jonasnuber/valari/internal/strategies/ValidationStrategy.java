@@ -25,12 +25,13 @@ import java.util.List;
  * of type {@code R}, which extends {@link ThrowingResult}.
  * </p>
  *
- * @param <T> the type of the object being validated (used for result context only)
- * @param <R> the result type returned by the strategy (e.g., {@link ValidationResultCollection})
+ * @param <TYPE> the type of the object being validated (used for result context only)
+ * @param <RESULT> the result type returned by the strategy (e.g., {@link ValidationResultCollection})
  *
  * @author Jonas Nuber
  */
-public interface ValidationStrategy<T, R extends ThrowingResult> {
+@SuppressWarnings("java:S119")
+public interface ValidationStrategy<TYPE, RESULT extends ThrowingResult> {
 
     /**
      * Executes the validation strategy on the given list of field-level validators.
@@ -39,5 +40,5 @@ public interface ValidationStrategy<T, R extends ThrowingResult> {
      * @param validationContextClass the class of the object being validated, used to provide context in result reporting
      * @return a validation result of type {@code R}, as determined by the specific strategy implementation
      */
-    R validate(List<NoInputValidator<ValidationResult>> validators, Class<T> validationContextClass);
+    RESULT validate(List<NoInputValidator<ValidationResult>> validators, Class<TYPE> validationContextClass);
 }

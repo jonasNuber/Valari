@@ -21,13 +21,14 @@ import io.github.jonasnuber.valari.internal.BaseValidator;
  *          .ifPresent(nonBlank());
  * }</pre>
  *
- * @param <V> the type of the validator (used to return the validator for fluent chaining)
- * @param <T> the type of the validation rule (e.g., {@code Validation<F>})
+ * @param <VALIDATOR> the type of the validator (used to return the validator for fluent chaining)
+ * @param <RULE> the type of the validation rule (e.g., {@code Validation<F>})
  *
  * @author Jonas Nuber
  * @see Validator
  */
-public interface RuleBinding<V extends BaseValidator, T> {
+@SuppressWarnings("java:S119")
+public interface RuleBinding<VALIDATOR extends BaseValidator, RULE> {
 
     /**
      * Specifies that the field must satisfy the given validation rule.
@@ -35,7 +36,7 @@ public interface RuleBinding<V extends BaseValidator, T> {
      * @param rule the validation rule to apply (e.g., {@code notBlank()}, {@code between()})
      * @return the validator instance for fluent chaining
      */
-    V mustSatisfy(T rule);
+    VALIDATOR mustSatisfy(RULE rule);
 
     /**
      * Applies the rule only if the field's value is present (i.e., not {@code null}).
@@ -47,5 +48,5 @@ public interface RuleBinding<V extends BaseValidator, T> {
      * @param rule the validation rule to apply if the field value is non-null
      * @return the validator instance for fluent chaining
      */
-    V ifPresent(T rule);
+    VALIDATOR ifPresent(RULE rule);
 }

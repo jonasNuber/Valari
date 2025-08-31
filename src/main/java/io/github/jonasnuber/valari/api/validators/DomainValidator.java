@@ -40,19 +40,20 @@ import java.util.function.Function;
  * results.throwIfInvalid(); // throws AggregatedValidationException if any validation failed
  * }</pre>
  *
- * @param <T> the type of object to validate
+ * @param <TYPE> the type of object to validate
  * @see ValidationResultCollection
  * @see AggregatedValidationException
  *
  * @author Jonas Nuber
  */
-public class DomainValidator<T> implements Validator<T, ValidationResultCollection> {
-    private final Class<T> clazz;
-    private final List<Validator<T, ValidationResult>> validationBindings = new ArrayList<>();
+@SuppressWarnings("java:S119")
+public class DomainValidator<TYPE> implements Validator<TYPE, ValidationResultCollection> {
+    private final Class<TYPE> clazz;
+    private final List<Validator<TYPE, ValidationResult>> validationBindings = new ArrayList<>();
 
-    private ValidationStrategy<T, ValidationResultCollection> validationStrategy;
+    private ValidationStrategy<TYPE, ValidationResultCollection> validationStrategy;
 
-    private DomainValidator(Class<T> clazz) {
+    private DomainValidator(Class<TYPE> clazz) {
         this.clazz = Objects.requireNonNull(clazz, "Class must not be null");
         validationStrategy = new CollectFailuresStrategy<>();
     }
@@ -61,10 +62,10 @@ public class DomainValidator<T> implements Validator<T, ValidationResultCollecti
      * Creates a new {@code DomainValidator} instance for the specified type.
      *
      * @param clazz the class of the object to validate
-     * @param <T>   the type parameter
+     * @param <TYPE>   the type parameter
      * @return a new instance of {@code DomainValidator}
      */
-    public static <T> DomainValidator<T> of(Class<T> clazz) {
+    public static <TYPE> DomainValidator<TYPE> of(Class<TYPE> clazz) {
         return new DomainValidator<>(clazz);
     }
 
@@ -84,14 +85,14 @@ public class DomainValidator<T> implements Validator<T, ValidationResultCollecti
      *
      * @param fieldName the logical name of the field (used in error reporting)
      * @param extractor the function to extract the field value from the object
-     * @param <F>       the field type
+     * @param <FIELD>       the field type
      * @return a binding that allows attaching a validation rule via {@code mustSatisfy} or {@code ifPresent}
      */
-    public <F> RuleBinding<DomainValidator<T>, Validation<F>> field(String fieldName, Function<T, F> extractor) {
+    public <FIELD> RuleBinding<DomainValidator<TYPE>, Validation<FIELD>> field(String fieldName, Function<TYPE, FIELD> extractor) {
         Objects.requireNonNull(fieldName, "FieldName must not be null");
         Objects.requireNonNull(extractor, "Extractor Function must not be null");
 
-        FieldRuleBinding<T,F> fieldValidationBinding = new FieldRuleBinding<>(fieldName, extractor, this);
+        FieldRuleBinding<TYPE, FIELD> fieldValidationBinding = new FieldRuleBinding<>(fieldName, extractor, this);
         validationBindings.add(fieldValidationBinding);
 
         return fieldValidationBinding;
@@ -121,14 +122,14 @@ public class DomainValidator<T> implements Validator<T, ValidationResultCollecti
      *
      * @param fieldName the logical name of the nested field (used in error messages)
      * @param extractor the function to extract the nested object
-     * @param <F>       the type of the nested object
+     * @param <FIELD>       the type of the nested object
      * @return a binding that allows specifying required or optional nested validation
      */
-    public <F> RuleBinding<DomainValidator<T>, DomainValidator<F>> nested(String fieldName, Function<T, F> extractor) {
+    public <FIELD> RuleBinding<DomainValidator<TYPE>, DomainValidator<FIELD>> nested(String fieldName, Function<TYPE, FIELD> extractor) {
         Objects.requireNonNull(fieldName, "FieldName must not be null");
         Objects.requireNonNull(extractor, "Extractor Function must not be null");
 
-        NestedRuleBinding<T,F> nestedValidationBinding = new NestedRuleBinding<>(fieldName, extractor, this);
+        NestedRuleBinding<TYPE, FIELD> nestedValidationBinding = new NestedRuleBinding<>(fieldName, extractor, this);
         validationBindings.add(nestedValidationBinding);
 
         return nestedValidationBinding;
@@ -153,7 +154,7 @@ public class DomainValidator<T> implements Validator<T, ValidationResultCollecti
      *
      * @return this validator instance (for chaining)
      */
-    public DomainValidator<T> and(){
+    public DomainValidator<TYPE> and(){
         return this;
     }
 
@@ -165,7 +166,7 @@ public class DomainValidator<T> implements Validator<T, ValidationResultCollecti
      *
      * @return this validator instance (for chaining)
      */
-    public DomainValidator<T> failFast() {
+    public DomainValidator<TYPE> failFast() {
         validationStrategy = new FailFastStrategy<>();
         return this;
     }
@@ -179,7 +180,7 @@ public class DomainValidator<T> implements Validator<T, ValidationResultCollecti
      *
      * @return this validator instance (for chaining)
      */
-    public DomainValidator<T> collectFailures() {
+    public DomainValidator<TYPE> collectFailures() {
         validationStrategy = new CollectFailuresStrategy<>();
         return this;
     }
@@ -194,7 +195,7 @@ public class DomainValidator<T> implements Validator<T, ValidationResultCollecti
      * @return a collection of validation results
      */
     @Override
-    public ValidationResultCollection validate(T toValidate) {
+    public ValidationResultCollection validate(TYPE toValidate) {
         Objects.requireNonNull(toValidate, "Object to validate must not be null");
 
         return validationStrategy.validate(validationBindings
