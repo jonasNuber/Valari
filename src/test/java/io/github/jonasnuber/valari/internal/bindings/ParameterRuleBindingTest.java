@@ -102,7 +102,7 @@ class ParameterRuleBindingTest {
         var result = binding.validate();
 
         assertThat(result.isInvalid()).isTrue();
-        assertThat(result.getFieldName()).isEqualTo("SomeName");
+        assertThat(result.getLabel()).isEqualTo("SomeName");
         assertThat(result.resolveValidationMessage(MessageResolutionContext.getResolver(), MessageResolutionContext.getLocale()))
                 .isEqualTo("must not be blank");
     }
@@ -124,7 +124,7 @@ class ParameterRuleBindingTest {
         var result = binding.validate();
 
         assertThat(result.isInvalid()).isTrue();
-        assertThat(result.getFieldName()).isEqualTo("SomeName");
+        assertThat(result.getLabel()).isEqualTo("SomeName");
     }
 
     @Test

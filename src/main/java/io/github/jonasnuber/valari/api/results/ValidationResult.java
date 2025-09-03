@@ -20,7 +20,8 @@ public class ValidationResult implements ThrowingResult {
     private final String defaultMessage;
     private final String messageKey;
     private final List<Object> messageArguments;
-    private final String fieldName;
+    private final LabelType labelType;
+    private final String label;
     private final Object value;
     private final ValidationState state;
 
@@ -28,14 +29,16 @@ public class ValidationResult implements ThrowingResult {
         this.defaultMessage = builder.defaultMessage;
         this.messageKey = builder.messageKey;
         this.messageArguments = builder.messageArguments;
-        this.fieldName = builder.fieldName;
+        this.labelType = builder.labelType;
+        this.label = builder.label;
         this.value = builder.value;
         this.state = builder.state;
     }
 
-    public ValidationResult withFieldName(String fieldName) {
+    public ValidationResult withLabel(LabelType labelType, String label) {
         return new Builder(this)
-                .fieldName(fieldName)
+                .labelType(labelType)
+                .label(label)
                 .build();
     }
 
@@ -56,19 +59,19 @@ public class ValidationResult implements ThrowingResult {
         return switch (state) {
             case SUCCESS -> resolver.resolve(
                     "validation.result.success",
-                    List.of(fieldName, resolveValidationMessage(resolver, locale)),
+                    List.of(label, resolveValidationMessage(resolver, locale)),
                     "The field \"{0}\" is valid: {1}",
                     locale
             );
             case SKIPPED -> resolver.resolve(
                     "validation.result.skipped",
-                    List.of(fieldName),
+                    List.of(label),
                     "Validation for field \"{0}\" was skipped",
                     locale
             );
             case FAILURE -> resolver.resolve(
                     "validation.result.failure",
-                    List.of(fieldName, resolveValidationMessage(resolver, locale)),
+                    List.of(label, resolveValidationMessage(resolver, locale)),
                     "The field \"{0}\" is invalid: {1}",
                     locale
             );
@@ -77,7 +80,7 @@ public class ValidationResult implements ThrowingResult {
 
     @Override
     public void throwIfInvalid() {
-        throwIfInvalid(InvalidAttributeValueException::new, getMessage());
+        throwIfInvalid(InvalidAttributeValueException::new);
     }
 
     public String getDefaultMessage() {
@@ -92,8 +95,12 @@ public class ValidationResult implements ThrowingResult {
         return messageArguments;
     }
 
-    public String getFieldName(){
-        return fieldName;
+    public LabelType getLabelType() {
+        return labelType;
+    }
+
+    public String getLabel(){
+        return label;
     }
 
     public Object getValue() {
@@ -107,39 +114,36 @@ public class ValidationResult implements ThrowingResult {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof ValidationResult that)) return false;
-        return Objects.equals(defaultMessage, that.defaultMessage)
-                && Objects.equals(messageKey, that.messageKey)
-                && Objects.equals(messageArguments, that.messageArguments)
-                && Objects.equals(fieldName, that.fieldName)
-                && Objects.equals(value, that.value)
-                && state == that.state;
+        if (o == null || getClass() != o.getClass()) return false;
+        ValidationResult that = (ValidationResult) o;
+        return Objects.equals(defaultMessage, that.defaultMessage) && Objects.equals(messageKey, that.messageKey) && Objects.equals(messageArguments, that.messageArguments) && Objects.equals(labelType, that.labelType) && Objects.equals(label, that.label) && Objects.equals(value, that.value) && state == that.state;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(defaultMessage, messageKey, messageArguments, fieldName, value, state);
+        return Objects.hash(defaultMessage, messageKey, messageArguments, labelType, label, value, state);
     }
 
     @Override
     public String toString() {
-        return "ValidationResult[" +
-                "state=" + state +
-                ", field='" + fieldName + '\'' +
-                ", value=" + value +
+        return "ValidationResult{" +
+                "defaultMessage='" + defaultMessage + '\'' +
                 ", messageKey='" + messageKey + '\'' +
-                ", defaultMessage='" + defaultMessage + '\'' +
-                ", args=" + messageArguments +
-                ']';
+                ", messageArguments=" + messageArguments +
+                ", labelType=" + labelType +
+                ", label='" + label + '\'' +
+                ", value=" + value +
+                ", state=" + state +
+                '}';
     }
 
     public static class Builder {
-        private String defaultMessage;
+        private final String defaultMessage;
         private final List<Object> messageArguments = new ArrayList<>();
 
         private String messageKey = "not.provided";
-        private String fieldName = "";
+        private LabelType labelType = LabelType.SUBJECT;
+        private String label = "<unknown>";
         private Object value;
         private ValidationState state;
 
@@ -153,7 +157,8 @@ public class ValidationResult implements ThrowingResult {
             this.defaultMessage = existing.defaultMessage;
             this.messageArguments.addAll(existing.messageArguments);
             this.messageKey = existing.messageKey;
-            this.fieldName = existing.fieldName;
+            this.labelType = existing.labelType;
+            this.label = existing.label;
             this.value = existing.value;
             this.state = existing.state;
         }
@@ -177,14 +182,28 @@ public class ValidationResult implements ThrowingResult {
             return this;
         }
 
-        public Builder fieldName(String fieldName) {
-            this.fieldName = Objects.requireNonNull(fieldName, "FieldName must not be null");
+        public Builder labelType(LabelType labelType) {
+            this.labelType = Objects.requireNonNull(labelType, "LabelType must not be null");
+
+            return this;
+        }
+
+        public Builder label(String label) {
+            this.label = Objects.requireNonNull(label, "Label must not be null");
             return this;
         }
 
         public Builder value(Object value){
             this.value = value;
             return this;
+        }
+
+        public Builder metadata(ValidationMetadata metadata) {
+            return new Builder(metadata.getDefaultMessage())
+                    .messageKey(metadata.getMessageKey())
+                    .messageArguments(metadata.getMessageArguments())
+                    .labelType(metadata.getLabelType())
+                    .label(metadata.getLabel());
         }
 
         public ValidationResult ok() {

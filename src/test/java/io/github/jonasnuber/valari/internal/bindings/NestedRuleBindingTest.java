@@ -127,7 +127,7 @@ class NestedRuleBindingTest {
         var result = binding.validate(creditCard);
 
         assertThat(result.isInvalid()).isTrue();
-        assertThat(result.getFieldName()).isEqualTo("Owner");
+        assertThat(result.getLabel()).isEqualTo("Owner");
         assertThat(result.resolveValidationMessage(MessageResolutionContext.getResolver(), MessageResolutionContext.getLocale()))
                 .isEqualTo(
                 "Validation for class io.github.jonasnuber.valari.Person failed with 1 error(s):\n" +
@@ -160,7 +160,7 @@ class NestedRuleBindingTest {
         var result = binding.validate(creditCard);
 
         assertThat(result.isInvalid()).isTrue();
-        assertThat(result.getFieldName()).isEqualTo("Owner");
+        assertThat(result.getLabel()).isEqualTo("Owner");
         assertThat(result.resolveValidationMessage(MessageResolutionContext.getResolver(), MessageResolutionContext.getLocale()))
                 .isEqualTo(
                 "Validation for class io.github.jonasnuber.valari.Person failed with 1 error(s):\n" +

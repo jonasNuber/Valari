@@ -70,7 +70,7 @@ class ConstructorValidatorTest {
 
         assertThat(result.isInvalid()).isTrue();
         assertThat(result.getResults())
-                .extracting(ValidationResult::getFieldName)
+                .extracting(ValidationResult::getLabel)
                 .containsExactly("invalidParam");
     }
 
@@ -92,7 +92,7 @@ class ConstructorValidatorTest {
 
         assertThat(result.isInvalid()).isTrue();
         assertThat(result.getResults())
-                .extracting(ValidationResult::getFieldName)
+                .extracting(ValidationResult::getLabel)
                 .containsExactly("optionalPresent");
     }
 
@@ -128,7 +128,7 @@ class ConstructorValidatorTest {
 
         assertThat(result.isInvalid()).isTrue();
         assertThat(result.getResults())
-                .extracting(ValidationResult::getFieldName)
+                .extracting(ValidationResult::getLabel)
                 .containsExactly("invalidParam1");
     }
 
@@ -147,7 +147,7 @@ class ConstructorValidatorTest {
         assertThat(result.isInvalid()).isTrue();
         assertThat(result.getResults())
                 .hasSize(2)
-                .extracting(ValidationResult::getFieldName)
+                .extracting(ValidationResult::getLabel)
                 .containsExactlyInAnyOrder("invalidParam1", "invalidParam2");
     }
 
@@ -191,7 +191,7 @@ class ConstructorValidatorTest {
         assertThat(result.isInvalid()).isTrue();
         assertThat(result.getResults())
                 .hasSize(2)
-                .extracting(ValidationResult::getFieldName)
+                .extracting(ValidationResult::getLabel)
                 .containsExactlyInAnyOrder("invalidParam1", "invalidParam2");
     }
 }

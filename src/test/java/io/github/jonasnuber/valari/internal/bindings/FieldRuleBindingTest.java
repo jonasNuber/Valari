@@ -109,7 +109,7 @@ class FieldRuleBindingTest {
         var result = binding.validate(person);
 
         assertThat(result.isInvalid()).isTrue();
-        assertThat(result.getFieldName()).isEqualTo("Name");
+        assertThat(result.getLabel()).isEqualTo("Name");
         assertThat(result.resolveValidationMessage(MessageResolutionContext.getResolver(), MessageResolutionContext.getLocale()))
                 .isEqualTo("must not be empty");
     }
@@ -134,7 +134,7 @@ class FieldRuleBindingTest {
         var result = binding.validate(person);
 
         assertThat(result.isInvalid()).isTrue();
-        assertThat(result.getFieldName()).isEqualTo("Name");
+        assertThat(result.getLabel()).isEqualTo("Name");
         assertThat(result.resolveValidationMessage(MessageResolutionContext.getResolver(), MessageResolutionContext.getLocale()))
                 .isEqualTo("must not be empty");
     }

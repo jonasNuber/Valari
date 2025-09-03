@@ -56,7 +56,7 @@ public final class ValidationResultCollection implements ThrowingResult {
    */
   @Override
   public void throwIfInvalid() throws AggregatedValidationException {
-    throwIfInvalid(AggregatedValidationException::new, getMessage());
+    throwIfInvalid(AggregatedValidationException::new);
   }
 
   public ValidationResult toValidationResult() {
@@ -136,7 +136,7 @@ public final class ValidationResultCollection implements ThrowingResult {
       sb.append(
               resolver.resolve(
                       "validation.result.aggregated.field",
-                      List.of(result.getFieldName(), result.resolveValidationMessage(resolver, locale)),
+                      List.of(result.getLabel(), result.resolveValidationMessage(resolver, locale)),
                       " - Field '{0}': {1}",
                       locale
               )
@@ -165,7 +165,7 @@ public final class ValidationResultCollection implements ThrowingResult {
       super(new Builder("Aggregated validation result for {0}")
               .messageKey("validation.result.collection")
               .messageArgument(collection.getClazz())
-              .fieldName(collection.getClazz().getCanonicalName()));
+              .label(collection.getClazz().getCanonicalName()));
       this.collection = collection;
     }
 

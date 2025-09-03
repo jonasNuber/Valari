@@ -1,5 +1,6 @@
 package io.github.jonasnuber.valari.api.validators;
 
+import io.github.jonasnuber.valari.api.results.LabelType;
 import io.github.jonasnuber.valari.api.results.ValidationResult;
 import io.github.jonasnuber.valari.spi.Validation;
 import io.github.jonasnuber.valari.spi.Validator;
@@ -92,9 +93,9 @@ public class ValueValidator<TYPE> implements Validator<TYPE, ValidationResult> {
     @Override
     public ValidationResult validate(TYPE toValidate) {
         if (optional && Objects.isNull(toValidate)) {
-            return ValidationResult.skip().withFieldName(valueName);
+            return ValidationResult.skip().withLabel(LabelType.VALUE, valueName);
         }
 
-        return validation.test(toValidate).withFieldName(valueName);
+        return validation.test(toValidate).withLabel(LabelType.VALUE, valueName);
     }
 }

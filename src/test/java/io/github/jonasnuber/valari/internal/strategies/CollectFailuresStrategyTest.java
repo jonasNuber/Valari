@@ -56,7 +56,7 @@ class CollectFailuresStrategyTest {
         assertThat(result.isInvalid()).isTrue();
         assertThat(result.getResults())
                 .hasSize(2)
-                .extracting(ValidationResult::getFieldName)
+                .extracting(ValidationResult::getLabel)
                 .containsExactlyInAnyOrder("Name", "Age");
     }
 

@@ -1,8 +1,5 @@
 package io.github.jonasnuber.valari.api.helpers;
 
-import io.github.jonasnuber.valari.api.results.MessageResolutionContext;
-import io.github.jonasnuber.valari.spi.MessageResolver;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -15,15 +12,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
 class CollectionValidationHelpersTest {
-    
-    private static MessageResolver resolver;
-    private static Locale locale;
-    
-    @BeforeAll
-    static void init() {
-        resolver = MessageResolutionContext.getResolver();
-        locale = MessageResolutionContext.getLocale();
-    }
 
     @Test
     void notEmpty_ShouldReturnValidResult_ForNotEmptyCollection() {
@@ -51,7 +39,7 @@ class CollectionValidationHelpersTest {
         var result = validation.test(emptyCollection);
 
         assertThat(result.isValid()).isFalse();
-        assertThat(result.resolveValidationMessage(resolver, locale))
+        assertThat(result.resolveValidationMessage())
                 .isEqualTo("Collection must not be empty");
     }
 
@@ -86,7 +74,7 @@ class CollectionValidationHelpersTest {
         var result = validation.test(collection);
 
         assertThat(result.isValid()).isFalse();
-        assertThat(result.resolveValidationMessage(resolver, locale))
+        assertThat(result.resolveValidationMessage())
                 .isEqualTo(String.format("Size must be greater than %s and less than %s", minSize, maxSize));
     }
 
@@ -121,7 +109,7 @@ class CollectionValidationHelpersTest {
         var result = validation.test(collection);
 
         assertThat(result.isValid()).isFalse();
-        assertThat(result.resolveValidationMessage(resolver, locale))
+        assertThat(result.resolveValidationMessage())
                 .isEqualTo("Collection must contain Object \"String\"");
     }
 
@@ -165,7 +153,7 @@ class CollectionValidationHelpersTest {
         var result = validation.test(collection);
 
         assertThat(result.isValid()).isFalse();
-        assertThat(result.resolveValidationMessage(resolver, locale))
+        assertThat(result.resolveValidationMessage())
                 .isEqualTo("Collection must contain at least one null element");
     }
 
@@ -200,7 +188,7 @@ class CollectionValidationHelpersTest {
         var result = validation.test(collection);
 
         assertThat(result.isValid()).isFalse();
-        assertThat(result.resolveValidationMessage(resolver, locale))
+        assertThat(result.resolveValidationMessage())
                 .isEqualTo("Collection must not contain null elements");
     }
 
@@ -235,7 +223,7 @@ class CollectionValidationHelpersTest {
         var result = validation.test(collection);
 
         assertThat(result.isValid()).isFalse();
-        assertThat(result.resolveValidationMessage(resolver, locale))
+        assertThat(result.resolveValidationMessage())
                 .isEqualTo("All elements must match the Predicate");
     }
 
@@ -281,7 +269,7 @@ class CollectionValidationHelpersTest {
         var result = validation.test(collection);
 
         assertThat(result.isValid()).isFalse();
-        assertThat(result.resolveValidationMessage(resolver, locale))
+        assertThat(result.resolveValidationMessage())
                 .isEqualTo("At least one element must match the Predicate");
     }
 
@@ -327,7 +315,7 @@ class CollectionValidationHelpersTest {
         var result = validation.test(collection);
 
         assertThat(result.isValid()).isFalse();
-        assertThat(result.resolveValidationMessage(resolver, locale))
+        assertThat(result.resolveValidationMessage())
                 .isEqualTo("No element should match the predicate");
     }
 

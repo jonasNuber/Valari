@@ -112,7 +112,7 @@ class DomainValidatorTest {
 
         assertThat(result.isInvalid()).isTrue();
         assertThat(result.getResults())
-                .extracting(ValidationResult::getFieldName)
+                .extracting(ValidationResult::getLabel)
                 .containsExactlyInAnyOrder("Name", "Age");
     }
 
@@ -143,7 +143,7 @@ class DomainValidatorTest {
 
         assertThat(result.isInvalid()).isTrue();
         assertThat(result.getResults())
-                .extracting(ValidationResult::getFieldName)
+                .extracting(ValidationResult::getLabel)
                 .containsExactly("Name");
     }
 
@@ -190,7 +190,7 @@ class DomainValidatorTest {
         assertThat(result.isInvalid()).isTrue();
         assertThat(result.getResults())
                 .hasSize(1)
-                .extracting(ValidationResult::getFieldName)
+                .extracting(ValidationResult::getLabel)
                 .containsExactly("Name");
     }
 
@@ -205,7 +205,7 @@ class DomainValidatorTest {
         assertThat(result.isInvalid()).isTrue();
         assertThat(result.getResults())
                 .hasSize(2)
-                .extracting(ValidationResult::getFieldName)
+                .extracting(ValidationResult::getLabel)
                 .containsExactlyInAnyOrder("Name", "Age");
     }
 
@@ -232,7 +232,7 @@ class DomainValidatorTest {
 
         assertThat(result.isInvalid()).isTrue();
         assertThat(result.getResults())
-                .extracting(ValidationResult::getFieldName)
+                .extracting(ValidationResult::getLabel)
                 .containsExactlyInAnyOrder("Name", "Age");
     }
 
@@ -248,7 +248,7 @@ class DomainValidatorTest {
         assertThat(result.isInvalid()).isTrue();
         assertThat(result.getResults())
                 .hasSize(2)
-                .extracting(ValidationResult::getFieldName)
+                .extracting(ValidationResult::getLabel)
                 .containsExactlyInAnyOrder("Name", "Age");
     }
 }

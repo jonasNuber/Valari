@@ -1,5 +1,6 @@
 package io.github.jonasnuber.valari.internal.bindings;
 
+import io.github.jonasnuber.valari.api.results.LabelType;
 import io.github.jonasnuber.valari.api.results.ValidationResult;
 import io.github.jonasnuber.valari.api.validators.DomainValidator;
 import io.github.jonasnuber.valari.spi.Validation;
@@ -82,10 +83,10 @@ public final class FieldRuleBinding<TYPE, FIELD> implements RuleBinding<DomainVa
         this.validation = value -> Objects.isNull(value) ?
                 ValidationResult
                         .skip()
-                        .withFieldName(fieldName) :
+                        .withLabel(LabelType.FIELD, fieldName) :
                 Objects.requireNonNull(rule, "validation must not be null")
                         .test(value)
-                        .withFieldName(fieldName);
+                        .withLabel(LabelType.FIELD, fieldName);
 
         return parent;
     }
@@ -107,7 +108,7 @@ public final class FieldRuleBinding<TYPE, FIELD> implements RuleBinding<DomainVa
 
         FIELD value = valueExtractor.apply(toValidate);
 
-        return validation.test(value).withFieldName(fieldName);
+        return validation.test(value).withLabel(LabelType.FIELD, fieldName);
     }
 
     /**

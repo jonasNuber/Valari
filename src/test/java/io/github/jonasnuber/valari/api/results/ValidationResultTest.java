@@ -1,12 +1,11 @@
 package io.github.jonasnuber.valari.api.results;
 
-import io.github.jonasnuber.valari.spi.Validation;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.internal.matchers.Null;
 
+import java.util.Locale;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.*;
@@ -19,7 +18,7 @@ class ValidationResultTest{
                 .messageKey("message.key")
                 .messageArgument("message Argument")
                 .messageArguments("message Argument 2", "message Argument 3")
-                .fieldName("fieldName")
+                .label("fieldName")
                 .value("Some Value");
 
         var result = builder.ok();
@@ -30,7 +29,7 @@ class ValidationResultTest{
         assertThat(result.getMessageArguments())
                 .hasSize(3)
                 .containsExactly("message Argument", "message Argument 2", "message Argument 3");
-        assertThat(result.getFieldName()).isEqualTo("fieldName");
+        assertThat(result.getLabel()).isEqualTo("fieldName");
         assertThat(result.getValue()).isEqualTo("Some Value");
     }
 
@@ -107,14 +106,14 @@ class ValidationResultTest{
     }
 
     @Test
-    void builder_ShouldThrowException_ForNullFieldName() {
+    void builder_ShouldThrowException_ForNullLabel() {
         var builder = new ValidationResult.Builder("default");
 
-        var thrown = catchThrowable(() -> builder.fieldName(null));
+        var thrown = catchThrowable(() -> builder.label(null));
 
         assertThat(thrown)
                 .isInstanceOf(NullPointerException.class)
-                .hasMessage("FieldName must not be null");
+                .hasMessage("Label must not be null");
     }
 
     @Test
@@ -132,27 +131,27 @@ class ValidationResultTest{
     }
 
     @Test
-    void withFieldName_ShouldCreateNewResultWithFieldName() {
+    void withFieldName_ShouldCreateNewResultWithLabel() {
         var result = new ValidationResult.Builder("default").fail();
 
-        var changedResult = result.withFieldName("fieldName");
+        var changedResult = result.withLabel(LabelType.SUBJECT, "fieldName");
 
         assertThat(result).isNotEqualTo(changedResult);
         assertThat(result.getState()).isEqualTo(changedResult.getState());
-        assertThat(changedResult.getFieldName()).isEqualTo("fieldName");
+        assertThat(changedResult.getLabel()).isEqualTo("fieldName");
     }
 
     @Test
-    void withFieldName_ShouldRetainAllOtherParameters() {
+    void withLabel_ShouldRetainAllOtherParameters() {
         var result = new ValidationResult.Builder("default Message")
                 .messageKey("message.key")
                 .messageArgument("message Argument")
                 .messageArguments("message Argument 2", "message Argument 3")
-                .fieldName("fieldName")
+                .label("fieldName")
                 .value("Some Value")
                 .ok();
 
-        var changedResult = result.withFieldName("Other FieldName");
+        var changedResult = result.withLabel(LabelType.SUBJECT, "Other FieldName");
 
         assertThat(result).isNotEqualTo(changedResult);
         assertThat(changedResult.getState()).isEqualTo(ValidationState.SUCCESS);
@@ -161,7 +160,7 @@ class ValidationResultTest{
         assertThat(changedResult.getMessageArguments())
                 .hasSize(3)
                 .containsExactly("message Argument", "message Argument 2", "message Argument 3");
-        assertThat(changedResult.getFieldName())
+        assertThat(changedResult.getLabel())
                 .isNotEqualTo("fieldName")
                 .isEqualTo("Other FieldName");
         assertThat(changedResult.getValue()).isEqualTo("Some Value");
@@ -195,5 +194,53 @@ class ValidationResultTest{
         var resolvedMessage = result.resolveValidationMessage();
 
         assertThat(resolvedMessage).isEqualTo("must not be null");
+    }
+
+    @ParameterizedTest
+    @MethodSource("resultWithAllStates")
+    void resolveValidationMessage_ShouldResolveTheMessage_ForTheMessageKeyAndCustomResolver(ValidationResult result) {
+        var resolver = new ResourceBundleMessageResolver("ValidationMessages");
+        var locale = Locale.ENGLISH;
+        var resolvedMessage = result.resolveValidationMessage(resolver, locale);
+
+        assertThat(resolvedMessage).isEqualTo("must not be null");
+    }
+
+    @Test
+    void getMessage_ShouldReturnSuccessMessage_ForSuccessfulResult() {
+        var result = new ValidationResult.Builder("default")
+                .messageKey("validation.object.notNull")
+                .ok();
+
+        var message = result.getMessage();
+
+        assertThat(message).isEqualTo("The field \"<unknown>\" is valid: must not be null");
+    }
+
+    @Test
+    void getMessage_ShouldReturnSkippedMessage_ForSkippedResult() {
+        var result = new ValidationResult.Builder("default")
+                .messageKey("validation.object.notNull")
+                .skip();
+
+        var message = result.getMessage();
+
+        assertThat(message).isEqualTo("Validation for field \"<unknown>\" was skipped");
+    }
+
+    @Test
+    void getMessage_ShouldReturnFailureMessage_ForFailedResult() {
+        var result = new ValidationResult.Builder("default")
+                .messageKey("validation.object.notNull")
+                .fail();
+
+        var message = result.getMessage();
+
+        assertThat(message).isEqualTo("The field \"<unknown>\" is invalid: must not be null");
+    }
+
+    @Test
+    void getMessage_ShouldReturnCorrectMessage_ForCustomResolver() {
+
     }
 }

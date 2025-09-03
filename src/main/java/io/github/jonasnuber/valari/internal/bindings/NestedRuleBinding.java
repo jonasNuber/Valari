@@ -1,5 +1,6 @@
 package io.github.jonasnuber.valari.internal.bindings;
 
+import io.github.jonasnuber.valari.api.results.LabelType;
 import io.github.jonasnuber.valari.api.validators.DomainValidator;
 import io.github.jonasnuber.valari.api.results.ValidationResult;
 import io.github.jonasnuber.valari.spi.RuleBinding;
@@ -116,7 +117,7 @@ public final class NestedRuleBinding<TYPE, NESTED> implements RuleBinding<Domain
         NESTED value = valueExtractor.apply(toValidate);
 
         if (shouldSkipValidation(value)) {
-            return ValidationResult.skip().withFieldName(fieldName);
+            return ValidationResult.skip().withLabel(LabelType.SUBJECT, fieldName);
         }
 
         return compositeValidator.validate(value).toValidationResult();

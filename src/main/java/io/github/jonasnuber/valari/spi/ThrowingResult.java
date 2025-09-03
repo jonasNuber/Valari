@@ -28,12 +28,8 @@ public interface ThrowingResult {
         return getMessage(MessageResolutionContext.getResolver(), MessageResolutionContext.getLocale());
     }
 
-    default void throwIfInvalid(Function<String, ? extends RuntimeException> exceptionFactory, String message) {
+    default void throwIfInvalid(Function<String, ? extends RuntimeException> exceptionFactory) {
         if (isInvalid()) throw exceptionFactory.apply(getMessage());
-    }
-
-    default void throwIfInvalid(Supplier<? extends RuntimeException> exceptionSupplier) {
-        if(isInvalid()) throw exceptionSupplier.get();
     }
 
     default boolean isValid() {

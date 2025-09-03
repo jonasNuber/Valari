@@ -56,7 +56,7 @@ class FailFastStrategyTest {
         assertThat(result.isInvalid()).isTrue();
         assertThat(result.getResults())
                 .hasSize(1)
-                .extracting(ValidationResult::getFieldName)
+                .extracting(ValidationResult::getLabel)
                 .containsExactly("Name");
     }
 
