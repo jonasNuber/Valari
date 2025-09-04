@@ -1,6 +1,7 @@
 package io.github.jonasnuber.valari.api.helpers;
 
 import io.github.jonasnuber.valari.api.SimpleValidation;
+import io.github.jonasnuber.valari.api.results.ValidationMetadata;
 import io.github.jonasnuber.valari.api.results.ValidationResult;
 import io.github.jonasnuber.valari.spi.Validation;
 
@@ -27,8 +28,9 @@ public final class ObjectValidationHelpers {
     public static <K> Validation<K> notNull(){
         return SimpleValidation.from(
                 Objects::nonNull,
-                new ValidationResult.Builder("must not be null")
+                new ValidationMetadata.Builder("must not be null")
                         .messageKey("validation.object.notNull")
+                        .build()
         );
     }
 
@@ -49,9 +51,10 @@ public final class ObjectValidationHelpers {
         return SimpleValidation.from(
                 o -> notNull(o, "Object must not be null") &&
                         other.equals(o),
-                new ValidationResult.Builder("must be equal to \"{0}\"")
+                new ValidationMetadata.Builder("must be equal to \"{0}\"")
                         .messageKey("validation.object.equalTo")
                         .messageArgument(other)
+                        .build()
         );
     }
 

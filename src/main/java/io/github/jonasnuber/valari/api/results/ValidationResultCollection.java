@@ -136,8 +136,8 @@ public final class ValidationResultCollection implements ThrowingResult {
       sb.append(
               resolver.resolve(
                       "validation.result.aggregated.field",
-                      List.of(result.getLabel(), result.resolveValidationMessage(resolver, locale)),
-                      " - Field '{0}': {1}",
+                      List.of(result.getLabelType(), result.getLabel(), result.resolveValidationMessage(resolver, locale)),
+                      " - {0} '{1}': {2}",
                       locale
               )
       ).append(System.lineSeparator());

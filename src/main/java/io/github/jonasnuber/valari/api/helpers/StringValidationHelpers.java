@@ -1,6 +1,7 @@
 package io.github.jonasnuber.valari.api.helpers;
 
 import io.github.jonasnuber.valari.api.SimpleValidation;
+import io.github.jonasnuber.valari.api.results.ValidationMetadata;
 import io.github.jonasnuber.valari.api.results.ValidationResult;
 import io.github.jonasnuber.valari.spi.Validation;
 
@@ -35,8 +36,9 @@ public final class StringValidationHelpers {
 	public static Validation<String> notEmpty(){
 		return SimpleValidation.from(
 				s -> s != null && !s.isEmpty(),
-				new ValidationResult.Builder("must not be empty")
+				new ValidationMetadata.Builder("must not be empty")
 						.messageKey("validation.string.notEmpty")
+						.build()
 		);
 	}
 
@@ -49,8 +51,9 @@ public final class StringValidationHelpers {
 	public static Validation<String> notBlank(){
 		return SimpleValidation.from(
 				s -> s != null && !s.trim().isEmpty(),
-				new ValidationResult.Builder("must not be blank")
+				new ValidationMetadata.Builder("must not be blank")
 						.messageKey("validation.string.notBlank")
+						.build()
 		);
 	}
 
@@ -64,9 +67,10 @@ public final class StringValidationHelpers {
 		return SimpleValidation.from(
 				s -> notNull(s, STRING_MUST_NOT_BE_NULL) &&
 						s.length() == size,
-				new ValidationResult.Builder("must have exactly {0} chars")
+				new ValidationMetadata.Builder("must have exactly {0} chars")
 						.messageKey("validation.string.exactly")
 						.messageArgument(size)
+						.build()
 		);
 	}
 
@@ -80,9 +84,10 @@ public final class StringValidationHelpers {
 		return SimpleValidation.from(
 				s -> notNull(s, STRING_MUST_NOT_BE_NULL) &&
 						s.length() > minimum,
-				new ValidationResult.Builder("must have more than {0} chars")
+				new ValidationMetadata.Builder("must have more than {0} chars")
 						.messageKey("validation.string.moreThan")
 						.messageArgument(minimum)
+						.build()
 		);
 	}
 
@@ -96,9 +101,10 @@ public final class StringValidationHelpers {
 		return SimpleValidation.from(
 				s -> notNull(s, STRING_MUST_NOT_BE_NULL) &&
 						s.length() < maximum,
-				new ValidationResult.Builder("must have less than {0} chars")
+				new ValidationMetadata.Builder("must have less than {0} chars")
 						.messageKey("validation.string.lessThan")
 						.messageArgument(maximum)
+						.build()
 		);
 	}
 
@@ -128,9 +134,10 @@ public final class StringValidationHelpers {
 		return SimpleValidation.from(
 				s -> notNull(s, STRING_MUST_NOT_BE_NULL) &&
 						s.contains(str),
-				new ValidationResult.Builder("must contain \"{0}\"")
+				new ValidationMetadata.Builder("must contain \"{0}\"")
 						.messageKey("validation.string.contains")
 						.messageArgument(str)
+						.build()
 		);
 	}
 
@@ -148,9 +155,10 @@ public final class StringValidationHelpers {
 		return SimpleValidation.from(
 				s -> notNull(s, STRING_MUST_NOT_BE_NULL) &&
 						s.toLowerCase().contains(str.toLowerCase()),
-				new ValidationResult.Builder("must contain \"{0}\"")
+				new ValidationMetadata.Builder("must contain \"{0}\"")
 						.messageKey("validation.string.contains")
 						.messageArgument(str)
+						.build()
 		);
 	}
 
@@ -167,9 +175,10 @@ public final class StringValidationHelpers {
 		return SimpleValidation.from(
 				s -> notNull(s, STRING_MUST_NOT_BE_NULL) &&
 						s.matches(regex),
-				new ValidationResult.Builder("must fully match regex \" {0} \"")
+				new ValidationMetadata.Builder("must fully match regex \" {0} \"")
 						.messageKey("validation.string.matchRegex")
 						.messageArgument(regex)
+						.build()
 		);
 	}
 
@@ -188,9 +197,10 @@ public final class StringValidationHelpers {
 		return SimpleValidation.from(
 				s -> notNull(s, STRING_MUST_NOT_BE_NULL) &&
 						pattern.matcher(s).find(),
-				new ValidationResult.Builder("must contain substring matching regex \" {0} \"")
+				new ValidationMetadata.Builder("must contain substring matching regex \" {0} \"")
 						.messageKey("validation.string.containRegex")
 						.messageArgument(regex)
+						.build()
 		);
 	}
 
@@ -209,9 +219,10 @@ public final class StringValidationHelpers {
 		return SimpleValidation.from(
 				s -> notNull(s, STRING_MUST_NOT_BE_NULL) &&
 						s.startsWith(prefix),
-				new ValidationResult.Builder("must start with \"{0}\"")
+				new ValidationMetadata.Builder("must start with \"{0}\"")
 						.messageKey("validation.string.startsWith")
 						.messageArgument(prefix)
+						.build()
 		);
 	}
 
@@ -228,9 +239,10 @@ public final class StringValidationHelpers {
 				s -> notNull(s, STRING_MUST_NOT_BE_NULL) &&
 						notNull(prefix, "Prefix must not be null") &&
 						s.toLowerCase().startsWith(prefix.toLowerCase()),
-				new ValidationResult.Builder("must start with \"{0}\"")
+				new ValidationMetadata.Builder("must start with \"{0}\"")
 						.messageKey("validation.string.startsWith")
 						.messageArgument("(case-insensitive) " + prefix)
+						.build()
 		);
 	}
 
@@ -249,9 +261,10 @@ public final class StringValidationHelpers {
 		return SimpleValidation.from(
 				s -> notNull(s, STRING_MUST_NOT_BE_NULL) &&
 						s.endsWith(suffix),
-				new ValidationResult.Builder("must end with \"{0}\"")
+				new ValidationMetadata.Builder("must end with \"{0}\"")
 						.messageKey("validation.string.endsWith")
 						.messageArgument(suffix)
+						.build()
 		);
 	}
 
@@ -268,9 +281,10 @@ public final class StringValidationHelpers {
 				s -> notNull(s, STRING_MUST_NOT_BE_NULL) &&
 						notNull(suffix, "Suffix must not be null") &&
 						s.toLowerCase().endsWith(suffix.toLowerCase()),
-				new ValidationResult.Builder("must end with \"{0}\"")
+				new ValidationMetadata.Builder("must end with \"{0}\"")
 						.messageKey("validation.string.endsWith")
 						.messageArgument("(case-insensitive) " + suffix)
+						.build()
 		);
 	}
 }

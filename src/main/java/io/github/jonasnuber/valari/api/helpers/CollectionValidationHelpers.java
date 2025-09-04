@@ -1,6 +1,7 @@
 package io.github.jonasnuber.valari.api.helpers;
 
 import io.github.jonasnuber.valari.api.SimpleValidation;
+import io.github.jonasnuber.valari.api.results.ValidationMetadata;
 import io.github.jonasnuber.valari.api.results.ValidationResult;
 import io.github.jonasnuber.valari.spi.Validation;
 
@@ -38,8 +39,9 @@ public final class CollectionValidationHelpers {
     public static Validation<Collection<?>> notEmpty() {
         return SimpleValidation.from(
                 c -> !(c == null || c.isEmpty()),
-                new ValidationResult.Builder("Collection must not be empty")
+                new ValidationMetadata.Builder("Collection must not be empty")
                         .messageKey("validation.collection.empty")
+                        .build()
         );
     }
 
@@ -56,10 +58,11 @@ public final class CollectionValidationHelpers {
                 c -> notNull(c, COLLECTION_MUST_NOT_BE_NULL) &&
                         c.size() > min &&
                         c.size() < max,
-                new ValidationResult.Builder("Size must be greater than {0} and less than {1}")
+                new ValidationMetadata.Builder("Size must be greater than {0} and less than {1}")
                         .messageKey("validation.collection.sizeBetween")
                         .messageArgument(min)
                         .messageArgument(max)
+                        .build()
         );
     }
 
@@ -77,9 +80,10 @@ public final class CollectionValidationHelpers {
         return SimpleValidation.from(
                 c -> notNull(c, COLLECTION_MUST_NOT_BE_NULL) &&
                         c.contains(value),
-                new ValidationResult.Builder("Collection must contain Object \"{0}\"")
+                new ValidationMetadata.Builder("Collection must contain Object \"{0}\"")
                         .messageKey("validation.collection.contains")
                         .messageArgument(value)
+                        .build()
         );
     }
 
@@ -93,8 +97,9 @@ public final class CollectionValidationHelpers {
         return SimpleValidation.from(
                 c -> notNull(c, COLLECTION_MUST_NOT_BE_NULL) &&
                         c.stream().anyMatch(Objects::isNull),
-                new ValidationResult.Builder("Collection must contain at least one null element")
+                new ValidationMetadata.Builder("Collection must contain at least one null element")
                         .messageKey("validation.collection.hasNullElements")
+                        .build()
         );
     }
 
@@ -108,8 +113,9 @@ public final class CollectionValidationHelpers {
         return SimpleValidation.from(
                 c -> notNull(c, COLLECTION_MUST_NOT_BE_NULL) &&
                         c.stream().noneMatch(Objects::isNull),
-                new ValidationResult.Builder("Collection must not contain null elements")
+                new ValidationMetadata.Builder("Collection must not contain null elements")
                         .messageKey("validation.collection.noNullElements")
+                        .build()
         );
     }
 
@@ -126,8 +132,9 @@ public final class CollectionValidationHelpers {
                 c -> notNull(c, COLLECTION_MUST_NOT_BE_NULL) &&
                         notNull(predicate, "Predicate all elements should match, must not be null") &&
                         c.stream().allMatch(predicate),
-                new ValidationResult.Builder("All elements must match the Predicate")
+                new ValidationMetadata.Builder("All elements must match the Predicate")
                         .messageKey("validation.collection.allMatch")
+                        .build()
         );
     }
 
@@ -144,8 +151,9 @@ public final class CollectionValidationHelpers {
                 c -> notNull(c, COLLECTION_MUST_NOT_BE_NULL) &&
                         notNull(predicate, "Predicate elements should match, must not be null") &&
                         c.stream().anyMatch(predicate),
-                new ValidationResult.Builder("At least one element must match the Predicate")
+                new ValidationMetadata.Builder("At least one element must match the Predicate")
                         .messageKey("validation.collection.anyMatch")
+                        .build()
         );
     }
 
@@ -162,8 +170,9 @@ public final class CollectionValidationHelpers {
                 c -> notNull(c, COLLECTION_MUST_NOT_BE_NULL) &&
                         notNull(predicate, "Predicate no element should match, must not be null") &&
                         c.stream().noneMatch(predicate),
-                new ValidationResult.Builder("No element should match the predicate")
+                new ValidationMetadata.Builder("No element should match the predicate")
                         .messageKey("validation.collection.noneMatch")
+                        .build()
         );
     }
 }

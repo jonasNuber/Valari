@@ -1,5 +1,6 @@
 package io.github.jonasnuber.valari.api;
 
+import io.github.jonasnuber.valari.api.results.ValidationMetadata;
 import io.github.jonasnuber.valari.api.results.ValidationResult;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -12,7 +13,7 @@ class SimpleValidationTest {
 
     @BeforeAll
     static void init() {
-        validation = SimpleValidation.from(i -> i == 2, new ValidationResult.Builder("error"));
+        validation = SimpleValidation.from(i -> i == 2, new ValidationMetadata.Builder("error").build());
     }
 
     @Test

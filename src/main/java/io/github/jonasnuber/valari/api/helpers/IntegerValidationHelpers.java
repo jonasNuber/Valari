@@ -2,6 +2,7 @@ package io.github.jonasnuber.valari.api.helpers;
 
 
 import io.github.jonasnuber.valari.api.SimpleValidation;
+import io.github.jonasnuber.valari.api.results.ValidationMetadata;
 import io.github.jonasnuber.valari.api.results.ValidationResult;
 import io.github.jonasnuber.valari.spi.Validation;
 
@@ -26,9 +27,10 @@ public final class IntegerValidationHelpers {
     public static Validation<Integer> sameAmount(int exact) {
         return SimpleValidation.from(
                 i -> i == exact,
-                new ValidationResult.Builder("must equal {0}")
+                new ValidationMetadata.Builder("must equal {0}")
                         .messageKey("validation.integer.sameAmount")
                         .messageArgument(exact)
+                        .build()
         );
     }
 
@@ -41,9 +43,10 @@ public final class IntegerValidationHelpers {
     public static Validation<Integer> lowerThan(int max) {
         return SimpleValidation.from(
                 i -> i < max,
-                new ValidationResult.Builder("must be lower than {0}")
+                new ValidationMetadata.Builder("must be lower than {0}")
                         .messageKey("validation.integer.lowerThan")
                         .messageArgument(max)
+                        .build()
         );
     }
 
@@ -56,9 +59,10 @@ public final class IntegerValidationHelpers {
     public static Validation<Integer> greaterThan(int min) {
         return SimpleValidation.from(
                 i -> i > min,
-                new ValidationResult.Builder("must be greater than {0}")
+                new ValidationMetadata.Builder("must be greater than {0}")
                         .messageKey("validation.integer.greaterThan")
                         .messageArgument(min)
+                        .build()
         );
     }
 
@@ -92,8 +96,9 @@ public final class IntegerValidationHelpers {
     public static Validation<Integer> isEven() {
         return SimpleValidation.from(
                 i -> i % 2 == 0,
-                new ValidationResult.Builder("must be even")
+                new ValidationMetadata.Builder("must be even")
                         .messageKey("validation.integer.isEven")
+                        .build()
         );
     }
 
@@ -105,8 +110,9 @@ public final class IntegerValidationHelpers {
     public static Validation<Integer> isOdd() {
         return SimpleValidation.from(
                 i -> i % 2 != 0,
-                new ValidationResult.Builder("must be odd")
+                new ValidationMetadata.Builder("must be odd")
                         .messageKey("validation.integer.isOdd")
+                        .build()
         );
     }
 }
