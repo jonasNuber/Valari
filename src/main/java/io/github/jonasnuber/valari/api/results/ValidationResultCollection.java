@@ -7,74 +7,90 @@ import io.github.jonasnuber.valari.spi.ThrowingResult;
 import java.util.*;
 
 /**
- * A container class for collecting multiple {@link ValidationResult} instances
- * during the validation of an object.
+ * A container for multiple {@link ValidationResult} instances that belong
+ * to a particular validated class or object.
  * <p>
- * This class is typically used to accumulate all invalid results for a specific target class.
- * It provides utility methods to check if any validation failures occurred and to throw a
- * single {@link AggregatedValidationException} encapsulating all collected errors.
- * </p>
+ * {@code ValidationResultCollection} aggregates results from individual
+ * validations and provides a unified view of their outcome. It can:
+ * <ul>
+ *   <li>Determine the overall {@link ValidationState} (success, failure, skipped).</li>
+ *   <li>Provide a detailed or aggregated validation message.</li>
+ *   <li>Throw an {@link io.github.jonasnuber.valari.api.exceptions.AggregatedValidationException}
+ *       if the validation is invalid.</li>
+ *   <li>Be converted into a single synthetic {@link ValidationResult}
+ *       via {@link #toValidationResult()}.</li>
+ * </ul>
  *
- * <p>
- * Each {@link ValidationResult} added to the collection is only stored if it is invalid,
- * allowing consumers to ignore successful results and focus on failure aggregation.
- * </p>
+ * <h2>Example</h2>
+ * <pre>{@code
+ * ValidationResultCollection collection = new ValidationResultCollection(User.class);
+ * collection.add(usernameValidationResult);
+ * collection.add(emailValidationResult);
+ *
+ * if (collection.isInvalid()) {
+ *     collection.throwIfInvalid(); // throws AggregatedValidationException
+ * }
+ *
+ * System.out.println(collection.getMessage());
+ * }</pre>
  *
  * @author Jonas Nuber
  */
-public final class ValidationResultCollection implements ThrowingResult {
+public class ValidationResultCollection implements ThrowingResult {
 
   private final Set<ValidationResult> results = new HashSet<>();
   private final Class<?> clazz;
 
   /**
-   * Constructs a new {@code ValidationResultCollection} associated with the specified class.
+   * Creates a new collection for the given class.
    *
-   * @param clazz the class being validated, used for contextual information in error reporting
+   * @param clazz the type being validated
    */
   public ValidationResultCollection(Class<?> clazz) {
     this.clazz = clazz;
   }
 
   /**
-   * Adds a {@link ValidationResult} to this collection if it is invalid.
+   * Adds a validation result to this collection.
    *
-   * @param result the validation result to add
+   * @param result the result to add, must not be {@code null}
    */
   public void add(ValidationResult result) {
     results.add(Objects.requireNonNull(result, "ValidationResult cannot be added if null"));
   }
 
   /**
-   * Throws an {@link AggregatedValidationException} if any invalid results exist.
-   * <p>
-   * This method should be called after all validations have been performed
-   * to trigger a single exception containing all validation errors.
-   * </p>
+   * Converts this collection into a {@link ValidationResult}
+   * that represents the aggregated outcome.
    *
-   * @throws AggregatedValidationException if any invalid results are present
+   * @return an aggregated {@code ValidationResult}
    */
-  @Override
-  public void throwIfInvalid() throws AggregatedValidationException {
-    throwIfInvalid(AggregatedValidationException::new);
-  }
-
   public ValidationResult toValidationResult() {
     return new AggregatedValidationResult(this);
   }
 
   /**
-   * Returns the list of all collected {@link ValidationResult} instances.
-   * <p>
-   * This list contains only invalid results.
-   * </p>
-   *
-   * @return the set of invalid validation results
+   * @return the set of contained validation results (mutable view).
    */
   public Set<ValidationResult> getResults() {
     return results;
   }
 
+  /**
+   * @return the class type that was validated
+   */
+  public Class<?> getClazz() {
+    return clazz;
+  }
+
+  /**
+   * Determines the aggregated {@link ValidationState}.
+   * <ul>
+   *   <li>FAILURE if any contained result failed.</li>
+   *   <li>SKIPPED if all contained results were skipped.</li>
+   *   <li>SUCCESS otherwise.</li>
+   * </ul>
+   */
   @Override
   public ValidationState getState() {
     if (results.stream().anyMatch(r -> r.getState() == ValidationState.FAILURE)) {
@@ -88,10 +104,15 @@ public final class ValidationResultCollection implements ThrowingResult {
     return ValidationState.SUCCESS;
   }
 
-  public Class<?> getClazz() {
-    return clazz;
-  }
-
+  /**
+   * Builds a localized message that describes the outcome of this collection.
+   * The message may include both a header and a detailed breakdown of
+   * individual results.
+   *
+   * @param resolver the message resolver
+   * @param locale   the target locale
+   * @return a human-readable validation message
+   */
   @Override
   public String getMessage(MessageResolver resolver, Locale locale) {
     return switch (getState()) {
@@ -120,6 +141,17 @@ public final class ValidationResultCollection implements ThrowingResult {
     };
   }
 
+  /**
+   * Throws an {@link AggregatedValidationException} if this collection
+   * is invalid (contains at least one failed result).
+   *
+   * @throws AggregatedValidationException if validation failed
+   */
+  @Override
+  public void throwIfInvalid() throws AggregatedValidationException {
+    throwIfInvalid(AggregatedValidationException::new);
+  }
+
   private String buildDetailedMessage(
           MessageResolver resolver,
           Locale locale,
@@ -137,7 +169,7 @@ public final class ValidationResultCollection implements ThrowingResult {
               resolver.resolve(
                       "validation.result.aggregated.field",
                       List.of(result.getLabelType(), result.getLabel(), result.resolveValidationMessage(resolver, locale)),
-                      " - {0} '{1}': {2}",
+                      " - {0} \"{1}\": {2}",
                       locale
               )
       ).append(System.lineSeparator());
@@ -158,6 +190,12 @@ public final class ValidationResultCollection implements ThrowingResult {
             .count();
   }
 
+  /**
+   * Synthetic {@link ValidationResult} implementation that wraps an
+   * entire {@link ValidationResultCollection}. It delegates its
+   * {@link #getState()} and {@link #getMessage(MessageResolver, Locale)}
+   * to the underlying collection.
+   */
   private static final class AggregatedValidationResult extends ValidationResult {
     private final ValidationResultCollection collection;
 

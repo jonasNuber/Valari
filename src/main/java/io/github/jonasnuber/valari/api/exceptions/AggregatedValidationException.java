@@ -9,7 +9,7 @@ import java.io.Serial;
  * Exception representing a failure during validation that includes multiple {@link ValidationResult} errors.
  * <p>
  * This exception is typically thrown after collecting all validation errors for a given object
- * in a {@code ValidationResultCollection}. It aggregates those errors into a single exception to
+ * in a {@link ValidationResultCollection}. It aggregates those errors into a single exception to
  * simplify error handling and reporting.
  * </p>
  *
