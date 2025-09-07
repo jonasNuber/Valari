@@ -1,9 +1,11 @@
 package io.github.jonasnuber.valari.api.validators;
 
 import io.github.jonasnuber.valari.api.exceptions.InvalidAttributeValueException;
+import io.github.jonasnuber.valari.api.results.LabelType;
 import org.assertj.core.api.ThrowableAssert;
 import org.junit.jupiter.api.Test;
 
+import static io.github.jonasnuber.valari.api.helpers.ObjectValidationHelpers.notNull;
 import static io.github.jonasnuber.valari.api.helpers.StringValidationHelpers.notEmpty;
 import static org.assertj.core.api.Assertions.*;
 
@@ -28,7 +30,7 @@ class ValueValidatorTest {
     }
 
     @Test
-    void with_ShouldSetValueNameInException_WhenFieldNameProvided() {
+    void with_ShouldSetValueNameInException_WhenValueNameProvided() {
         var valueName = "VName";
         var validator = ValueValidator.with(valueName, notEmpty());
 
@@ -36,8 +38,7 @@ class ValueValidatorTest {
 
         assertThat(thrown)
                 .isInstanceOf(InvalidAttributeValueException.class)
-                .hasMessageContaining(valueName)
-                .hasMessageNotContaining("Value");
+                .hasMessageContaining(valueName);
     }
 
     @Test
@@ -50,7 +51,7 @@ class ValueValidatorTest {
     }
 
     @Test
-    void optional_ShouldSetValueNameInException_WhenFieldNameProvided() {
+    void optional_ShouldSetValueNameInException_WhenValueNameProvided() {
         var valueName = "VName";
         var validator = ValueValidator.optional(valueName, notEmpty());
 
@@ -58,8 +59,7 @@ class ValueValidatorTest {
 
         assertThat(thrown)
                 .isInstanceOf(InvalidAttributeValueException.class)
-                .hasMessageContaining(valueName)
-                .hasMessageNotContaining("Value");
+                .hasMessageContaining(valueName);
     }
 
     @Test
@@ -69,6 +69,31 @@ class ValueValidatorTest {
         assertThat(thrown)
                 .isInstanceOf(NullPointerException.class)
                 .hasMessage("Value Name must not be null");
+    }
+
+    @Test
+    void withLabelType_ShouldChangeTheLabelType_ForValidInput() {
+        var defaultValidator = ValueValidator.with(notNull());
+        var changedValidator = ValueValidator.with(notNull()).withLabelType(LabelType.PARAMETER);
+
+        var defaultResult = defaultValidator.validate(null);
+        var changedResult = changedValidator.validate(null);
+
+        assertThat(changedResult.getLabelType()).isNotEqualTo(defaultResult.getLabelType());
+        assertThat(changedResult.getMessage())
+                .isNotEqualTo(defaultResult.getMessage())
+                .isEqualTo("The Parameter \"Value\" is invalid: must not be null");
+    }
+
+    @Test
+    void withLabelType_ShouldThrowException_ForNullLabelType() {
+        var validator = ValueValidator.optional(notEmpty());
+
+        var thrown = catchThrowable(() -> validator.withLabelType(null));
+
+        assertThat(thrown)
+                .isInstanceOf(NullPointerException.class)
+                .hasMessage("LabelType must not be null");
     }
 
     @Test
@@ -151,7 +176,7 @@ class ValueValidatorTest {
 
         assertThat(thrown)
                 .isInstanceOf(InvalidAttributeValueException.class)
-                .hasMessage("The field: \"Value\" is invalid: must not be empty");
+                .hasMessage("The Value \"Value\" is invalid: must not be empty");
     }
 
     @Test
@@ -162,6 +187,6 @@ class ValueValidatorTest {
 
         assertThat(thrown)
                 .isInstanceOf(InvalidAttributeValueException.class)
-                .hasMessage("The field: \"Value\" is invalid: must not be empty");
+                .hasMessage("The Value \"Value\" is invalid: must not be empty");
     }
 }

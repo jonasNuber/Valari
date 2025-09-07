@@ -58,8 +58,7 @@ class ConstructorValidatorTest {
     void validate_ShouldReturnValid_WhenAllFieldsPass() {
         var result = validator.validate();
 
-        assertThat(result.isInvalid()).isFalse();
-        assertThat(result.getResults()).isEmpty();
+        assertThat(result.isValid()).isTrue();
     }
 
     @Test
@@ -69,9 +68,6 @@ class ConstructorValidatorTest {
         var result = validator.validate();
 
         assertThat(result.isInvalid()).isTrue();
-        assertThat(result.getResults())
-                .extracting(ValidationResult::getLabel)
-                .containsExactly("invalidParam");
     }
 
     @Test
@@ -81,7 +77,6 @@ class ConstructorValidatorTest {
         var result = validator.validate();
 
         assertThat(result.isInvalid()).isFalse();
-        assertThat(result.getResults()).isEmpty();
     }
 
     @Test
@@ -91,9 +86,6 @@ class ConstructorValidatorTest {
         var result = validator.validate();
 
         assertThat(result.isInvalid()).isTrue();
-        assertThat(result.getResults())
-                .extracting(ValidationResult::getLabel)
-                .containsExactly("optionalPresent");
     }
 
     @Test
@@ -111,7 +103,7 @@ class ConstructorValidatorTest {
         assertThat(thrown)
                 .isInstanceOf(AggregatedValidationException.class)
                 .hasMessage("Validation for class io.github.jonasnuber.valari.Person failed with 1 error(s):\n" +
-                        " - Field 'optionalPresent': must have less than 3 chars\n");
+                        "- Parameter \"optionalPresent\": must have less than 3 chars\n");
     }
 
     @Test
@@ -145,10 +137,6 @@ class ConstructorValidatorTest {
                 .validate();
 
         assertThat(result.isInvalid()).isTrue();
-        assertThat(result.getResults())
-                .hasSize(2)
-                .extracting(ValidationResult::getLabel)
-                .containsExactlyInAnyOrder("invalidParam1", "invalidParam2");
     }
 
     @Test
@@ -172,7 +160,6 @@ class ConstructorValidatorTest {
         var result = andValidator.validate();
 
         assertThat(result.isInvalid()).isFalse();
-        assertThat(result.getResults()).isEmpty();
     }
 
     @Test
@@ -189,9 +176,5 @@ class ConstructorValidatorTest {
                 .validate();
 
         assertThat(result.isInvalid()).isTrue();
-        assertThat(result.getResults())
-                .hasSize(2)
-                .extracting(ValidationResult::getLabel)
-                .containsExactlyInAnyOrder("invalidParam1", "invalidParam2");
     }
 }

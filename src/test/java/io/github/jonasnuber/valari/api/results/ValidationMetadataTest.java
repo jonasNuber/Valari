@@ -128,7 +128,7 @@ class ValidationMetadataTest {
                 .contains("defaultMessage='msg'")
                 .contains("messageKey='key'")
                 .contains("messageArguments=[arg]")
-                .contains("labelType=value")
+                .contains("labelType=Value")
                 .contains("label='myField'");
     }
 }

@@ -24,6 +24,8 @@ public class ValueValidator<TYPE> implements Validator<TYPE, ValidationResult> {
     private final Validation<TYPE> validation;
     private final boolean optional;
 
+    private LabelType labelType = LabelType.VALUE;
+
     private ValueValidator(String valueName, Validation<TYPE> validation, boolean optional) {
         this.valueName = Objects.requireNonNull(valueName, "Value Name must not be null");
         this.validation = Objects.requireNonNull(validation, "Validation must not be null");
@@ -79,6 +81,19 @@ public class ValueValidator<TYPE> implements Validator<TYPE, ValidationResult> {
     }
 
     /**
+     * Allows to attach another {@link LabelType} to the {@link ValidationResult} produced by this validator.
+     * The default Value is {@link LabelType#VALUE}
+     *
+     * @param labelType the type of the label which should be used
+     * @return this validator for method chaining
+     */
+    public ValueValidator<TYPE> withLabelType(LabelType labelType) {
+        this.labelType = Objects.requireNonNull(labelType, "LabelType must not be null");
+
+        return this;
+    }
+
+    /**
      * Validates the provided value and returns the resulting {@link ValidationResult},
      * enriched with the configured value name.
      *
@@ -93,9 +108,9 @@ public class ValueValidator<TYPE> implements Validator<TYPE, ValidationResult> {
     @Override
     public ValidationResult validate(TYPE toValidate) {
         if (optional && Objects.isNull(toValidate)) {
-            return ValidationResult.skip().withLabel(LabelType.VALUE, valueName);
+            return ValidationResult.skip().withLabel(labelType, valueName);
         }
 
-        return validation.test(toValidate).withLabel(LabelType.VALUE, valueName);
+        return validation.test(toValidate).withLabel(labelType, valueName);
     }
 }

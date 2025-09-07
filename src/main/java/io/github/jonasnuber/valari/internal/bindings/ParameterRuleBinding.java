@@ -1,5 +1,6 @@
 package io.github.jonasnuber.valari.internal.bindings;
 
+import io.github.jonasnuber.valari.api.results.LabelType;
 import io.github.jonasnuber.valari.api.results.ValidationResult;
 import io.github.jonasnuber.valari.api.validators.ConstructorValidator;
 import io.github.jonasnuber.valari.api.validators.ValueValidator;
@@ -64,7 +65,7 @@ public class ParameterRuleBinding<TYPE, PARAMETER> implements RuleBinding<Constr
      */
     @Override
     public ConstructorValidator<TYPE> mustSatisfy(Validation<PARAMETER> validation) {
-        delegate = ValueValidator.with(parameterName, validation);
+        delegate = ValueValidator.with(parameterName, validation).withLabelType(LabelType.PARAMETER);
 
         return parent;
     }
@@ -81,7 +82,7 @@ public class ParameterRuleBinding<TYPE, PARAMETER> implements RuleBinding<Constr
      */
     @Override
     public ConstructorValidator<TYPE> ifPresent(Validation<PARAMETER> validation) {
-        delegate = ValueValidator.optional(parameterName, validation);
+        delegate = ValueValidator.optional(parameterName, validation).withLabelType(LabelType.PARAMETER);
 
         return parent;
     }

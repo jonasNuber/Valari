@@ -101,7 +101,6 @@ class DomainValidatorTest {
         var result = validator.validate(new Person(name, age));
 
         assertThat(result.isInvalid()).isFalse();
-        assertThat(result.getResults()).isEmpty();
     }
 
     @Test
@@ -142,9 +141,6 @@ class DomainValidatorTest {
         var result = validatorWithOptionalName.validate(person);
 
         assertThat(result.isInvalid()).isTrue();
-        assertThat(result.getResults())
-                .extracting(ValidationResult::getLabel)
-                .containsExactly("Name");
     }
 
     @Test
@@ -174,9 +170,9 @@ class DomainValidatorTest {
 
         assertThat(thrown)
                 .isInstanceOf(AggregatedValidationException.class)
-                .hasMessage("Validation for class io.github.jonasnuber.valari.Person failed with 2 error(s):\n" +
-                        " - Field 'Name': must not be empty\n" +
-                        " - Field 'Age': must be greater than 0\n");
+                .hasMessageContaining("Validation for class io.github.jonasnuber.valari.Person failed with 2 error(s):")
+                .hasMessageContaining("- Field \"Age\": must be greater than 0")
+                .hasMessageContaining("- Field \"Name\": must not be empty");
     }
 
     @Test

@@ -70,7 +70,7 @@ class ValidationResultCollectionTest{
 
         assertThat(message)
                 .contains("Validation for class io.github.jonasnuber.valari.Person succeeded:")
-                .contains("- field \"some Field\": some validation it passed");
+                .contains("- Field \"some Field\": some validation it passed");
     }
 
     @Test
@@ -96,7 +96,7 @@ class ValidationResultCollectionTest{
 
         assertThat(message)
                 .contains("Validation for class java.lang.String failed with 1 error(s):")
-                .contains("- value \"age\": some validation which was failed");
+                .contains("- Value \"age\": some validation which was failed");
     }
 
     @Test
@@ -109,7 +109,7 @@ class ValidationResultCollectionTest{
         assertThat(thrown)
                 .isInstanceOf(AggregatedValidationException.class)
                 .hasMessage("Validation for class io.github.jonasnuber.valari.Person failed with 1 error(s):\n" +
-                        "- subject \"<unknown>\": fail\n");
+                        "- Subject \"<unknown>\": fail\n");
     }
 
     @Test

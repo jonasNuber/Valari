@@ -48,22 +48,22 @@ public final class LabelType {
     }
 
     /** Predefined label type for object fields. */
-    public static final LabelType FIELD = new LabelType("field");
+    public static final LabelType FIELD = new LabelType("Field");
 
     /** Predefined label type for method or function parameters. */
-    public static final LabelType PARAMETER = new LabelType("parameter");
+    public static final LabelType PARAMETER = new LabelType("Parameter");
 
     /** Predefined label type for attributes or metadata values. */
-    public static final LabelType ATTRIBUTE = new LabelType("attribute");
+    public static final LabelType ATTRIBUTE = new LabelType("Attribute");
 
     /** Predefined label type for plain values. */
-    public static final LabelType VALUE = new LabelType("value");
+    public static final LabelType VALUE = new LabelType("Value");
 
     /** Predefined label type for bean or configuration properties. */
-    public static final LabelType PROPERTY = new LabelType("property");
+    public static final LabelType PROPERTY = new LabelType("Property");
 
     /** Generic fallback label type when no specific type is provided. */
-    public static final LabelType SUBJECT = new LabelType("subject");
+    public static final LabelType SUBJECT = new LabelType("Subject");
 
     /**
      * Creates a custom {@code LabelType} with the given name.

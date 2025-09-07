@@ -17,12 +17,12 @@ class LabelTypeTest {
 
     @Test
     void predefinedConstants_ShouldHaveCorrectNames() {
-        assertThat(LabelType.FIELD).hasToString("field");
-        assertThat(LabelType.PARAMETER).hasToString("parameter");
-        assertThat(LabelType.ATTRIBUTE).hasToString("attribute");
-        assertThat(LabelType.VALUE).hasToString("value");
-        assertThat(LabelType.PROPERTY).hasToString("property");
-        assertThat(LabelType.SUBJECT).hasToString("subject");
+        assertThat(LabelType.FIELD).hasToString("Field");
+        assertThat(LabelType.PARAMETER).hasToString("Parameter");
+        assertThat(LabelType.ATTRIBUTE).hasToString("Attribute");
+        assertThat(LabelType.VALUE).hasToString("Value");
+        assertThat(LabelType.PROPERTY).hasToString("Property");
+        assertThat(LabelType.SUBJECT).hasToString("Subject");
     }
 
     @Test

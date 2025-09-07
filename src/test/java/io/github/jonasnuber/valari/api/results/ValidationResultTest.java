@@ -258,7 +258,7 @@ class ValidationResultTest{
 
         var message = result.getMessage();
 
-        assertThat(message).isEqualTo("The subject \"<unknown>\" is valid: must not be null");
+        assertThat(message).isEqualTo("The Subject \"<unknown>\" is valid: must not be null");
     }
 
     @Test
@@ -269,7 +269,7 @@ class ValidationResultTest{
 
         var message = result.getMessage();
 
-        assertThat(message).isEqualTo("Validation for subject \"<unknown>\" was skipped");
+        assertThat(message).isEqualTo("Validation for Subject \"<unknown>\" was skipped");
     }
 
     @Test
@@ -280,7 +280,7 @@ class ValidationResultTest{
 
         var message = result.getMessage();
 
-        assertThat(message).isEqualTo("The subject \"<unknown>\" is invalid: must not be null");
+        assertThat(message).isEqualTo("The Subject \"<unknown>\" is invalid: must not be null");
     }
 
     @Test
@@ -293,7 +293,7 @@ class ValidationResultTest{
 
         var message = result.getMessage(resolver, locale);
 
-        assertThat(message).isEqualTo("The subject \"<unknown>\" is invalid: must not be null");
+        assertThat(message).isEqualTo("The Subject \"<unknown>\" is invalid: must not be null");
     }
 
     @Test
@@ -304,7 +304,7 @@ class ValidationResultTest{
 
         assertThat(thrown)
                 .isInstanceOf(InvalidAttributeValueException.class)
-                .hasMessage("The subject \"<unknown>\" is invalid: default message");
+                .hasMessage("The Subject \"<unknown>\" is invalid: default message");
     }
 
     @Test
@@ -329,6 +329,6 @@ class ValidationResultTest{
 
         assertThat(thrown)
                 .isInstanceOf(InvalidParameterException.class)
-                .hasMessage("The subject \"<unknown>\" is invalid: default message");
+                .hasMessage("The Subject \"<unknown>\" is invalid: default message");
     }
 }
