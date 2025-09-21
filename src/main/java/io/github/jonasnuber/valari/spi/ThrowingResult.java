@@ -68,6 +68,8 @@ public interface ThrowingResult {
      * @param locale the locale for which to resolve the message.
      * @return the resolved and formatted result message.
      */
+    String getDetailedMessage(MessageResolver resolver, Locale locale);
+
     String getMessage(MessageResolver resolver, Locale locale);
 
     /**
@@ -76,6 +78,10 @@ public interface ThrowingResult {
      *
      * @return the resolved result message.
      */
+    default String getDetailedMessage() {
+        return getDetailedMessage(MessageResolutionContext.getResolver(), MessageResolutionContext.getLocale());
+    }
+
     default String getMessage() {
         return getMessage(MessageResolutionContext.getResolver(), MessageResolutionContext.getLocale());
     }
@@ -88,7 +94,7 @@ public interface ThrowingResult {
      * @throws RuntimeException if the state is invalid.
      */
     default void throwIfInvalid(Function<String, ? extends RuntimeException> exceptionFactory) {
-        if (isInvalid()) throw exceptionFactory.apply(getMessage());
+        if (isInvalid()) throw exceptionFactory.apply(getDetailedMessage());
     }
 
     /**

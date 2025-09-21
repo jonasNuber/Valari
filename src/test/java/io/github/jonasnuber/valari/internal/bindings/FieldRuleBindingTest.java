@@ -67,14 +67,11 @@ class FieldRuleBindingTest {
     }
 
     @Test
-    void ifPresent_ShouldThrowException_WhenValidationIsNull() {
+    void ifPresent_ShouldNotThrowException_WhenValidationIsNull() {
         var binding = new FieldRuleBinding<>("Name", Person::getName, DomainValidator.of(Person.class));
 
-        var thrown = catchThrowable(() -> binding.ifPresent(null));
-
-        assertThat(thrown)
-                .isInstanceOf(NullPointerException.class)
-                .hasMessage("validation must not be null");
+        assertThatCode(() -> binding.ifPresent(null))
+                .doesNotThrowAnyException();
     }
 
 
@@ -183,6 +180,6 @@ class FieldRuleBindingTest {
 
         assertThat(thrown)
                 .isInstanceOf(InvalidAttributeValueException.class)
-                .hasMessage("The field: \"Name\" is invalid: must not be empty");
+                .hasMessage("The Field \"Name\" is invalid: must not be empty");
     }
 }

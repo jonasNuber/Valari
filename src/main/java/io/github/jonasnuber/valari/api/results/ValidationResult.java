@@ -24,7 +24,7 @@ import java.util.Objects;
  * For convenience, the {@link #resolveValidationMessage()} method uses the global defaults
  * from {@link MessageResolutionContext}.
  * <p>
- * The higher-level {@link #getMessage(MessageResolver, Locale)} method wraps the
+ * The higher-level {@link #getDetailedMessage(MessageResolver, Locale)} method wraps the
  * raw validation message into a standardized result message such as:
  * <ul>
  *   <li>"The field 'username' is valid: must not be null"</li>
@@ -38,7 +38,7 @@ import java.util.Objects;
  *
  * @author Jonas Nuber
  */
-public class ValidationResult implements ThrowingResult {
+public final class ValidationResult implements ThrowingResult {
     private final String defaultMessage;
     private final String messageKey;
     private final List<Object> messageArguments;
@@ -124,7 +124,7 @@ public class ValidationResult implements ThrowingResult {
      * @return a fully formatted result message.
      */
     @Override
-    public String getMessage(MessageResolver resolver, Locale locale) {
+    public String getDetailedMessage(MessageResolver resolver, Locale locale) {
         return switch (state) {
             case SUCCESS -> resolver.resolve(
                     "validation.result.success",
@@ -145,6 +145,16 @@ public class ValidationResult implements ThrowingResult {
                     locale
             );
         };
+    }
+
+    @Override
+    public String getMessage(MessageResolver resolver, Locale locale) {
+        return resolver.resolve(
+                "validation.result.aggregated.field",
+                List.of(labelType, label, resolveValidationMessage()),
+                "{0} \"{1}\": {2}",
+                locale
+        );
     }
 
     /**

@@ -3,6 +3,7 @@ package io.github.jonasnuber.valari.internal.bindings;
 import io.github.jonasnuber.valari.api.results.LabelType;
 import io.github.jonasnuber.valari.api.results.ValidationResult;
 import io.github.jonasnuber.valari.api.validators.DomainValidator;
+import io.github.jonasnuber.valari.spi.ThrowingResult;
 import io.github.jonasnuber.valari.spi.Validation;
 import io.github.jonasnuber.valari.spi.RuleBinding;
 import io.github.jonasnuber.valari.spi.Validator;
@@ -33,7 +34,7 @@ import java.util.function.Function;
  * @author Jonas Nuber
  */
 @SuppressWarnings("java:S119")
-public final class FieldRuleBinding<TYPE, FIELD> implements RuleBinding<DomainValidator<TYPE>, Validation<FIELD>>, Validator<TYPE, ValidationResult> {
+public final class FieldRuleBinding<TYPE, FIELD> implements RuleBinding<DomainValidator<TYPE>, Validation<FIELD>>, Validator<TYPE, ThrowingResult> {
     private final DomainValidator<TYPE> parent;
     private final String fieldName;
     private final Function<TYPE, FIELD> valueExtractor;

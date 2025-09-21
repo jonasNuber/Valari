@@ -1,6 +1,7 @@
 package io.github.jonasnuber.valari.internal.strategies;
 
-import io.github.jonasnuber.valari.api.results.ValidationResult;
+import io.github.jonasnuber.valari.api.results.ValidationDescriptor;
+import io.github.jonasnuber.valari.api.results.ValidationMetadata;
 import io.github.jonasnuber.valari.api.results.ValidationResultCollection;
 import io.github.jonasnuber.valari.spi.NoInputValidator;
 import io.github.jonasnuber.valari.spi.ThrowingResult;
@@ -25,20 +26,19 @@ import java.util.List;
  * of type {@code R}, which extends {@link ThrowingResult}.
  * </p>
  *
- * @param <TYPE> the type of the object being validated (used for result context only)
  * @param <RESULT> the result type returned by the strategy (e.g., {@link ValidationResultCollection})
  *
  * @author Jonas Nuber
  */
 @SuppressWarnings("java:S119")
-public interface ValidationStrategy<TYPE, RESULT extends ThrowingResult> {
+public interface ValidationStrategy<RESULT extends ThrowingResult> {
 
     /**
      * Executes the validation strategy on the given list of field-level validators.
      *
      * @param validators a list of deferred {@link NoInputValidator} instances to be invoked during validation
-     * @param validationContextClass the class of the object being validated, used to provide context in result reporting
+     * @param validationDescriptor the metadata of the object being validated, used to provide context in result reporting
      * @return a validation result of type {@code R}, as determined by the specific strategy implementation
      */
-    RESULT validate(List<NoInputValidator<ValidationResult>> validators, Class<TYPE> validationContextClass);
+    RESULT validate(List<NoInputValidator<ThrowingResult>> validators, ValidationDescriptor validationDescriptor);
 }

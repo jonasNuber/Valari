@@ -1,11 +1,13 @@
 package io.github.jonasnuber.valari.api;
 
 import io.github.jonasnuber.valari.api.results.ValidationMetadata;
-import io.github.jonasnuber.valari.api.results.ValidationResult;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.util.Objects;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 
 class SimpleValidationTest {
 
@@ -14,6 +16,24 @@ class SimpleValidationTest {
     @BeforeAll
     static void init() {
         validation = SimpleValidation.from(i -> i == 2, new ValidationMetadata.Builder("error").build());
+    }
+
+    @Test
+    void from_ShouldThrowException_ForNullPredicate() {
+        var thrown = catchThrowable(() -> SimpleValidation.from(null, null));
+
+        assertThat(thrown)
+                .isInstanceOf(NullPointerException.class)
+                .hasMessage("Predicate must not be null");
+    }
+
+    @Test
+    void from_ShouldThrowException_ForNullMetadata() {
+        var thrown = catchThrowable(() -> SimpleValidation.from(Objects::nonNull, null));
+
+        assertThat(thrown)
+                .isInstanceOf(NullPointerException.class)
+                .hasMessage("ValidationMetadata must not be null");
     }
 
     @Test

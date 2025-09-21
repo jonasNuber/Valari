@@ -28,19 +28,21 @@ import java.util.Objects;
  *
  * @author Jonas Nuber
  */
-public class ValidationMetadata {
+public final class ValidationMetadata {
     private final String defaultMessage;
     private final String messageKey;
     private final List<Object> messageArguments;
-    private final LabelType labelType;
-    private final String label;
+    private final ValidationDescriptor validationDescriptor;
 
     private ValidationMetadata(Builder builder) {
         this.defaultMessage = builder.defaultMessage;
         this.messageKey = builder.messageKey;
         this.messageArguments = builder.messageArguments;
-        this.labelType = builder.labelType;
-        this.label = builder.label;
+        validationDescriptor = ValidationDescriptor.builder()
+                .validationClass(builder.validationClass)
+                .labelType(builder.labelType)
+                .label(builder.label)
+                .build();
     }
 
     /** @return the default human-readable validation message */
@@ -58,14 +60,34 @@ public class ValidationMetadata {
         return messageArguments;
     }
 
+    public ValidationDescriptor getValidationDescriptor() {
+        return validationDescriptor;
+    }
+
+    public Class<?> getValidationClass() {
+        return validationDescriptor.getValidationClass();
+    }
+
     /** @return the semantic type of the label (e.g., field, parameter, etc.) */
     public LabelType getLabelType() {
-        return labelType;
+        return validationDescriptor.getLabelType();
     }
 
     /** @return the name or identifier of the validated element */
     public String getLabel() {
-        return label;
+        return validationDescriptor.getLabel();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        ValidationMetadata that = (ValidationMetadata) o;
+        return Objects.equals(defaultMessage, that.defaultMessage) && Objects.equals(messageKey, that.messageKey) && Objects.equals(messageArguments, that.messageArguments) && Objects.equals(validationDescriptor, that.validationDescriptor);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(defaultMessage, messageKey, messageArguments, validationDescriptor.getValidationClass(), validationDescriptor.getLabelType(), validationDescriptor.getLabel());
     }
 
     @Override
@@ -74,21 +96,10 @@ public class ValidationMetadata {
                 "defaultMessage='" + defaultMessage + '\'' +
                 ", messageKey='" + messageKey + '\'' +
                 ", messageArguments=" + messageArguments +
-                ", labelType=" + labelType +
-                ", label='" + label + '\'' +
+                ", validationClass=" + validationDescriptor.getValidationClass() +
+                ", labelType=" + validationDescriptor.getLabelType() +
+                ", label='" + validationDescriptor.getLabel() + '\'' +
                 '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        ValidationMetadata that = (ValidationMetadata) o;
-        return Objects.equals(defaultMessage, that.defaultMessage) && Objects.equals(messageKey, that.messageKey) && Objects.equals(messageArguments, that.messageArguments) && Objects.equals(labelType, that.labelType) && Objects.equals(label, that.label);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(defaultMessage, messageKey, messageArguments, labelType, label);
     }
 
     /**
@@ -103,7 +114,8 @@ public class ValidationMetadata {
         private final List<Object> messageArguments = new ArrayList<>();
 
         private String messageKey = "not.provided";
-        private LabelType labelType = LabelType.SUBJECT;
+        private Class<?> validationClass = Object.class;
+        private LabelType labelType = LabelType.of("UnknownType");
         private String label = "<unknown>";
 
         /**
@@ -149,6 +161,12 @@ public class ValidationMetadata {
             for(Object messageArgument : messageArguments) {
                 messageArgument(messageArgument);
             }
+
+            return this;
+        }
+
+        public Builder validationClass(Class<?> validationClass) {
+            this.validationClass = Objects.requireNonNull(validationClass, "Class to validate may not be null");
 
             return this;
         }

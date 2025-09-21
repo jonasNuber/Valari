@@ -80,8 +80,8 @@ class ValueValidatorTest {
         var changedResult = changedValidator.validate(null);
 
         assertThat(changedResult.getLabelType()).isNotEqualTo(defaultResult.getLabelType());
-        assertThat(changedResult.getMessage())
-                .isNotEqualTo(defaultResult.getMessage())
+        assertThat(changedResult.getDetailedMessage())
+                .isNotEqualTo(defaultResult.getDetailedMessage())
                 .isEqualTo("The Parameter \"Value\" is invalid: must not be null");
     }
 

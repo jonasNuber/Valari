@@ -1,5 +1,7 @@
 package io.github.jonasnuber.valari.api.validators;
 
+import io.github.jonasnuber.valari.api.results.LabelType;
+import io.github.jonasnuber.valari.api.results.ValidationDescriptor;
 import io.github.jonasnuber.valari.api.results.ValidationResult;
 import io.github.jonasnuber.valari.api.results.ValidationResultCollection;
 import io.github.jonasnuber.valari.api.exceptions.AggregatedValidationException;
@@ -8,10 +10,7 @@ import io.github.jonasnuber.valari.internal.bindings.NestedRuleBinding;
 import io.github.jonasnuber.valari.internal.strategies.FailFastStrategy;
 import io.github.jonasnuber.valari.internal.bindings.FieldRuleBinding;
 import io.github.jonasnuber.valari.internal.strategies.ValidationStrategy;
-import io.github.jonasnuber.valari.spi.NoInputValidator;
-import io.github.jonasnuber.valari.spi.Validation;
-import io.github.jonasnuber.valari.spi.RuleBinding;
-import io.github.jonasnuber.valari.spi.Validator;
+import io.github.jonasnuber.valari.spi.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,13 +48,12 @@ import java.util.function.Function;
 @SuppressWarnings("java:S119")
 public class DomainValidator<TYPE> implements Validator<TYPE, ValidationResultCollection> {
     private final Class<TYPE> clazz;
-    private final List<Validator<TYPE, ValidationResult>> validationBindings = new ArrayList<>();
+    private final List<Validator<TYPE, ThrowingResult>> validationBindings = new ArrayList<>();
 
-    private ValidationStrategy<TYPE, ValidationResultCollection> validationStrategy;
+    private ValidationStrategy<ValidationResultCollection> validationStrategy = new CollectFailuresStrategy();
 
     private DomainValidator(Class<TYPE> clazz) {
         this.clazz = Objects.requireNonNull(clazz, "Class must not be null");
-        validationStrategy = new CollectFailuresStrategy<>();
     }
 
     /**
@@ -120,16 +118,24 @@ public class DomainValidator<TYPE> implements Validator<TYPE, ValidationResultCo
      *         );
      * }</pre>
      *
-     * @param fieldName the logical name of the nested field (used in error messages)
+     * @param label the logical name of the nested field (used in error messages)
      * @param extractor the function to extract the nested object
      * @param <FIELD>       the type of the nested object
      * @return a binding that allows specifying required or optional nested validation
      */
-    public <FIELD> RuleBinding<DomainValidator<TYPE>, DomainValidator<FIELD>> nested(String fieldName, Function<TYPE, FIELD> extractor) {
-        Objects.requireNonNull(fieldName, "FieldName must not be null");
+    public <FIELD> RuleBinding<DomainValidator<TYPE>, DomainValidator<FIELD>> nested(String label, Class<FIELD> validationClass, Function<TYPE, FIELD> extractor) {
+        Objects.requireNonNull(label, "FieldName must not be null");
         Objects.requireNonNull(extractor, "Extractor Function must not be null");
 
-        NestedRuleBinding<TYPE, FIELD> nestedValidationBinding = new NestedRuleBinding<>(fieldName, extractor, this);
+        NestedRuleBinding<TYPE, FIELD> nestedValidationBinding = new NestedRuleBinding<>(
+                ValidationDescriptor.builder()
+                        .validationClass(validationClass)
+                        .labelType(LabelType.FIELD)
+                        .label(label)
+                        .build()
+                , extractor,
+                this);
+
         validationBindings.add(nestedValidationBinding);
 
         return nestedValidationBinding;
@@ -167,7 +173,7 @@ public class DomainValidator<TYPE> implements Validator<TYPE, ValidationResultCo
      * @return this validator instance (for chaining)
      */
     public DomainValidator<TYPE> failFast() {
-        validationStrategy = new FailFastStrategy<>();
+        validationStrategy = new FailFastStrategy();
         return this;
     }
 
@@ -181,7 +187,7 @@ public class DomainValidator<TYPE> implements Validator<TYPE, ValidationResultCo
      * @return this validator instance (for chaining)
      */
     public DomainValidator<TYPE> collectFailures() {
-        validationStrategy = new CollectFailuresStrategy<>();
+        validationStrategy = new CollectFailuresStrategy();
         return this;
     }
 
@@ -201,7 +207,13 @@ public class DomainValidator<TYPE> implements Validator<TYPE, ValidationResultCo
         return validationStrategy.validate(validationBindings
                 .stream()
                 .map(binding ->
-                        (NoInputValidator<ValidationResult>) () -> binding.validate(toValidate))
-                .toList(), clazz);
+                        (NoInputValidator<ThrowingResult>) () -> binding.validate(toValidate))
+                .toList(),
+                ValidationDescriptor.builder()
+                        .validationClass(clazz)
+                        .labelType(LabelType.FIELD)
+                        .label(clazz.getSimpleName())
+                        .build()
+        );
     }
 }

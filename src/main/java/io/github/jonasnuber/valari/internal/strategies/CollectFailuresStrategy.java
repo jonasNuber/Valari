@@ -1,8 +1,10 @@
 package io.github.jonasnuber.valari.internal.strategies;
 
-import io.github.jonasnuber.valari.api.results.ValidationResult;
+import io.github.jonasnuber.valari.api.results.ValidationDescriptor;
+import io.github.jonasnuber.valari.api.results.ValidationMetadata;
 import io.github.jonasnuber.valari.api.results.ValidationResultCollection;
 import io.github.jonasnuber.valari.spi.NoInputValidator;
+import io.github.jonasnuber.valari.spi.ThrowingResult;
 
 import java.util.List;
 import java.util.Objects;
@@ -15,11 +17,10 @@ import java.util.Objects;
  * of all validation issues present in the object.
  * </p>
  *
- * @param <TYPE> the type of object being validated
  * @author Jonas Nuber
  */
 @SuppressWarnings("java:S119")
-public final class CollectFailuresStrategy<TYPE> implements ValidationStrategy<TYPE, ValidationResultCollection> {
+public final class CollectFailuresStrategy implements ValidationStrategy<ValidationResultCollection> {
 
     /**
      * Constructs a new {@code CollectFailuresStrategy}.
@@ -35,19 +36,19 @@ public final class CollectFailuresStrategy<TYPE> implements ValidationStrategy<T
      * Executes all validators and aggregates their results.
      *
      * @param validators              the list of validators to apply
-     * @param validationContextClass the class of the object being validated, used in the result context
+     * @param validationDescriptor the metadata of validation, used in the result context
      * @return a {@link ValidationResultCollection} containing all validation results,
      *         including valid and invalid ones
      * @throws NullPointerException if either parameter is {@code null}
      */
     @Override
-    public ValidationResultCollection validate(List<NoInputValidator<ValidationResult>> validators, Class<TYPE> validationContextClass) {
+    public ValidationResultCollection validate(List<NoInputValidator<ThrowingResult>> validators, ValidationDescriptor validationDescriptor) {
         Objects.requireNonNull(validators, "Validations to validate Object by must not be null");
-        Objects.requireNonNull(validationContextClass, "The class of the Object to validate must not be null");
+        Objects.requireNonNull(validationDescriptor, "the validationDescriptor for the validation must not be null");
 
-        ValidationResultCollection results = new ValidationResultCollection(validationContextClass);
+        ValidationResultCollection results = new ValidationResultCollection(validationDescriptor);
 
-        for (NoInputValidator<ValidationResult> validator : validators) {
+        for (NoInputValidator<ThrowingResult> validator : validators) {
             results.add(validator.validate());
         }
 

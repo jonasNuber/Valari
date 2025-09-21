@@ -4,14 +4,35 @@ import io.github.jonasnuber.valari.api.results.ValidationMetadata;
 import io.github.jonasnuber.valari.api.results.ValidationResult;
 import io.github.jonasnuber.valari.spi.Validation;
 
+import java.util.Objects;
 import java.util.function.Predicate;
 
 /**
- * A SimpleValidation validates a value against a predefined condition specified by a Predicate.
+ * A simple {@link Validation} implementation based on a {@link Predicate}.
+ * <p>
+ * {@code SimpleValidation} allows wrapping a boolean condition into a reusable
+ * validation rule, enriched with {@link ValidationMetadata} describing how
+ * failures (or successes) should be reported.
+ * <p>
+ * It is the most straightforward way to create custom validations within
+ * the framework.
+ *
+ * <h2>Usage example</h2>
+ * <pre>{@code
+ * Validation<String> notEmpty = SimpleValidation.from(
+ *     s -> s != null && !s.isEmpty(),
+ * 	   new ValidationMetadata.Builder("must not be empty")
+ * 				.messageKey("validation.string.notEmpty")
+ * 				.build()
+ * );
+ *
+ * ValidationResult result = notEmpty.test("foo"); // SUCCESS
+ * ValidationResult fail   = notEmpty.test("");    // FAILURE
+ * }</pre>
+ *
+ * @param <TYPE> the type of value being validated
  *
  * @author Jonas Nuber
- *
- * @param <TYPE> Type of the value to test.
  */
 @SuppressWarnings("java:S119")
 public class SimpleValidation<TYPE> implements Validation<TYPE> {
@@ -19,34 +40,33 @@ public class SimpleValidation<TYPE> implements Validation<TYPE> {
 	private final Predicate<TYPE> predicate;
 	private final ValidationMetadata metadata;
 
-	/**
-	 * Constructs a new SimpleValidation object with the specified predicate and error message.
-	 *
-	 * @param predicate      The predicate to validate against.
-	 * @param onErrorMessage The error message indicating why the validation failed.
-	 */
 	private SimpleValidation(Predicate<TYPE> predicate, ValidationMetadata metadata) {
-		this.predicate = predicate;
-		this.metadata = metadata;
+		this.predicate = Objects.requireNonNull(predicate, "Predicate must not be null");
+		this.metadata = Objects.requireNonNull(metadata, "ValidationMetadata must not be null");
 	}
 
 	/**
-	 * Creates a new SimpleValidation object with the specified predicate and error message.
+	 * Creates a new {@code SimpleValidation} from the given predicate and metadata.
 	 *
-	 * @param <TYPE>            The type of the value to test.
-	 * @param predicate      The predicate to validate against.
-	 * @param onErrorMessage The error message indicating why the validation failed.
-	 * @return The SimpleValidation object.
+	 * @param predicate the condition to test values against (must not be {@code null})
+	 * @param metadata the validation metadata (messages, labels, etc.) to associate (must not be {@code null})
+	 * @param <TYPE> the type of value being validated
+	 * @return a new {@code SimpleValidation} instance
 	 */
 	public static <TYPE> SimpleValidation<TYPE> from(Predicate<TYPE> predicate, ValidationMetadata metadata) {
 		return new SimpleValidation<>(predicate, metadata);
 	}
 
 	/**
-	 * Validates the given object against the predicate.
+	 * Tests the given input value against the underlying predicate.
+	 * <p>
+	 * Returns a {@link ValidationResult} indicating success or failure,
+	 * enriched with the configured metadata and the tested value.
 	 *
-	 * @param param The object to be validated.
-	 * @return The ValidationResult of the validation.
+	 * @param param the input value to validate
+	 * @return a {@link ValidationResult} with {@link io.github.jonasnuber.valari.api.results.ValidationState#SUCCESS}
+	 *         if the predicate matches, or {@link io.github.jonasnuber.valari.api.results.ValidationState#FAILURE}
+	 *         otherwise
 	 */
 	@Override
 	public ValidationResult test(TYPE param) {

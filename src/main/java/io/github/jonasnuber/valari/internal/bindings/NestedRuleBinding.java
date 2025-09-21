@@ -1,9 +1,12 @@
 package io.github.jonasnuber.valari.internal.bindings;
 
 import io.github.jonasnuber.valari.api.results.LabelType;
+import io.github.jonasnuber.valari.api.results.ValidationDescriptor;
+import io.github.jonasnuber.valari.api.results.ValidationResultCollection;
 import io.github.jonasnuber.valari.api.validators.DomainValidator;
 import io.github.jonasnuber.valari.api.results.ValidationResult;
 import io.github.jonasnuber.valari.spi.RuleBinding;
+import io.github.jonasnuber.valari.spi.ThrowingResult;
 import io.github.jonasnuber.valari.spi.Validator;
 
 import java.util.Objects;
@@ -31,9 +34,9 @@ import java.util.function.Function;
  * @author Jonas Nuber
  */
 @SuppressWarnings("java:S119")
-public final class NestedRuleBinding<TYPE, NESTED> implements RuleBinding<DomainValidator<TYPE>, DomainValidator<NESTED>>, Validator<TYPE, ValidationResult> {
+public final class NestedRuleBinding<TYPE, NESTED> implements RuleBinding<DomainValidator<TYPE>, DomainValidator<NESTED>>, Validator<TYPE, ThrowingResult> {
     private final DomainValidator<TYPE> parent;
-    private final String fieldName;
+    private final ValidationDescriptor validationDescriptor;
     private final Function<TYPE, NESTED> valueExtractor;
 
     private DomainValidator<NESTED> compositeValidator;
@@ -46,13 +49,13 @@ public final class NestedRuleBinding<TYPE, NESTED> implements RuleBinding<Domain
      * enabling recursive validation logic for complex object graphs.
      * </p>
      *
-     * @param fieldName     the name of the nested field (used for error reporting, must not be {@code null})
+     * @param validationDescriptor     metadata for the validation (used for error reporting, must not be {@code null})
      * @param valueExtractor a function to extract the nested field value from the parent object (must not be {@code null})
      * @param parent        the parent domain validator (must not be {@code null})
      * @throws NullPointerException if any argument is {@code null}
      */
-    public NestedRuleBinding(String fieldName, Function<TYPE, NESTED> valueExtractor, DomainValidator<TYPE> parent) {
-        this.fieldName = Objects.requireNonNull(fieldName, "FieldName of the value to validate must not be null");
+    public NestedRuleBinding(ValidationDescriptor validationDescriptor, Function<TYPE, NESTED> valueExtractor, DomainValidator<TYPE> parent) {
+        this.validationDescriptor = Objects.requireNonNull(validationDescriptor, "ValidatioDescriptor must not be null");
         this.valueExtractor = Objects.requireNonNull(valueExtractor, "Extractor Method to get value for validation must not be null");
         this.parent = Objects.requireNonNull(parent, "Parent Validator must not be null");
     }
@@ -105,7 +108,7 @@ public final class NestedRuleBinding<TYPE, NESTED> implements RuleBinding<Domain
      * @throws NullPointerException if the object or a required value is {@code null}
      */
     @Override
-    public ValidationResult validate(TYPE toValidate) {
+    public ValidationResultCollection validate(TYPE toValidate) {
         Objects.requireNonNull(toValidate, "Object to validate must not be null");
 
         if (compositeValidator == null) {
@@ -115,12 +118,15 @@ public final class NestedRuleBinding<TYPE, NESTED> implements RuleBinding<Domain
         }
 
         NESTED value = valueExtractor.apply(toValidate);
+        ValidationResultCollection resultCollection = new ValidationResultCollection(validationDescriptor);
 
         if (shouldSkipValidation(value)) {
-            return ValidationResult.skip().withLabel(LabelType.SUBJECT, fieldName);
+            return resultCollection;
         }
 
-        return compositeValidator.validate(value).toValidationResult();
+        resultCollection.addAll(compositeValidator.validate(value).getResults());
+
+        return resultCollection;
     }
 
     private boolean shouldSkipValidation(NESTED value) {

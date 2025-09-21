@@ -17,8 +17,6 @@ import java.util.*;
  *   <li>Provide a detailed or aggregated validation message.</li>
  *   <li>Throw an {@link io.github.jonasnuber.valari.api.exceptions.AggregatedValidationException}
  *       if the validation is invalid.</li>
- *   <li>Be converted into a single synthetic {@link ValidationResult}
- *       via {@link #toValidationResult()}.</li>
  * </ul>
  *
  * <h2>Example</h2>
@@ -36,18 +34,18 @@ import java.util.*;
  *
  * @author Jonas Nuber
  */
-public class ValidationResultCollection implements ThrowingResult {
+public final class ValidationResultCollection implements ThrowingResult {
 
-  private final Set<ValidationResult> results = new HashSet<>();
-  private final Class<?> clazz;
+  private final List<ThrowingResult> results = new ArrayList<>();
+  private final ValidationDescriptor validationDescriptor;
 
   /**
    * Creates a new collection for the given class.
    *
-   * @param clazz the type being validated
+   * @param validationDescriptor the metadata for the given Validation
    */
-  public ValidationResultCollection(Class<?> clazz) {
-    this.clazz = clazz;
+  public ValidationResultCollection(ValidationDescriptor validationDescriptor) {
+    this.validationDescriptor = validationDescriptor;
   }
 
   /**
@@ -55,32 +53,34 @@ public class ValidationResultCollection implements ThrowingResult {
    *
    * @param result the result to add, must not be {@code null}
    */
-  public void add(ValidationResult result) {
+  public void add(ThrowingResult result) {
     results.add(Objects.requireNonNull(result, "ValidationResult cannot be added if null"));
   }
 
-  /**
-   * Converts this collection into a {@link ValidationResult}
-   * that represents the aggregated outcome.
-   *
-   * @return an aggregated {@code ValidationResult}
-   */
-  public ValidationResult toValidationResult() {
-    return new AggregatedValidationResult(this);
+  public void addAll(Collection<ThrowingResult> results) {
+    this.results.addAll(results);
   }
 
   /**
-   * @return the set of contained validation results (mutable view).
+   * @return the list of contained validation results (mutable view).
    */
-  public Set<ValidationResult> getResults() {
+  public List<ThrowingResult> getResults() {
     return results;
+  }
+
+  public LabelType getLabelType() {
+    return validationDescriptor.getLabelType();
+  }
+
+  public String getLabel() {
+    return validationDescriptor.getLabel();
   }
 
   /**
    * @return the class type that was validated
    */
-  public Class<?> getClazz() {
-    return clazz;
+  public Class<?> getValidationClass() {
+    return validationDescriptor.getValidationClass();
   }
 
   /**
@@ -114,31 +114,19 @@ public class ValidationResultCollection implements ThrowingResult {
    * @return a human-readable validation message
    */
   @Override
+  public String getDetailedMessage(MessageResolver resolver, Locale locale) {
+    StringBuilder sb = new StringBuilder();
+    buildDetailedMessage(sb, 0, resolver, locale);
+
+    return sb.toString();
+  }
+
+  @Override
   public String getMessage(MessageResolver resolver, Locale locale) {
-    return switch (getState()) {
-      case SUCCESS -> buildDetailedMessage(
-              resolver,
-              locale,
-              "validation.result.aggregated.success",
-              List.of(clazz),
-              "Validation for {0} succeeded:",
-              results
-      );
-      case SKIPPED -> resolver.resolve(
-              "validation.result.aggregated.skipped",
-              List.of(clazz),
-              "Validation for {0} was skipped entirely.",
-              locale
-      );
-      case FAILURE -> buildDetailedMessage(
-              resolver,
-              locale,
-              "validation.result.aggregated.failure",
-              List.of(clazz, countFailures()),
-              "Validation for {0} failed with {1} error(s):",
-              getFailedResults()
-      );
-    };
+    StringBuilder sb = new StringBuilder();
+    buildMessage(sb, 0, resolver, locale);
+
+    return sb.toString();
   }
 
   /**
@@ -152,33 +140,126 @@ public class ValidationResultCollection implements ThrowingResult {
     throwIfInvalid(AggregatedValidationException::new);
   }
 
-  private String buildDetailedMessage(
-          MessageResolver resolver,
-          Locale locale,
-          String headerKey,
-          List<Object> headerArgs,
-          String defaultHeader,
-          Collection<ValidationResult> resultsToInclude
-  ) {
-    StringBuilder sb = new StringBuilder(
-            resolver.resolve(headerKey, headerArgs, defaultHeader, locale)
-    ).append(System.lineSeparator());
+  private void buildDetailedMessage(StringBuilder sb, int depth, MessageResolver resolver, Locale locale) {
+    String indent = "  ";
 
-    for (ValidationResult result : resultsToInclude) {
-      sb.append(
-              resolver.resolve(
-                      "validation.result.aggregated.field",
-                      List.of(result.getLabelType(), result.getLabel(), result.resolveValidationMessage(resolver, locale)),
-                      " - {0} \"{1}\": {2}",
-                      locale
-              )
-      ).append(System.lineSeparator());
+    sb
+            .append(indent.repeat(depth))
+            .append(
+                    switch (getState()) {
+                      case SUCCESS -> resolver.resolve(
+                              "validation.result.aggregated.success",
+                              List.of(
+                                      validationDescriptor.getLabelType(),
+                                      validationDescriptor.getLabel(),
+                                      validationDescriptor.getValidationClass()
+                              ),
+                              "Validation for {0} \"{1}\" ({2}) succeeded:",
+                              locale
+                      );
+                      case SKIPPED -> resolver.resolve(
+                              "validation.result.aggregated.skipped",
+                              List.of(
+                                      validationDescriptor.getLabelType(),
+                                      validationDescriptor.getLabel(),
+                                      validationDescriptor.getValidationClass()
+                              ),
+                              "Validation for {0} \"{1}\" ({2}) was skipped entirely.",
+                              locale
+                      );
+                      case FAILURE -> resolver.resolve(
+                              "validation.result.aggregated.failure",
+                              List.of(
+                                      validationDescriptor.getLabelType(),
+                                      validationDescriptor.getLabel(),
+                                      validationDescriptor.getValidationClass(),
+                                      countFailures()
+                              ),
+                              "Validation for {0} \"{1}\" ({2}) failed with {3} error(s):",
+                              locale
+                      );
+                    }
+            )
+            .append(System.lineSeparator());
+
+    List<ThrowingResult> currentResults = results;
+
+    if(getState() == ValidationState.SKIPPED) return;
+    if(getState() == ValidationState.FAILURE) currentResults = getFailedResults();
+
+    for (ThrowingResult result : currentResults) {
+      if(result instanceof ValidationResultCollection resultCollection) {
+        resultCollection.buildDetailedMessage(sb, depth + 1, resolver, locale);
+
+      } else {
+        sb.append(indent.repeat(depth + 1))
+                .append(result.getDetailedMessage(resolver, locale))
+                .append(System.lineSeparator());
+      }
     }
-
-    return sb.toString();
   }
 
-  private List<ValidationResult> getFailedResults() {
+  private void buildMessage(StringBuilder sb, int depth, MessageResolver resolver, Locale locale) {
+    String indent = "  ";
+
+    sb
+            .append(indent.repeat(depth))
+            .append(
+                    switch (getState()) {
+                      case SUCCESS -> resolver.resolve(
+                              "validation.result.aggregated.success",
+                              List.of(
+                                      validationDescriptor.getLabelType(),
+                                      validationDescriptor.getLabel(),
+                                      validationDescriptor.getValidationClass().getSimpleName()
+                              ),
+                              "Validation for {0} succeeded:",
+                              locale
+                      );
+                      case SKIPPED -> resolver.resolve(
+                              "validation.result.aggregated.skipped",
+                              List.of(
+                                      validationDescriptor.getLabelType(),
+                                      validationDescriptor.getLabel(),
+                                      validationDescriptor.getValidationClass().getSimpleName()
+                              ),
+                              "Validation for {0} \"{1}\" ({2}) was skipped entirely.",
+                              locale
+                      );
+                      case FAILURE -> resolver.resolve(
+                              "validation.result.aggregated.failure",
+                              List.of(
+                                      validationDescriptor.getLabelType(),
+                                      validationDescriptor.getLabel(),
+                                      validationDescriptor.getValidationClass().getSimpleName(),
+                                      countFailures()
+                              ),
+                              "Validation for {0} \"{1}\" ({2}) failed with {3} error(s):",
+                              locale
+                      );
+                    }
+            )
+            .append(System.lineSeparator());
+
+    List<ThrowingResult> currentResults = results;
+
+    if(getState() == ValidationState.SKIPPED) return;
+    if(getState() == ValidationState.FAILURE) currentResults = getFailedResults();
+
+    for (ThrowingResult result : currentResults) {
+      if(result instanceof ValidationResultCollection resultCollection) {
+        resultCollection.buildMessage(sb, depth + 1, resolver, locale);
+
+      } else {
+        sb.append(indent.repeat(depth + 1))
+                .append("- ")
+                .append(result.getMessage(resolver, locale))
+                .append(System.lineSeparator());
+      }
+    }
+  }
+
+  private List<ThrowingResult> getFailedResults() {
     return results.stream()
             .filter(r -> r.getState() == ValidationState.FAILURE)
             .toList();
@@ -188,46 +269,5 @@ public class ValidationResultCollection implements ThrowingResult {
     return results.stream()
             .filter(r -> r.getState() == ValidationState.FAILURE)
             .count();
-  }
-
-  /**
-   * Synthetic {@link ValidationResult} implementation that wraps an
-   * entire {@link ValidationResultCollection}. It delegates its
-   * {@link #getState()} and {@link #getMessage(MessageResolver, Locale)}
-   * to the underlying collection.
-   */
-  private static final class AggregatedValidationResult extends ValidationResult {
-    private final ValidationResultCollection collection;
-
-    AggregatedValidationResult(ValidationResultCollection collection) {
-      super(new Builder("Aggregated validation result for {0}")
-              .messageKey("validation.result.collection")
-              .messageArgument(collection.getClazz())
-              .label(collection.getClazz().getCanonicalName()));
-      this.collection = collection;
-    }
-
-    @Override
-    public ValidationState getState() {
-      return collection.getState();
-    }
-
-    @Override
-    public String getMessage(MessageResolver resolver, Locale locale) {
-      return collection.getMessage(resolver, locale);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-      if (o == null || getClass() != o.getClass()) return false;
-      if (!super.equals(o)) return false;
-      AggregatedValidationResult that = (AggregatedValidationResult) o;
-      return Objects.equals(collection, that.collection);
-    }
-
-    @Override
-    public int hashCode() {
-      return Objects.hash(super.hashCode(), collection);
-    }
   }
 }

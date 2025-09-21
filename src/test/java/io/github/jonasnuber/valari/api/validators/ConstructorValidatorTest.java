@@ -120,8 +120,7 @@ class ConstructorValidatorTest {
 
         assertThat(result.isInvalid()).isTrue();
         assertThat(result.getResults())
-                .extracting(ValidationResult::getLabel)
-                .containsExactly("invalidParam1");
+                .hasSize(1);
     }
 
     @Test

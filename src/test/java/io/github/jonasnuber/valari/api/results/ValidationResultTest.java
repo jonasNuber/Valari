@@ -251,47 +251,47 @@ class ValidationResultTest{
     }
 
     @Test
-    void getMessage_ShouldReturnSuccessMessage_ForSuccessfulResult() {
+    void getMessage_ShouldReturnSuccessDetailedMessage_ForSuccessfulResult() {
         var result = new ValidationResult.Builder("default")
                 .messageKey("validation.object.notNull")
                 .ok();
 
-        var message = result.getMessage();
+        var message = result.getDetailedMessage();
 
         assertThat(message).isEqualTo("The Subject \"<unknown>\" is valid: must not be null");
     }
 
     @Test
-    void getMessage_ShouldReturnSkippedMessage_ForSkippedResult() {
+    void getMessage_ShouldReturnSkippedDetailedMessage_ForSkippedResult() {
         var result = new ValidationResult.Builder("default")
                 .messageKey("validation.object.notNull")
                 .skip();
 
-        var message = result.getMessage();
+        var message = result.getDetailedMessage();
 
         assertThat(message).isEqualTo("Validation for Subject \"<unknown>\" was skipped");
     }
 
     @Test
-    void getMessage_ShouldReturnFailureMessage_ForFailedResult() {
+    void getMessage_ShouldReturnFailureDetailedMessage_ForFailedResult() {
         var result = new ValidationResult.Builder("default")
                 .messageKey("validation.object.notNull")
                 .fail();
 
-        var message = result.getMessage();
+        var message = result.getDetailedMessage();
 
         assertThat(message).isEqualTo("The Subject \"<unknown>\" is invalid: must not be null");
     }
 
     @Test
-    void getMessage_ShouldReturnCorrectMessage_ForCustomResolver() {
+    void getMessage_ShouldReturnCorrectDetailedMessage_ForCustomResolver() {
         var resolver = new ResourceBundleMessageResolver("ValidationMessages");
         var locale = Locale.ENGLISH;
         var result = new ValidationResult.Builder("default")
                 .messageKey("validation.object.notNull")
                 .fail();
 
-        var message = result.getMessage(resolver, locale);
+        var message = result.getDetailedMessage(resolver, locale);
 
         assertThat(message).isEqualTo("The Subject \"<unknown>\" is invalid: must not be null");
     }

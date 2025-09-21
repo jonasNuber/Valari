@@ -1,12 +1,14 @@
 package io.github.jonasnuber.valari.api.validators;
 
-import io.github.jonasnuber.valari.api.results.ValidationResult;
+import io.github.jonasnuber.valari.api.results.LabelType;
+import io.github.jonasnuber.valari.api.results.ValidationDescriptor;
 import io.github.jonasnuber.valari.api.results.ValidationResultCollection;
 import io.github.jonasnuber.valari.internal.strategies.ValidationStrategy;
 import io.github.jonasnuber.valari.internal.bindings.ParameterRuleBinding;
 import io.github.jonasnuber.valari.internal.strategies.CollectFailuresStrategy;
 import io.github.jonasnuber.valari.internal.strategies.FailFastStrategy;
 import io.github.jonasnuber.valari.spi.NoInputValidator;
+import io.github.jonasnuber.valari.spi.ThrowingResult;
 import io.github.jonasnuber.valari.spi.Validation;
 import io.github.jonasnuber.valari.spi.RuleBinding;
 
@@ -43,13 +45,12 @@ import java.util.Objects;
 @SuppressWarnings("java:S119")
 public class ConstructorValidator<TYPE> implements NoInputValidator<ValidationResultCollection> {
     private final Class<TYPE> clazz;
-    private final List<NoInputValidator<ValidationResult>> parameterValidators = new ArrayList<>();
+    private final List<NoInputValidator<ThrowingResult>> parameterValidators = new ArrayList<>();
 
-    private ValidationStrategy<TYPE, ValidationResultCollection> validationStrategy;
+    private ValidationStrategy<ValidationResultCollection> validationStrategy = new CollectFailuresStrategy();
 
     private ConstructorValidator(Class<TYPE> clazz) {
         this.clazz = Objects.requireNonNull(clazz, "Class must not be null");
-        validationStrategy = new CollectFailuresStrategy<>();
     }
 
     /**
@@ -109,7 +110,7 @@ public class ConstructorValidator<TYPE> implements NoInputValidator<ValidationRe
      * @return this validator instance (for chaining)
      */
     public ConstructorValidator<TYPE> failFast() {
-        validationStrategy = new FailFastStrategy<>();
+        validationStrategy = new FailFastStrategy();
         return this;
     }
 
@@ -123,7 +124,7 @@ public class ConstructorValidator<TYPE> implements NoInputValidator<ValidationRe
      * @return this validator instance (for chaining)
      */
     public ConstructorValidator<TYPE> collectFailures() {
-        validationStrategy = new CollectFailuresStrategy<>();
+        validationStrategy = new CollectFailuresStrategy();
         return this;
     }
 
@@ -134,6 +135,12 @@ public class ConstructorValidator<TYPE> implements NoInputValidator<ValidationRe
      */
     @Override
     public ValidationResultCollection validate() {
-        return validationStrategy.validate(parameterValidators, clazz);
+        return validationStrategy.validate(
+                parameterValidators,
+                ValidationDescriptor.builder()
+                        .validationClass(clazz)
+                        .labelType(LabelType.PARAMETER)
+                        .label(clazz.getSimpleName())
+                        .build());
     }
 }
