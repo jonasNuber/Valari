@@ -1,6 +1,5 @@
 package io.github.jonasnuber.valari.api;
 
-import io.github.jonasnuber.valari.api.results.ValidationMetadata;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 

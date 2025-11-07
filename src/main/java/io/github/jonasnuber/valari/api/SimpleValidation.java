@@ -1,9 +1,5 @@
 package io.github.jonasnuber.valari.api;
 
-import io.github.jonasnuber.valari.api.results.ValidationMetadata;
-import io.github.jonasnuber.valari.api.results.ValidationResult;
-import io.github.jonasnuber.valari.spi.Validation;
-
 import java.util.Objects;
 import java.util.function.Predicate;
 
@@ -64,8 +60,8 @@ public class SimpleValidation<TYPE> implements Validation<TYPE> {
 	 * enriched with the configured metadata and the tested value.
 	 *
 	 * @param param the input value to validate
-	 * @return a {@link ValidationResult} with {@link io.github.jonasnuber.valari.api.results.ValidationState#SUCCESS}
-	 *         if the predicate matches, or {@link io.github.jonasnuber.valari.api.results.ValidationState#FAILURE}
+	 * @return a {@link ValidationResult} with {@link ValidationState#SUCCESS}
+	 *         if the predicate matches, or {@link ValidationState#FAILURE}
 	 *         otherwise
 	 */
 	@Override

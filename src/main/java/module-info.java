@@ -20,9 +20,8 @@
 module io.github.jonasnuber.valari {
     requires java.xml;
     exports io.github.jonasnuber.valari.api;
-    exports io.github.jonasnuber.valari.api.helpers;
-    exports io.github.jonasnuber.valari.api.results;
     exports io.github.jonasnuber.valari.api.exceptions;
-    exports io.github.jonasnuber.valari.api.validators;
-    exports io.github.jonasnuber.valari.spi;
+    exports io.github.jonasnuber.valari.api.helpers;
+    exports io.github.jonasnuber.valari.api.i18n;
+    exports io.github.jonasnuber.valari.core;
 }

@@ -1,9 +1,8 @@
 package io.github.jonasnuber.valari.api.helpers;
 
 import io.github.jonasnuber.valari.api.SimpleValidation;
-import io.github.jonasnuber.valari.api.results.ValidationMetadata;
-import io.github.jonasnuber.valari.api.results.ValidationResult;
-import io.github.jonasnuber.valari.spi.Validation;
+import io.github.jonasnuber.valari.api.ValidationMetadata;
+import io.github.jonasnuber.valari.api.Validation;
 
 import java.util.Collection;
 import java.util.Objects;
