@@ -2,8 +2,9 @@ package io.github.jonasnuber.valari.core.bindings;
 
 import io.github.jonasnuber.valari.api.*;
 import io.github.jonasnuber.valari.core.ConstructorValidator;
+import io.github.jonasnuber.valari.api.RuleBinding;
+import io.github.jonasnuber.valari.core.ValidationResult;
 import io.github.jonasnuber.valari.core.ValueValidator;
-import io.github.jonasnuber.valari.spi.*;
 
 import java.util.Objects;
 
@@ -31,7 +32,7 @@ import java.util.Objects;
  * @author Jonas Nuber
  */
 @SuppressWarnings("java:S119")
-public class ParameterRuleBinding<TYPE, PARAMETER> implements RuleBinding<ConstructorValidator<TYPE>, Validation<PARAMETER>>, NoInputValidator<ThrowingResult> {
+public class ParameterRuleBinding<TYPE, PARAMETER> implements RuleBinding<ConstructorValidator<TYPE>, Validation<PARAMETER>>, NoInputValidator<ValidationResult> {
     private final String parameterName;
     private final PARAMETER parameter;
     private final ConstructorValidator<TYPE> parent;

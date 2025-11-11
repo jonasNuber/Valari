@@ -1,5 +1,6 @@
-package io.github.jonasnuber.valari.api;
+package io.github.jonasnuber.valari.core;
 
+import io.github.jonasnuber.valari.api.ValidationMetadata;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 

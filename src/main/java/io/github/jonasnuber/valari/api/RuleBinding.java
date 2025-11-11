@@ -1,7 +1,4 @@
-package io.github.jonasnuber.valari.core.bindings;
-
-import io.github.jonasnuber.valari.api.BaseValidator;
-import io.github.jonasnuber.valari.api.Validator;
+package io.github.jonasnuber.valari.api;
 
 /**
  * A fluent interface for associating validation rules with a specific input value,
@@ -29,7 +26,7 @@ import io.github.jonasnuber.valari.api.Validator;
  * @see Validator
  */
 @SuppressWarnings("java:S119")
-public interface RuleBinding<VALIDATOR extends BaseValidator, RULE> {
+public interface RuleBinding<VALIDATOR extends GenericValidator, RULE> {
 
     /**
      * Specifies that the field must satisfy the given validation rule.

@@ -1,9 +1,9 @@
-package io.github.jonasnuber.valari.api.helpers;
+package io.github.jonasnuber.valari.core.validations;
 
 
-import io.github.jonasnuber.valari.api.SimpleValidation;
 import io.github.jonasnuber.valari.api.ValidationMetadata;
 import io.github.jonasnuber.valari.api.Validation;
+import io.github.jonasnuber.valari.core.SimpleValidation;
 
 /**
  * Utility class providing predefined validations for {@link Integer} values.
@@ -11,9 +11,9 @@ import io.github.jonasnuber.valari.api.Validation;
  *
  * @author Jonas Nuber
  */
-public final class IntegerValidationHelpers {
+public final class IntegerValidations {
 
-    private IntegerValidationHelpers() throws IllegalAccessException {
+    private IntegerValidations() throws IllegalAccessException {
         throw new IllegalAccessException("IntegerValidationHelpers is a utility class and cannot be instantiated");
     }
 

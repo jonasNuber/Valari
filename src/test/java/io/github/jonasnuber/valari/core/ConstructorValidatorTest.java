@@ -1,15 +1,14 @@
 package io.github.jonasnuber.valari.core;
 
 import io.github.jonasnuber.valari.Person;
-import io.github.jonasnuber.valari.api.exceptions.AggregatedValidationException;
 import io.github.jonasnuber.valari.core.bindings.ParameterRuleBinding;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static io.github.jonasnuber.valari.api.helpers.IntegerValidationHelpers.greaterThan;
-import static io.github.jonasnuber.valari.api.helpers.ObjectValidationHelpers.notNull;
-import static io.github.jonasnuber.valari.api.helpers.StringValidationHelpers.between;
-import static io.github.jonasnuber.valari.api.helpers.StringValidationHelpers.notEmpty;
+import static io.github.jonasnuber.valari.core.validations.IntegerValidations.greaterThan;
+import static io.github.jonasnuber.valari.core.validations.ObjectValidations.notNull;
+import static io.github.jonasnuber.valari.core.validations.StringValidations.between;
+import static io.github.jonasnuber.valari.core.validations.StringValidations.notEmpty;
 import static org.assertj.core.api.Assertions.*;
 
 class ConstructorValidatorTest {
@@ -87,23 +86,23 @@ class ConstructorValidatorTest {
         assertThat(result.isInvalid()).isTrue();
     }
 
-    @Test
-    void validateAndThrow_ShouldNotThrow_WhenFieldsPass() {
-        assertThatCode(() -> validator.validateAndThrow())
-                .doesNotThrowAnyException();
-    }
-
-    @Test
-    void validateAndThrow_ShouldThrow_WhenFieldsFail() {
-        validator.parameter("optionalPresent", "String").ifPresent(between(2, 3));
-
-        var thrown = catchThrowable(() -> validator.validateAndThrow());
-
-        assertThat(thrown)
-                .isInstanceOf(AggregatedValidationException.class)
-                .hasMessage("Validation for class io.github.jonasnuber.valari.Person failed with 1 error(s):\n" +
-                        "- Parameter \"optionalPresent\": must have less than 3 chars\n");
-    }
+//    @Test
+//    void validateAndThrow_ShouldNotThrow_WhenFieldsPass() {
+//        assertThatCode(() -> validator.validateAndThrow())
+//                .doesNotThrowAnyException();
+//    }
+//
+//    @Test
+//    void validateAndThrow_ShouldThrow_WhenFieldsFail() {
+//        validator.parameter("optionalPresent", "String").ifPresent(between(2, 3));
+//
+//        var thrown = catchThrowable(() -> validator.validateAndThrow());
+//
+//        assertThat(thrown)
+//                .isInstanceOf(AggregatedValidationException.class)
+//                .hasMessage("Validation for class io.github.jonasnuber.valari.Person failed with 1 error(s):\n" +
+//                        "- Parameter \"optionalPresent\": must have less than 3 chars\n");
+//    }
 
     @Test
     void failFast_ShouldUseFailFastStrategy() {

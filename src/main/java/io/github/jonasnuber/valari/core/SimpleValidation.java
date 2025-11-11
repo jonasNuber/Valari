@@ -1,4 +1,8 @@
-package io.github.jonasnuber.valari.api;
+package io.github.jonasnuber.valari.core;
+
+import io.github.jonasnuber.valari.api.Validation;
+import io.github.jonasnuber.valari.api.ValidationMetadata;
+import io.github.jonasnuber.valari.api.ValidationState;
 
 import java.util.Objects;
 import java.util.function.Predicate;

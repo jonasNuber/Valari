@@ -17,9 +17,9 @@ package io.github.jonasnuber.valari.api;
  *
  * @author Jonas Nuber
  */
-@FunctionalInterface
 @SuppressWarnings("java:S119")
-public interface Validator<TYPE, RESULT extends ThrowingResult> extends BaseValidator {
+@FunctionalInterface
+public non-sealed interface Validator<TYPE, RESULT extends Result<RESULT>> extends GenericValidator {
 
   /**
    * Validates the given object and returns the result.
@@ -29,16 +29,14 @@ public interface Validator<TYPE, RESULT extends ThrowingResult> extends BaseVali
    */
   RESULT validate(TYPE toValidate);
 
-  /**
-   * Validates the given object and throws an exception if the validation fails.
-   * <p>
-   * The type and content of the exception is defined by the result's {@link ThrowingResult#throwIfInvalid()} method
-   * </p>
-   *
-   * @param toValidate the object to validate
-   * @throws RuntimeException if the validation fails
+  //TODO:
+  /*
+    - Look at the Result implementations and make them better
+    - The ValidationResultCollection still has not implemented methods and methods with too much content / repetition
+    - Look in core what the different classes use from the Result interfaces / classes and use the lowest possible interface or class
+    - The detailed Message and normal message options do not have enough differences yet. Think about how they can be bettered, else
+      remove one of them entirely
+    - give both api and core their own maven modules
+
    */
-  default void validateAndThrow(TYPE toValidate) {
-    validate(toValidate).throwIfInvalid();
-  }
 }

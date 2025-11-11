@@ -2,13 +2,11 @@ package io.github.jonasnuber.valari.core;
 
 import io.github.jonasnuber.valari.api.*;
 import io.github.jonasnuber.valari.api.exceptions.AggregatedValidationException;
-import io.github.jonasnuber.valari.core.bindings.RuleBinding;
 import io.github.jonasnuber.valari.core.strategies.CollectFailuresStrategy;
 import io.github.jonasnuber.valari.core.bindings.NestedRuleBinding;
 import io.github.jonasnuber.valari.core.strategies.FailFastStrategy;
 import io.github.jonasnuber.valari.core.bindings.FieldRuleBinding;
-import io.github.jonasnuber.valari.core.strategies.ValidationStrategy;
-import io.github.jonasnuber.valari.spi.*;
+import io.github.jonasnuber.valari.api.ValidationStrategy;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,7 +44,7 @@ import java.util.function.Function;
 @SuppressWarnings("java:S119")
 public class DomainValidator<TYPE> implements Validator<TYPE, ValidationResultCollection> {
     private final Class<TYPE> clazz;
-    private final List<Validator<TYPE, ThrowingResult>> validationBindings = new ArrayList<>();
+    private final List<Validator<TYPE, ? extends ThrowableResult<?>>> validationBindings = new ArrayList<>();
 
     private ValidationStrategy<ValidationResultCollection> validationStrategy = new CollectFailuresStrategy();
 
@@ -202,11 +200,8 @@ public class DomainValidator<TYPE> implements Validator<TYPE, ValidationResultCo
     public ValidationResultCollection validate(TYPE toValidate) {
         Objects.requireNonNull(toValidate, "Object to validate must not be null");
 
-        return validationStrategy.validate(validationBindings
-                .stream()
-                .map(binding ->
-                        (NoInputValidator<ThrowingResult>) () -> binding.validate(toValidate))
-                .toList(),
+        return validationStrategy.validate(validationBindings,
+                toValidate,
                 ValidationDescriptor.builder()
                         .validationClass(clazz)
                         .labelType(LabelType.FIELD)

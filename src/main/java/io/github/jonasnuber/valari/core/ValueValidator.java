@@ -1,7 +1,6 @@
 package io.github.jonasnuber.valari.core;
 
 import io.github.jonasnuber.valari.api.LabelType;
-import io.github.jonasnuber.valari.api.ValidationResult;
 import io.github.jonasnuber.valari.api.Validation;
 import io.github.jonasnuber.valari.api.Validator;
 
@@ -111,6 +110,6 @@ public class ValueValidator<TYPE> implements Validator<TYPE, ValidationResult> {
             return ValidationResult.skip().withLabel(labelType, valueName);
         }
 
-        return validation.test(toValidate).withLabel(labelType, valueName);
+        return (ValidationResult) validation.test(toValidate).withLabel(labelType, valueName);
     }
 }

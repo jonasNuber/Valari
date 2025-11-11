@@ -1,5 +1,6 @@
 package io.github.jonasnuber.valari.api;
 
+import io.github.jonasnuber.valari.core.ValidationResult;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 

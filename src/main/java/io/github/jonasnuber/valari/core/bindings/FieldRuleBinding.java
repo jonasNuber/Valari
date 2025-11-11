@@ -1,12 +1,9 @@
 package io.github.jonasnuber.valari.core.bindings;
 
-import io.github.jonasnuber.valari.api.LabelType;
-import io.github.jonasnuber.valari.api.ValidationResult;
+import io.github.jonasnuber.valari.api.*;
 import io.github.jonasnuber.valari.core.DomainValidator;
-import io.github.jonasnuber.valari.api.ThrowingResult;
-import io.github.jonasnuber.valari.api.Validation;
-import io.github.jonasnuber.valari.api.Validator;
-import io.github.jonasnuber.valari.api.exceptions.InvalidAttributeValueException;
+import io.github.jonasnuber.valari.api.RuleBinding;
+import io.github.jonasnuber.valari.core.ValidationResult;
 
 import java.util.Objects;
 import java.util.function.Function;
@@ -34,7 +31,7 @@ import java.util.function.Function;
  * @author Jonas Nuber
  */
 @SuppressWarnings("java:S119")
-public final class FieldRuleBinding<TYPE, FIELD> implements RuleBinding<DomainValidator<TYPE>, Validation<FIELD>>, Validator<TYPE, ThrowingResult> {
+public final class FieldRuleBinding<TYPE, FIELD> implements RuleBinding<DomainValidator<TYPE>, Validation<FIELD>>, Validator<TYPE, ValidationResult> {
     private final DomainValidator<TYPE> parent;
     private final String fieldName;
     private final Function<TYPE, FIELD> valueExtractor;
@@ -109,17 +106,6 @@ public final class FieldRuleBinding<TYPE, FIELD> implements RuleBinding<DomainVa
 
         FIELD value = valueExtractor.apply(toValidate);
 
-        return validation.test(value).withLabel(LabelType.FIELD, fieldName);
-    }
-
-    /**
-     * Validates the object and throws an exception if the field is invalid.
-     *
-     * @param toValidate the object to validate
-     * @throws InvalidAttributeValueException if validation fails
-     */
-    @Override
-    public void validateAndThrow(TYPE toValidate) {
-        validate(toValidate).throwIfInvalid();
+        return (ValidationResult) validation.test(value).withLabel(LabelType.FIELD, fieldName);
     }
 }

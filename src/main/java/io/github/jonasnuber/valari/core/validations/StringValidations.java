@@ -1,13 +1,13 @@
-package io.github.jonasnuber.valari.api.helpers;
+package io.github.jonasnuber.valari.core.validations;
 
-import io.github.jonasnuber.valari.api.SimpleValidation;
 import io.github.jonasnuber.valari.api.ValidationMetadata;
 import io.github.jonasnuber.valari.api.Validation;
+import io.github.jonasnuber.valari.core.SimpleValidation;
 
 import java.util.Objects;
 import java.util.regex.Pattern;
 
-import static io.github.jonasnuber.valari.api.helpers.ObjectValidationHelpers.notNull;
+import static io.github.jonasnuber.valari.core.validations.ObjectValidations.notNull;
 
 /**
  * Utility class providing predefined validations for strings.
@@ -19,11 +19,11 @@ import static io.github.jonasnuber.valari.api.helpers.ObjectValidationHelpers.no
  *
  * @author  Jonas Nuber
  */
-public final class StringValidationHelpers {
+public final class StringValidations {
 
 	private static final String STRING_MUST_NOT_BE_NULL = "String must not be null";
 
-	private StringValidationHelpers() throws IllegalAccessException {
+	private StringValidations() throws IllegalAccessException {
 		throw new IllegalAccessException("StringValidationHelpers is a utility class and cannot be instantiated");
 	}
 

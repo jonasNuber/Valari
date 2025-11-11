@@ -5,7 +5,7 @@ package io.github.jonasnuber.valari.api;
  * <p>
  * This interface is useful for scenarios where the validation logic is self-contained
  * or contextually bound (e.g., validating pre-bound fields or derived data).
- * It abstracts the validation logic and returns a {@link ThrowingResult}, which
+ * It abstracts the validation logic and returns a {@link ThrowableResult}, which
  * can represent either a successful or failed validation outcome.
  * </p>
  *
@@ -19,7 +19,7 @@ package io.github.jonasnuber.valari.api;
  */
 @FunctionalInterface
 @SuppressWarnings("java:S119")
-public interface NoInputValidator<RESULT extends ThrowingResult> extends BaseValidator {
+public non-sealed interface NoInputValidator<RESULT extends Result<RESULT>> extends GenericValidator {
 
     /**
      * Executes the validation logic and returns the result.
@@ -27,16 +27,4 @@ public interface NoInputValidator<RESULT extends ThrowingResult> extends BaseVal
      * @return the result of the validation
      */
     RESULT validate();
-
-    /**
-     * Executes the validation and throws an exception if the result is invalid.
-     * <p>
-     * The type and content of the exception is defined by the result's {@link ThrowingResult#throwIfInvalid()} method.
-     * </p>
-     *
-     * @throws RuntimeException if the validation result is invalid
-     */
-    default void validateAndThrow() {
-        validate().throwIfInvalid();
-    }
 }

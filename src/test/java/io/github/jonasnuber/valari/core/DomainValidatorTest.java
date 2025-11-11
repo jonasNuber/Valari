@@ -1,16 +1,14 @@
 package io.github.jonasnuber.valari.core;
 
 import io.github.jonasnuber.valari.Person;
-import io.github.jonasnuber.valari.api.exceptions.AggregatedValidationException;
 import io.github.jonasnuber.valari.core.bindings.FieldRuleBinding;
-import org.assertj.core.api.ThrowableAssert;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.util.function.Function;
 
-import static io.github.jonasnuber.valari.api.helpers.IntegerValidationHelpers.greaterThan;
-import static io.github.jonasnuber.valari.api.helpers.StringValidationHelpers.notEmpty;
+import static io.github.jonasnuber.valari.core.validations.IntegerValidations.greaterThan;
+import static io.github.jonasnuber.valari.core.validations.StringValidations.notEmpty;
 import static org.assertj.core.api.Assertions.*;
 
 class DomainValidatorTest {
@@ -141,37 +139,37 @@ class DomainValidatorTest {
         assertThat(result.isInvalid()).isTrue();
     }
 
-    @Test
-    void validateAndThrow_ShouldThrowException_ForNullObject() {
-        var nullToValidate = catchThrowable(() -> validator.validateAndThrow(null));
+//    @Test
+//    void validateAndThrow_ShouldThrowException_ForNullObject() {
+//        var nullToValidate = catchThrowable(() -> validator.validateAndThrow(null));
+//
+//        assertThat(nullToValidate)
+//                .isInstanceOf(NullPointerException.class)
+//                .hasMessage("Object to validate must not be null");
+//    }
+//
+//    @Test
+//    void validateAndThrow_ShouldNotThrow_WhenFieldsPass() {
+//        var name = "Bob";
+//        var age = 25;
+//
+//        ThrowableAssert.ThrowingCallable executable = () -> validator.validateAndThrow(new Person(name, age));
+//
+//        assertThatCode(executable).doesNotThrowAnyException();
+//    }
 
-        assertThat(nullToValidate)
-                .isInstanceOf(NullPointerException.class)
-                .hasMessage("Object to validate must not be null");
-    }
-
-    @Test
-    void validateAndThrow_ShouldNotThrow_WhenFieldsPass() {
-        var name = "Bob";
-        var age = 25;
-
-        ThrowableAssert.ThrowingCallable executable = () -> validator.validateAndThrow(new Person(name, age));
-
-        assertThatCode(executable).doesNotThrowAnyException();
-    }
-
-    @Test
-    void validateAndThrow_ShouldThrow_WhenFieldsFail() {
-        var age = 0;
-
-        var thrown = catchThrowable(() -> validator.validateAndThrow(new Person(null, age)));
-
-        assertThat(thrown)
-                .isInstanceOf(AggregatedValidationException.class)
-                .hasMessageContaining("Validation for class io.github.jonasnuber.valari.Person failed with 2 error(s):")
-                .hasMessageContaining("- Field \"Age\": must be greater than 0")
-                .hasMessageContaining("- Field \"Name\": must not be empty");
-    }
+//    @Test
+//    void validateAndThrow_ShouldThrow_WhenFieldsFail() {
+//        var age = 0;
+//
+//        var thrown = catchThrowable(() -> validator.validateAndThrow(new Person(null, age)));
+//
+//        assertThat(thrown)
+//                .isInstanceOf(AggregatedValidationException.class)
+//                .hasMessageContaining("Validation for class io.github.jonasnuber.valari.Person failed with 2 error(s):")
+//                .hasMessageContaining("- Field \"Age\": must be greater than 0")
+//                .hasMessageContaining("- Field \"Name\": must not be empty");
+//    }
 
     @Test
     void failFast_ShouldUseFailFastStrategy() {

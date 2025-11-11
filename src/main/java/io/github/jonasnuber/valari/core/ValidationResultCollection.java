@@ -1,5 +1,6 @@
-package io.github.jonasnuber.valari.api;
+package io.github.jonasnuber.valari.core;
 
+import io.github.jonasnuber.valari.api.*;
 import io.github.jonasnuber.valari.api.exceptions.AggregatedValidationException;
 import io.github.jonasnuber.valari.api.i18n.MessageResolver;
 
@@ -33,9 +34,9 @@ import java.util.*;
  *
  * @author Jonas Nuber
  */
-public final class ValidationResultCollection implements ThrowingResult {
+public final class ValidationResultCollection implements AggregatedResult<ValidationResultCollection> {
 
-  private final List<ThrowingResult> results = new ArrayList<>();
+  private final List<ThrowableResult<?>> results = new ArrayList<>();
   private final ValidationDescriptor validationDescriptor;
 
   /**
@@ -52,25 +53,28 @@ public final class ValidationResultCollection implements ThrowingResult {
    *
    * @param result the result to add, must not be {@code null}
    */
-  public void add(ThrowingResult result) {
+  public void add(ThrowableResult<?> result) {
     results.add(Objects.requireNonNull(result, "ValidationResult cannot be added if null"));
   }
 
-  public void addAll(Collection<ThrowingResult> results) {
+  public void addAll(Collection<ThrowableResult<?>> results) {
     this.results.addAll(results);
   }
 
   /**
    * @return the list of contained validation results (mutable view).
    */
-  public List<ThrowingResult> getResults() {
+  @Override
+  public List<ThrowableResult<?>> getResults() {
     return results;
   }
 
+  @Override
   public LabelType getLabelType() {
     return validationDescriptor.getLabelType();
   }
 
+  @Override
   public String getLabel() {
     return validationDescriptor.getLabel();
   }
@@ -103,6 +107,11 @@ public final class ValidationResultCollection implements ThrowingResult {
     return ValidationState.SUCCESS;
   }
 
+  @Override
+  public String resolveValidationMessage(MessageResolver resolver, Locale locale) {
+    return "";
+  }
+
   /**
    * Builds a localized message that describes the outcome of this collection.
    * The message may include both a header and a detailed breakdown of
@@ -118,6 +127,11 @@ public final class ValidationResultCollection implements ThrowingResult {
     buildDetailedMessage(sb, 0, resolver, locale);
 
     return sb.toString();
+  }
+
+  @Override
+  public ValidationResultCollection withLabel(LabelType labelType, String label) {
+    return null;
   }
 
   @Override
@@ -181,12 +195,12 @@ public final class ValidationResultCollection implements ThrowingResult {
             )
             .append(System.lineSeparator());
 
-    List<ThrowingResult> currentResults = results;
+    List<ThrowableResult<?>> currentResults = results;
 
     if(getState() == ValidationState.SKIPPED) return;
     if(getState() == ValidationState.FAILURE) currentResults = getFailedResults();
 
-    for (ThrowingResult result : currentResults) {
+    for (ThrowableResult<?> result : currentResults) {
       if(result instanceof ValidationResultCollection resultCollection) {
         resultCollection.buildDetailedMessage(sb, depth + 1, resolver, locale);
 
@@ -240,12 +254,12 @@ public final class ValidationResultCollection implements ThrowingResult {
             )
             .append(System.lineSeparator());
 
-    List<ThrowingResult> currentResults = results;
+    List<ThrowableResult<?>> currentResults = results;
 
     if(getState() == ValidationState.SKIPPED) return;
     if(getState() == ValidationState.FAILURE) currentResults = getFailedResults();
 
-    for (ThrowingResult result : currentResults) {
+    for (ThrowableResult<?> result : currentResults) {
       if(result instanceof ValidationResultCollection resultCollection) {
         resultCollection.buildMessage(sb, depth + 1, resolver, locale);
 
@@ -258,7 +272,7 @@ public final class ValidationResultCollection implements ThrowingResult {
     }
   }
 
-  private List<ThrowingResult> getFailedResults() {
+  private List<ThrowableResult<?>> getFailedResults() {
     return results.stream()
             .filter(r -> r.getState() == ValidationState.FAILURE)
             .toList();

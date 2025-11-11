@@ -1,4 +1,4 @@
-package io.github.jonasnuber.valari.api;
+package io.github.jonasnuber.valari.core;
 
 class ValidationResultCollectionTest{
 

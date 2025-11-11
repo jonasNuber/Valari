@@ -25,7 +25,7 @@ public interface Validation<TYPE> {
      * @param param The object to be validated.
      * @return ValidationResult indicating the outcome of the validation.
      */
-    ValidationResult test(TYPE param);
+    Result<?> test(TYPE param);
 
     /**
      * Combines the current Validation with another one using logical conjunction.

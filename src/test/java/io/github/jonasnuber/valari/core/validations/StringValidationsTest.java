@@ -1,4 +1,4 @@
-package io.github.jonasnuber.valari.api.helpers;
+package io.github.jonasnuber.valari.core.validations;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -10,7 +10,7 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
-class StringValidationHelpersTest {
+class StringValidationsTest {
 
     private static Stream<String> notEmptyStringValues() {
         return Stream.of("notEmpty", "   ");
@@ -19,7 +19,7 @@ class StringValidationHelpersTest {
     @ParameterizedTest
     @MethodSource("notEmptyStringValues")
     void notEmpty_ShouldReturnValidResult_ForNotEmptyString(String value) {
-        var validation = StringValidationHelpers.notEmpty();
+        var validation = StringValidations.notEmpty();
 
         var result = validation.test(value);
 
@@ -33,7 +33,7 @@ class StringValidationHelpersTest {
     @ParameterizedTest(name = "Test with empty input string: {0}")
     @MethodSource("emptyStringValues")
     void notEmpty_ShouldReturnInvalidResult_ForEmptyString(String emptyValue) {
-        var validation = StringValidationHelpers.notEmpty();
+        var validation = StringValidations.notEmpty();
 
         var result = validation.test(emptyValue);
 
@@ -45,7 +45,7 @@ class StringValidationHelpersTest {
     @ParameterizedTest
     @CsvSource(value = {"notEmpty", "m   "})
     void notBlank_ShouldReturnValidResult_ForNotBlankString(String value) {
-        var validation = StringValidationHelpers.notBlank();
+        var validation = StringValidations.notBlank();
 
         var result = validation.test(value);
 
@@ -59,7 +59,7 @@ class StringValidationHelpersTest {
     @ParameterizedTest
     @MethodSource("blankStringValues")
     void notBlank_ShouldReturnInvalidResult_ForBlankString(String blankValue) {
-        var validation = StringValidationHelpers.notBlank();
+        var validation = StringValidations.notBlank();
 
         var result = validation.test(blankValue);
 
@@ -72,7 +72,7 @@ class StringValidationHelpersTest {
     @CsvSource(value = {"abcde", "12345", "test1"})
     void exactly_ShouldReturnValidResult_ForStringOfExactLength(String value) {
         var size = 5;
-        var validation = StringValidationHelpers.exactly(size);
+        var validation = StringValidations.exactly(size);
 
         var result = validation.test(value);
 
@@ -83,7 +83,7 @@ class StringValidationHelpersTest {
     @CsvSource(value = {"abc", "1234", "test"})
     void exactly_ShouldReturnInvalidResult_ForStringOfSmallerLength(String smallerValue) {
         var size = 5;
-        var validation = StringValidationHelpers.exactly(size);
+        var validation = StringValidations.exactly(size);
 
         var result = validation.test(smallerValue);
 
@@ -96,7 +96,7 @@ class StringValidationHelpersTest {
     @CsvSource(value = {"abcdef", "123456", "testing"})
     void exactly_ShouldReturnInvalidResult_ForStringOfGreaterLength(String greaterValue) {
         var size = 5;
-        var validation = StringValidationHelpers.exactly(size);
+        var validation = StringValidations.exactly(size);
 
         var result = validation.test(greaterValue);
 
@@ -107,7 +107,7 @@ class StringValidationHelpersTest {
 
     @Test
     void exactly_ShouldThrowException_ForNullString() {
-        var validation = StringValidationHelpers.exactly(2);
+        var validation = StringValidations.exactly(2);
 
         var thrown = catchThrowable(() -> validation.test(null));
 
@@ -120,7 +120,7 @@ class StringValidationHelpersTest {
     @CsvSource(value = {"abcd", "12345", "testing"})
     void moreThan_ShouldReturnValidResult_ForStringOfGreaterLengthThanMin(String greaterValue) {
         var minimum = 3;
-        var validation = StringValidationHelpers.moreThan(minimum);
+        var validation = StringValidations.moreThan(minimum);
 
         var result = validation.test(greaterValue);
 
@@ -131,7 +131,7 @@ class StringValidationHelpersTest {
     @CsvSource(value = {"abc", "123", "tom"})
     void moreThan_ShouldReturnInvalidResult_ForStringOfSameLengthThanMin(String value) {
         var minimum = 3;
-        var validation = StringValidationHelpers.moreThan(minimum);
+        var validation = StringValidations.moreThan(minimum);
 
         var result = validation.test(value);
 
@@ -144,7 +144,7 @@ class StringValidationHelpersTest {
     @CsvSource(value = {"ab", "12", "is"})
     void moreThan_ShouldReturnInvalidResult_ForStringOfSmallerLengthThanMin(String smallerValue) {
         var minimum = 3;
-        var validation = StringValidationHelpers.moreThan(minimum);
+        var validation = StringValidations.moreThan(minimum);
 
         var result = validation.test(smallerValue);
 
@@ -155,7 +155,7 @@ class StringValidationHelpersTest {
 
     @Test
     void moreThan_ShouldThrowException_ForNullString() {
-        var validation = StringValidationHelpers.moreThan(2);
+        var validation = StringValidations.moreThan(2);
 
         var thrown = catchThrowable(() -> validation.test(null));
 
@@ -168,7 +168,7 @@ class StringValidationHelpersTest {
     @CsvSource(value = {"abcd", "123", "is"})
     void lessThan_ShouldReturnValidResult_ForStringOfSmallerLengthThanMax(String smallerValue) {
         var maximum = 5;
-        var validation = StringValidationHelpers.lessThan(maximum);
+        var validation = StringValidations.lessThan(maximum);
 
         var result = validation.test(smallerValue);
 
@@ -179,7 +179,7 @@ class StringValidationHelpersTest {
     @CsvSource(value = {"abcde", "12345", "test1"})
     void lessThan_ShouldReturnInvalidResult_ForStringOfSameLengthAsMax(String value) {
         var maximum = 5;
-        var validation = StringValidationHelpers.lessThan(maximum);
+        var validation = StringValidations.lessThan(maximum);
 
         var result = validation.test(value);
 
@@ -192,7 +192,7 @@ class StringValidationHelpersTest {
     @CsvSource(value = {"abcdef", "1234567", "test12345"})
     void lessThan_ShouldReturnInvalidResult_ForStringOfGreaterLengthThanMax(String greaterValue) {
         var maximum = 5;
-        var validation = StringValidationHelpers.lessThan(maximum);
+        var validation = StringValidations.lessThan(maximum);
 
         var result = validation.test(greaterValue);
 
@@ -203,7 +203,7 @@ class StringValidationHelpersTest {
 
     @Test
     void lessThan_ShouldThrowException_ForNullString() {
-        var validation = StringValidationHelpers.lessThan(2);
+        var validation = StringValidations.lessThan(2);
 
         var thrown = catchThrowable(() -> validation.test(null));
 
@@ -217,7 +217,7 @@ class StringValidationHelpersTest {
     void between_ShouldReturnValidResult_ForStringOfLengthSmallerThanMaxAndGreaterThanMin(String value) {
         var minSize = 3;
         var maxSize = 10;
-        var validation = StringValidationHelpers.between(minSize, maxSize);
+        var validation = StringValidations.between(minSize, maxSize);
 
         var result = validation.test(value);
 
@@ -234,7 +234,7 @@ class StringValidationHelpersTest {
     void between_ShouldReturnInvalidResult_ForVariousStringLengths(String value, int length) {
         var minSize = 3;
         var maxSize = 10;
-        var validation = StringValidationHelpers.between(minSize, maxSize);
+        var validation = StringValidations.between(minSize, maxSize);
 
         var result = validation.test(value);
 
@@ -243,7 +243,7 @@ class StringValidationHelpersTest {
 
     @Test
     void between_ShouldThrowException_ForNullString() {
-        var validation = StringValidationHelpers.between(2, 10);
+        var validation = StringValidations.between(2, 10);
 
         var thrown = catchThrowable(() -> validation.test(null));
 
@@ -256,7 +256,7 @@ class StringValidationHelpersTest {
     @CsvSource(value = {"this is a test", "testing", "test of the century"})
     void contains_ShouldReturnValidResult_ForContainedString(String sentence) {
         var str = "test";
-        var validation = StringValidationHelpers.contains(str);
+        var validation = StringValidations.contains(str);
 
         var result = validation.test(sentence);
 
@@ -267,7 +267,7 @@ class StringValidationHelpersTest {
     @CsvSource(value = {"this is a Tesk", "Tesling", "Text of the century", "this is a Test", "Testing", "Test of the century"})
     void contains_ShouldReturnInvalidResult_ForNotContainingString(String sentence) {
         var str = "test";
-        var validation = StringValidationHelpers.contains(str);
+        var validation = StringValidations.contains(str);
 
         var result = validation.test(sentence);
 
@@ -278,7 +278,7 @@ class StringValidationHelpersTest {
 
     @Test
     void contains_ShouldThrowException_ForNullString() {
-        var validation = StringValidationHelpers.contains("substring");
+        var validation = StringValidations.contains("substring");
 
         var thrown = catchThrowable(() -> validation.test(null));
 
@@ -289,7 +289,7 @@ class StringValidationHelpersTest {
 
     @Test
     void contains_ShouldThrowException_ForNullSubString() {
-        var thrown = catchThrowable(() -> StringValidationHelpers.contains(null));
+        var thrown = catchThrowable(() -> StringValidations.contains(null));
 
         assertThat(thrown)
                 .isInstanceOf(NullPointerException.class)
@@ -300,7 +300,7 @@ class StringValidationHelpersTest {
     @CsvSource(value = {"this is a Test", "TeStIng", "TEST of the century"})
     void containsIgnoreCase_ShouldReturnValidResult_ForCaseInsensitiveString(String sentence) {
         var str = "test";
-        var validation = StringValidationHelpers.containsIgnoreCase(str);
+        var validation = StringValidations.containsIgnoreCase(str);
 
         var result = validation.test(sentence);
 
@@ -311,7 +311,7 @@ class StringValidationHelpersTest {
     @CsvSource(value = {"this is a Tes", "Tefting", "Terra of the century"})
     void containsIgnoreCase_ShouldReturnInvalidResult_ForNotContainedString(String sentence) {
         var str = "test";
-        var validation = StringValidationHelpers.containsIgnoreCase(str);
+        var validation = StringValidations.containsIgnoreCase(str);
 
         var result = validation.test(sentence);
 
@@ -322,7 +322,7 @@ class StringValidationHelpersTest {
 
     @Test
     void containsIgnoreCase_ShouldThrowException_ForNullString() {
-        var validation = StringValidationHelpers.containsIgnoreCase("substring");
+        var validation = StringValidations.containsIgnoreCase("substring");
 
         var thrown = catchThrowable(() -> validation.test(null));
 
@@ -333,7 +333,7 @@ class StringValidationHelpersTest {
 
     @Test
     void containsIgnoreCase_ShouldThrowException_ForNullSubString() {
-        var thrown = catchThrowable(() -> StringValidationHelpers.containsIgnoreCase(null));
+        var thrown = catchThrowable(() -> StringValidations.containsIgnoreCase(null));
 
         assertThat(thrown)
                 .isInstanceOf(NullPointerException.class)
@@ -344,7 +344,7 @@ class StringValidationHelpersTest {
     @CsvSource(value = {"hello1234", "hello2"})
     void regex_ShouldReturnValidResult_ForMatchingRegex(String value) {
         var regex = "hello\\d+";
-        var validation = StringValidationHelpers.regex(regex);
+        var validation = StringValidations.regex(regex);
 
         var result = validation.test(value);
 
@@ -355,7 +355,7 @@ class StringValidationHelpersTest {
     @CsvSource(value = {"hello", "Some Text", "123456"})
     void regex_ShouldReturnInvalidResult_ForNoneMatchingRegex(String value) {
         var regex = "hello\\d+";
-        var validation = StringValidationHelpers.regex(regex);
+        var validation = StringValidations.regex(regex);
 
         var result = validation.test(value);
 
@@ -366,7 +366,7 @@ class StringValidationHelpersTest {
 
     @Test
     void regex_ShouldThrowException_ForNullString() {
-        var validation = StringValidationHelpers.regex("hello\\d+");
+        var validation = StringValidations.regex("hello\\d+");
 
         var thrown = catchThrowable(() -> validation.test(null));
 
@@ -377,7 +377,7 @@ class StringValidationHelpersTest {
 
     @Test
     void regex_ShouldThrowException_ForNullRegex() {
-        var thrown = catchThrowable(() -> StringValidationHelpers.regex(null));
+        var thrown = catchThrowable(() -> StringValidations.regex(null));
 
         assertThat(thrown)
                 .isInstanceOf(NullPointerException.class)
@@ -388,7 +388,7 @@ class StringValidationHelpersTest {
     @CsvSource(value = {"hello1234", "12hello34", "heft hello1"})
     void containsRegex_ShouldReturnValidResult_ForSubstringMatchingPattern(String value) {
         var regex = "\\d+";
-        var validation = StringValidationHelpers.containsRegex(regex);
+        var validation = StringValidations.containsRegex(regex);
 
         var result = validation.test(value);
 
@@ -399,7 +399,7 @@ class StringValidationHelpersTest {
     @CsvSource(value = {"hello", "no numbers here", "hello world"})
     void containsRegex_ShouldReturnInvalidResult_ForNoSubstringMatchingPattern(String value) {
         var regex = "\\d+";
-        var validation = StringValidationHelpers.containsRegex(regex);
+        var validation = StringValidations.containsRegex(regex);
 
         var result = validation.test(value);
 
@@ -410,7 +410,7 @@ class StringValidationHelpersTest {
 
     @Test
     void containsRegex_ShouldThrowException_ForNullString() {
-        var validation = StringValidationHelpers.containsRegex("\\d+");
+        var validation = StringValidations.containsRegex("\\d+");
 
         var thrown = catchThrowable(() -> validation.test(null));
 
@@ -421,7 +421,7 @@ class StringValidationHelpersTest {
 
     @Test
     void containsRegex_ShouldThrowException_ForNullRegex() {
-        var thrown = catchThrowable(() -> StringValidationHelpers.containsRegex(null));
+        var thrown = catchThrowable(() -> StringValidations.containsRegex(null));
 
         assertThat(thrown)
                 .isInstanceOf(NullPointerException.class)
@@ -430,7 +430,7 @@ class StringValidationHelpersTest {
 
     @Test
     void startsWith_ShouldReturnValidResult_ForStringWithPrefix() {
-        var validation = StringValidationHelpers.startsWith("prefix");
+        var validation = StringValidations.startsWith("prefix");
 
         var result = validation.test("prefixString");
 
@@ -440,7 +440,7 @@ class StringValidationHelpersTest {
     @ParameterizedTest
     @CsvSource(value = {"someString", "PrefiXString"})
     void startsWith_ShouldReturnInvalidResult_ForNotStartingWithPrefix(String value) {
-        var validation = StringValidationHelpers.startsWith("prefix");
+        var validation = StringValidations.startsWith("prefix");
 
         var result = validation.test(value);
 
@@ -451,7 +451,7 @@ class StringValidationHelpersTest {
 
     @Test
     void startsWith_ShouldThrowException_ForNullString() {
-        var validation = StringValidationHelpers.startsWith("prefix");
+        var validation = StringValidations.startsWith("prefix");
 
         var thrown = catchThrowable(() -> validation.test(null));
 
@@ -462,7 +462,7 @@ class StringValidationHelpersTest {
 
     @Test
     void startsWith_ShouldThrowException_ForNullPrefix() {
-       var thrown = catchThrowable(() -> StringValidationHelpers.startsWith(null));
+       var thrown = catchThrowable(() -> StringValidations.startsWith(null));
 
         assertThat(thrown)
                 .isInstanceOf(NullPointerException.class)
@@ -472,7 +472,7 @@ class StringValidationHelpersTest {
     @ParameterizedTest
     @CsvSource(value = {"PrefixString", "prefixString"})
     void startsWithIgnoreCase_ShouldReturnValidResult_ForStringWithPrefix(String value) {
-        var validation = StringValidationHelpers.startsWithIgnoreCase("prefix");
+        var validation = StringValidations.startsWithIgnoreCase("prefix");
 
         var result = validation.test(value);
 
@@ -482,7 +482,7 @@ class StringValidationHelpersTest {
     @ParameterizedTest
     @CsvSource(value = {"someString", "PreFiString"})
     void startsWithIgnoreCase_ShouldReturnInvalidResult_ForNotStartingWithPrefix(String value) {
-        var validation = StringValidationHelpers.startsWithIgnoreCase("Prefix");
+        var validation = StringValidations.startsWithIgnoreCase("Prefix");
 
         var result = validation.test(value);
 
@@ -493,7 +493,7 @@ class StringValidationHelpersTest {
 
     @Test
     void startsWithIgnoreCase_ShouldThrowException_ForNullString() {
-        var validation = StringValidationHelpers.startsWithIgnoreCase("prefix");
+        var validation = StringValidations.startsWithIgnoreCase("prefix");
 
         var thrown = catchThrowable(() -> validation.test(null));
 
@@ -504,7 +504,7 @@ class StringValidationHelpersTest {
 
     @Test
     void startsWithIgnoreCase_ShouldThrowException_ForNullPrefix() {
-        var validation = StringValidationHelpers.startsWithIgnoreCase(null);
+        var validation = StringValidations.startsWithIgnoreCase(null);
 
         var thrown = catchThrowable(() -> validation.test("someString"));
 
@@ -515,7 +515,7 @@ class StringValidationHelpersTest {
 
     @Test
     void endsWith_ShouldReturnValidResult_ForStringWithSuffix() {
-        var validation = StringValidationHelpers.endsWith("Suffix");
+        var validation = StringValidations.endsWith("Suffix");
 
         var result = validation.test("stringWithSuffix");
 
@@ -525,7 +525,7 @@ class StringValidationHelpersTest {
     @ParameterizedTest
     @CsvSource(value = {"string", "strIngsuffiX"})
     void endsWith_ShouldReturnInvalidResult_ForStringNotEndingWithSuffix(String value) {
-        var validation = StringValidationHelpers.endsWith("Suffix");
+        var validation = StringValidations.endsWith("Suffix");
 
         var result = validation.test(value);
 
@@ -536,7 +536,7 @@ class StringValidationHelpersTest {
 
     @Test
     void endsWith_ShouldThrowException_ForNullString() {
-        var validation = StringValidationHelpers.endsWith("suffix");
+        var validation = StringValidations.endsWith("suffix");
 
         var thrown = catchThrowable(() -> validation.test(null));
 
@@ -547,7 +547,7 @@ class StringValidationHelpersTest {
 
     @Test
     void endsWith_ShouldThrowException_ForNullSuffix() {
-        var thrown = catchThrowable(() -> StringValidationHelpers.endsWith(null));
+        var thrown = catchThrowable(() -> StringValidations.endsWith(null));
 
         assertThat(thrown)
                 .isInstanceOf(NullPointerException.class)
@@ -557,7 +557,7 @@ class StringValidationHelpersTest {
     @ParameterizedTest
     @CsvSource(value = {"StringWithSuffix", "StringsuFFix"})
     void endsWithIgnoreCase_ShouldReturnValidResult_ForStringWithSuffix(String value) {
-        var validation = StringValidationHelpers.endsWithIgnoreCase("Suffix");
+        var validation = StringValidations.endsWithIgnoreCase("Suffix");
 
         var result = validation.test(value);
 
@@ -567,7 +567,7 @@ class StringValidationHelpersTest {
     @ParameterizedTest
     @CsvSource(value = {"string", "strIngsuffi"})
     void endsWithIgnoreCase_ShouldReturnInvalidResult_ForStringNotEndingWithSuffix(String value) {
-        var validation = StringValidationHelpers.endsWithIgnoreCase("Suffix");
+        var validation = StringValidations.endsWithIgnoreCase("Suffix");
 
         var result = validation.test(value);
 
@@ -578,7 +578,7 @@ class StringValidationHelpersTest {
 
     @Test
     void endsWithIgnoreCase_ShouldThrowException_ForNullString() {
-        var validation = StringValidationHelpers.endsWithIgnoreCase("suffix");
+        var validation = StringValidations.endsWithIgnoreCase("suffix");
 
         var thrown = catchThrowable(() -> validation.test(null));
 
@@ -589,7 +589,7 @@ class StringValidationHelpersTest {
 
     @Test
     void endsWithIgnoreCase_ShouldThrowException_ForNullSuffix() {
-        var validation = StringValidationHelpers.endsWithIgnoreCase(null);
+        var validation = StringValidations.endsWithIgnoreCase(null);
 
         var thrown = catchThrowable(() -> validation.test("someString"));
 

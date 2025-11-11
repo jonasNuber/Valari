@@ -1,16 +1,10 @@
 package io.github.jonasnuber.valari.core;
 
-import io.github.jonasnuber.valari.api.LabelType;
-import io.github.jonasnuber.valari.api.ValidationDescriptor;
-import io.github.jonasnuber.valari.api.ValidationResultCollection;
-import io.github.jonasnuber.valari.core.strategies.ValidationStrategy;
+import io.github.jonasnuber.valari.api.*;
+import io.github.jonasnuber.valari.api.ValidationStrategy;
 import io.github.jonasnuber.valari.core.bindings.ParameterRuleBinding;
 import io.github.jonasnuber.valari.core.strategies.CollectFailuresStrategy;
 import io.github.jonasnuber.valari.core.strategies.FailFastStrategy;
-import io.github.jonasnuber.valari.api.NoInputValidator;
-import io.github.jonasnuber.valari.api.ThrowingResult;
-import io.github.jonasnuber.valari.api.Validation;
-import io.github.jonasnuber.valari.core.bindings.RuleBinding;
 import io.github.jonasnuber.valari.api.exceptions.AggregatedValidationException;
 
 import java.util.ArrayList;
@@ -46,7 +40,7 @@ import java.util.Objects;
 @SuppressWarnings("java:S119")
 public class ConstructorValidator<TYPE> implements NoInputValidator<ValidationResultCollection> {
     private final Class<TYPE> clazz;
-    private final List<NoInputValidator<ThrowingResult>> parameterValidators = new ArrayList<>();
+    private final List<NoInputValidator<? extends ThrowableResult<?>>> parameterValidators = new ArrayList<>();
 
     private ValidationStrategy<ValidationResultCollection> validationStrategy = new CollectFailuresStrategy();
 

@@ -1,8 +1,8 @@
-package io.github.jonasnuber.valari.api.helpers;
+package io.github.jonasnuber.valari.core.validations;
 
-import io.github.jonasnuber.valari.api.SimpleValidation;
 import io.github.jonasnuber.valari.api.ValidationMetadata;
 import io.github.jonasnuber.valari.api.Validation;
+import io.github.jonasnuber.valari.core.SimpleValidation;
 
 import java.util.Objects;
 
@@ -12,9 +12,9 @@ import java.util.Objects;
  *
  * @author Jonas Nuber
  */
-public final class ObjectValidationHelpers {
+public final class ObjectValidations {
 
-    private ObjectValidationHelpers() throws IllegalAccessException {
+    private ObjectValidations() throws IllegalAccessException {
         throw new IllegalAccessException("ObjectValidationHelpers is a utility class and cannot be instantiated");
     }
 

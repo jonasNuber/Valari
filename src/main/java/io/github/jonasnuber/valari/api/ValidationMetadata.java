@@ -1,5 +1,7 @@
 package io.github.jonasnuber.valari.api;
 
+import io.github.jonasnuber.valari.core.ValidationResult;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;

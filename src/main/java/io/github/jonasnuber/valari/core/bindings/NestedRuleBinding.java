@@ -1,11 +1,10 @@
 package io.github.jonasnuber.valari.core.bindings;
 
-import io.github.jonasnuber.valari.api.ValidationDescriptor;
-import io.github.jonasnuber.valari.api.ValidationResultCollection;
+import io.github.jonasnuber.valari.api.*;
 import io.github.jonasnuber.valari.core.DomainValidator;
-import io.github.jonasnuber.valari.api.ValidationResult;
-import io.github.jonasnuber.valari.api.ThrowingResult;
-import io.github.jonasnuber.valari.api.Validator;
+import io.github.jonasnuber.valari.api.RuleBinding;
+import io.github.jonasnuber.valari.core.ValidationResult;
+import io.github.jonasnuber.valari.core.ValidationResultCollection;
 
 import java.util.Objects;
 import java.util.function.Function;
@@ -32,7 +31,7 @@ import java.util.function.Function;
  * @author Jonas Nuber
  */
 @SuppressWarnings("java:S119")
-public final class NestedRuleBinding<TYPE, NESTED> implements RuleBinding<DomainValidator<TYPE>, DomainValidator<NESTED>>, Validator<TYPE, ThrowingResult> {
+public final class NestedRuleBinding<TYPE, NESTED> implements RuleBinding<DomainValidator<TYPE>, DomainValidator<NESTED>>, Validator<TYPE, ValidationResultCollection> {
     private final DomainValidator<TYPE> parent;
     private final ValidationDescriptor validationDescriptor;
     private final Function<TYPE, NESTED> valueExtractor;

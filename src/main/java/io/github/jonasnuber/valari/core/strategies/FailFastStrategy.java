@@ -1,9 +1,7 @@
 package io.github.jonasnuber.valari.core.strategies;
 
-import io.github.jonasnuber.valari.api.ValidationDescriptor;
-import io.github.jonasnuber.valari.api.ValidationResultCollection;
-import io.github.jonasnuber.valari.api.NoInputValidator;
-import io.github.jonasnuber.valari.api.ThrowingResult;
+import io.github.jonasnuber.valari.api.*;
+import io.github.jonasnuber.valari.core.ValidationResultCollection;
 
 import java.util.List;
 import java.util.Objects;
@@ -41,14 +39,14 @@ public final class FailFastStrategy implements ValidationStrategy<ValidationResu
      * @throws NullPointerException if either parameter is {@code null}
      */
     @Override
-    public ValidationResultCollection validate(List<NoInputValidator<ThrowingResult>> validators, ValidationDescriptor validationDescriptor) {
+    public ValidationResultCollection validate(List<NoInputValidator<? extends ThrowableResult<?>>> validators, ValidationDescriptor validationDescriptor) {
         Objects.requireNonNull(validators, "Validations to validate Object by must not be null");
         Objects.requireNonNull(validationDescriptor, "The descriptor of the validation must not be null");
 
         ValidationResultCollection results = new ValidationResultCollection(validationDescriptor);
 
-        for (NoInputValidator<ThrowingResult> validator : validators) {
-            ThrowingResult result = validator.validate();
+        for (NoInputValidator<? extends ThrowableResult<?>> validator : validators) {
+            ThrowableResult<?> result = validator.validate();
 
             if (result.isInvalid()) {
                 results.add(result);

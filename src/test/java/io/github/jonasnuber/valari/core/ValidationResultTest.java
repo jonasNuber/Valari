@@ -1,5 +1,8 @@
-package io.github.jonasnuber.valari.api;
+package io.github.jonasnuber.valari.core;
 
+import io.github.jonasnuber.valari.api.LabelType;
+import io.github.jonasnuber.valari.api.ValidationMetadata;
+import io.github.jonasnuber.valari.api.ValidationState;
 import io.github.jonasnuber.valari.api.exceptions.InvalidAttributeValueException;
 import io.github.jonasnuber.valari.api.i18n.ResourceBundleMessageResolver;
 import org.junit.jupiter.api.Test;

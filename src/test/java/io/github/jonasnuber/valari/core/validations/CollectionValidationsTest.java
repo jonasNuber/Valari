@@ -1,4 +1,4 @@
-package io.github.jonasnuber.valari.api.helpers;
+package io.github.jonasnuber.valari.core.validations;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -11,12 +11,12 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
-class CollectionValidationHelpersTest {
+class CollectionValidationsTest {
 
     @Test
     void notEmpty_ShouldReturnValidResult_ForNotEmptyCollection() {
         var collection = List.of("String1", "String2");
-        var validation = CollectionValidationHelpers.notEmpty();
+        var validation = CollectionValidations.notEmpty();
 
         var result = validation.test(collection);
 
@@ -34,7 +34,7 @@ class CollectionValidationHelpersTest {
     @ParameterizedTest(name = "Test with empty input collection: {0}")
     @MethodSource("emptyCollectionValues")
     void notEmpty_ShouldReturnInvalidResult_ForEmptyCollection(Collection<?> emptyCollection) {
-        var validation = CollectionValidationHelpers.notEmpty();
+        var validation = CollectionValidations.notEmpty();
 
         var result = validation.test(emptyCollection);
 
@@ -48,7 +48,7 @@ class CollectionValidationHelpersTest {
         var minSize = 3;
         var maxSize = 5;
         var collection = List.of("Element1", "Element2", "Element3", "Element4");
-        var validation = CollectionValidationHelpers.sizeBetween(minSize, maxSize);
+        var validation = CollectionValidations.sizeBetween(minSize, maxSize);
 
         var result = validation.test(collection);
 
@@ -69,7 +69,7 @@ class CollectionValidationHelpersTest {
     void sizeBetween_ShouldReturnInvalidResult_ForVariousCollectionSizes(Collection<?> collection) {
         var minSize = 3;
         var maxSize = 5;
-        var validation = CollectionValidationHelpers.sizeBetween(minSize, maxSize);
+        var validation = CollectionValidations.sizeBetween(minSize, maxSize);
 
         var result = validation.test(collection);
 
@@ -80,7 +80,7 @@ class CollectionValidationHelpersTest {
 
     @Test
     void sizeBetween_ShouldThrowException_ForNullCollection() {
-        var validation = CollectionValidationHelpers.sizeBetween(0,2);
+        var validation = CollectionValidations.sizeBetween(0,2);
 
         var thrown = catchThrowable(() -> validation.test(null));
 
@@ -93,7 +93,7 @@ class CollectionValidationHelpersTest {
     void contains_ShouldReturnValidResult_ForContainingObject() {
         var objectToContain = "String";
         var collection = Set.of(objectToContain, "OtherString");
-        var validation = CollectionValidationHelpers.contains(objectToContain);
+        var validation = CollectionValidations.contains(objectToContain);
 
         var result = validation.test(collection);
 
@@ -104,7 +104,7 @@ class CollectionValidationHelpersTest {
     void contains_ShouldReturnInvalidResult_ForNotContainingObject() {
         var objectToContain = "String";
         var collection = Set.of("OtherString");
-        var validation = CollectionValidationHelpers.contains(objectToContain);
+        var validation = CollectionValidations.contains(objectToContain);
 
         var result = validation.test(collection);
 
@@ -115,7 +115,7 @@ class CollectionValidationHelpersTest {
 
     @Test
     void contains_ShouldThrowException_ForNullCollection() {
-        var validation = CollectionValidationHelpers.contains("Value");
+        var validation = CollectionValidations.contains("Value");
 
         var thrown = catchThrowable(() -> validation.test(null));
 
@@ -126,7 +126,7 @@ class CollectionValidationHelpersTest {
 
     @Test
     void contains_ShouldThrowException_ForNullValueToContain() {
-        var thrown = catchThrowable(() -> CollectionValidationHelpers.contains(null));
+        var thrown = catchThrowable(() -> CollectionValidations.contains(null));
 
         assertThat(thrown)
                 .isInstanceOf(NullPointerException.class)
@@ -138,7 +138,7 @@ class CollectionValidationHelpersTest {
         var collection = new ArrayList<String>();
         collection.add("someValue");
         collection.add(null);
-        var validation = CollectionValidationHelpers.<String>hasNullElements();
+        var validation = CollectionValidations.<String>hasNullElements();
 
         var result = validation.test(collection);
 
@@ -148,7 +148,7 @@ class CollectionValidationHelpersTest {
     @Test
     void hasNullElements_ShouldReturnInvalidResult_ForNoNullElements() {
         var collection = List.of("someValue", "SomeOtherValue");
-        var validation = CollectionValidationHelpers.<String>hasNullElements();
+        var validation = CollectionValidations.<String>hasNullElements();
 
         var result = validation.test(collection);
 
@@ -159,7 +159,7 @@ class CollectionValidationHelpersTest {
 
     @Test
     void hasNullElements_ShouldThrowException_ForNullCollection() {
-        var validation = CollectionValidationHelpers.hasNullElements();
+        var validation = CollectionValidations.hasNullElements();
 
         var thrown = catchThrowable(() -> validation.test(null));
 
@@ -171,7 +171,7 @@ class CollectionValidationHelpersTest {
     @Test
     void noNullElements_ShouldReturnValidResult_ForNoNullElements() {
         var collection = List.of("someValue", "SomeOtherValue");
-        var validation = CollectionValidationHelpers.<String>noNullElements();
+        var validation = CollectionValidations.<String>noNullElements();
 
         var result = validation.test(collection);
 
@@ -183,7 +183,7 @@ class CollectionValidationHelpersTest {
         var collection = new ArrayList<String>();
         collection.add("someValue");
         collection.add(null);
-        var validation = CollectionValidationHelpers.<String>noNullElements();
+        var validation = CollectionValidations.<String>noNullElements();
 
         var result = validation.test(collection);
 
@@ -194,7 +194,7 @@ class CollectionValidationHelpersTest {
 
     @Test
     void noNullElements_ShouldThrowException_ForNullCollection() {
-        var validation = CollectionValidationHelpers.noNullElements();
+        var validation = CollectionValidations.noNullElements();
 
         var thrown = catchThrowable(() -> validation.test(null));
 
@@ -207,7 +207,7 @@ class CollectionValidationHelpersTest {
     void allMatch_ShouldReturnValidResult_ForAllElementsMatchingPredicate() {
         Predicate<String> predicate = s -> s.length() > 2;
         var collection = Set.of("String", "OtherValue", "AndAnother");
-        var validation = CollectionValidationHelpers.allMatch(predicate);
+        var validation = CollectionValidations.allMatch(predicate);
 
         var result = validation.test(collection);
 
@@ -218,7 +218,7 @@ class CollectionValidationHelpersTest {
     void allMatch_ShouldReturnInvalidResult_ForNotAllElementsMatchingPredicate() {
         Predicate<String> predicate = s -> s.length() > 5;
         var collection = Set.of("String", "value", "1234");
-        var validation = CollectionValidationHelpers.allMatch(predicate);
+        var validation = CollectionValidations.allMatch(predicate);
 
         var result = validation.test(collection);
 
@@ -229,7 +229,7 @@ class CollectionValidationHelpersTest {
 
     @Test
     void allMatch_ShouldThrowException_ForNullCollection() {
-        var validation = CollectionValidationHelpers.allMatch(String.class::isInstance);
+        var validation = CollectionValidations.allMatch(String.class::isInstance);
 
         var thrown = catchThrowable(() -> validation.test(null));
 
@@ -240,7 +240,7 @@ class CollectionValidationHelpersTest {
 
     @Test
     void allMatch_ShouldThrowException_ForNullPredicate() {
-        var validation = CollectionValidationHelpers.allMatch(null);
+        var validation = CollectionValidations.allMatch(null);
 
         var thrown = catchThrowable(() -> validation.test(Collections.emptySet()));
 
@@ -253,7 +253,7 @@ class CollectionValidationHelpersTest {
     void anyMatch_ShouldReturnValidResult_ForAnyElementsMatchingPredicate() {
         Predicate<String> predicate = s -> s.length() > 2;
         var collection = Set.of("String", "I", "123");
-        var validation = CollectionValidationHelpers.anyMatch(predicate);
+        var validation = CollectionValidations.anyMatch(predicate);
 
         var result = validation.test(collection);
 
@@ -264,7 +264,7 @@ class CollectionValidationHelpersTest {
     void anyMatch_ShouldReturnInvalidResult_ForNoElementsMatchingPredicate() {
         Predicate<String> predicate = s -> s.length() > 5;
         var collection = Set.of("sad", "value", "1234");
-        var validation = CollectionValidationHelpers.anyMatch(predicate);
+        var validation = CollectionValidations.anyMatch(predicate);
 
         var result = validation.test(collection);
 
@@ -275,7 +275,7 @@ class CollectionValidationHelpersTest {
 
     @Test
     void anyMatch_ShouldThrowException_ForNullCollection() {
-        var validation = CollectionValidationHelpers.anyMatch(String.class::isInstance);
+        var validation = CollectionValidations.anyMatch(String.class::isInstance);
 
         var thrown = catchThrowable(() -> validation.test(null));
 
@@ -286,7 +286,7 @@ class CollectionValidationHelpersTest {
 
     @Test
     void anyMatch_ShouldThrowException_ForNullPredicate() {
-        var validation = CollectionValidationHelpers.anyMatch(null);
+        var validation = CollectionValidations.anyMatch(null);
 
         var thrown = catchThrowable(() -> validation.test(Collections.emptySet()));
 
@@ -299,7 +299,7 @@ class CollectionValidationHelpersTest {
     void noneMatch_ShouldReturnValidResult_ForNoElementsMatchingPredicate() {
         Predicate<String> predicate = s -> s.length() < 2;
         var collection = Set.of("String", "Sad", "123");
-        var validation = CollectionValidationHelpers.noneMatch(predicate);
+        var validation = CollectionValidations.noneMatch(predicate);
 
         var result = validation.test(collection);
 
@@ -310,7 +310,7 @@ class CollectionValidationHelpersTest {
     void noneMatch_ShouldReturnInvalidResult_ForElementsMatchingPredicate() {
         Predicate<String> predicate = s -> s.length() <= 5;
         var collection = Set.of("sad", "value", "1234");
-        var validation = CollectionValidationHelpers.noneMatch(predicate);
+        var validation = CollectionValidations.noneMatch(predicate);
 
         var result = validation.test(collection);
 
@@ -321,7 +321,7 @@ class CollectionValidationHelpersTest {
 
     @Test
     void noneMatch_ShouldThrowException_ForNullCollection() {
-        var validation = CollectionValidationHelpers.noneMatch(String.class::isInstance);
+        var validation = CollectionValidations.noneMatch(String.class::isInstance);
 
         var thrown = catchThrowable(() -> validation.test(null));
 
@@ -332,7 +332,7 @@ class CollectionValidationHelpersTest {
 
     @Test
     void noneMatch_ShouldThrowException_ForNullPredicate() {
-        var validation = CollectionValidationHelpers.noneMatch(null);
+        var validation = CollectionValidations.noneMatch(null);
 
         var thrown = catchThrowable(() -> validation.test(Collections.emptySet()));
 

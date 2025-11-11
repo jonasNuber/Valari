@@ -1,14 +1,12 @@
 package io.github.jonasnuber.valari.core.bindings;
 
 import io.github.jonasnuber.valari.Person;
-import io.github.jonasnuber.valari.api.exceptions.InvalidAttributeValueException;
 import io.github.jonasnuber.valari.api.i18n.MessageResolutionContext;
 import io.github.jonasnuber.valari.core.DomainValidator;
-import io.github.jonasnuber.valari.api.ValidationResult;
-import io.github.jonasnuber.valari.core.bindings.FieldRuleBinding;
+import io.github.jonasnuber.valari.core.ValidationResult;
 import org.junit.jupiter.api.Test;
 
-import static io.github.jonasnuber.valari.api.helpers.StringValidationHelpers.notEmpty;
+import static io.github.jonasnuber.valari.core.validations.StringValidations.notEmpty;
 import static org.assertj.core.api.Assertions.*;
 
 class FieldRuleBindingTest {
@@ -161,26 +159,26 @@ class FieldRuleBindingTest {
                 .hasMessage("No validation rule was set. Call mustSatisfy(...) or ifPresent(...) before validation");
     }
 
-    @Test
-    void validateAndThrow_ShouldNotThrowException_WhenValidationSucceeds() {
-        var validPerson = new Person("Name", 25);
-        var binding = new FieldRuleBinding<>("Name", Person::getName, DomainValidator.of(Person.class));
-        binding.mustSatisfy(notEmpty());
-
-        assertThatCode(() -> binding.validateAndThrow(validPerson))
-                .doesNotThrowAnyException();
-    }
-
-    @Test
-    void validateAndThrow_ShouldThrowException_WhenValidationFails() {
-        var invalidPerson = new Person(null, 25);
-        var binding = new FieldRuleBinding<>("Name", Person::getName, DomainValidator.of(Person.class));
-        binding.mustSatisfy(notEmpty());
-
-        var thrown = catchThrowable(() -> binding.validateAndThrow(invalidPerson));
-
-        assertThat(thrown)
-                .isInstanceOf(InvalidAttributeValueException.class)
-                .hasMessage("The Field \"Name\" is invalid: must not be empty");
-    }
+//    @Test
+//    void validateAndThrow_ShouldNotThrowException_WhenValidationSucceeds() {
+//        var validPerson = new Person("Name", 25);
+//        var binding = new FieldRuleBinding<>("Name", Person::getName, DomainValidator.of(Person.class));
+//        binding.mustSatisfy(notEmpty());
+//
+//        assertThatCode(() -> binding.validateAndThrow(validPerson))
+//                .doesNotThrowAnyException();
+//    }
+//
+//    @Test
+//    void validateAndThrow_ShouldThrowException_WhenValidationFails() {
+//        var invalidPerson = new Person(null, 25);
+//        var binding = new FieldRuleBinding<>("Name", Person::getName, DomainValidator.of(Person.class));
+//        binding.mustSatisfy(notEmpty());
+//
+//        var thrown = catchThrowable(() -> binding.validateAndThrow(invalidPerson));
+//
+//        assertThat(thrown)
+//                .isInstanceOf(InvalidAttributeValueException.class)
+//                .hasMessage("The Field \"Name\" is invalid: must not be empty");
+//    }
 }

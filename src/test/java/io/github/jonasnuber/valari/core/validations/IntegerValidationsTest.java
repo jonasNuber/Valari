@@ -1,4 +1,4 @@
-package io.github.jonasnuber.valari.api.helpers;
+package io.github.jonasnuber.valari.core.validations;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -6,12 +6,12 @@ import org.junit.jupiter.params.provider.CsvSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class IntegerValidationHelpersTest {
+class IntegerValidationsTest {
     
     @Test
     void sameAmount_ShouldReturnValidResult_ForSameAmount() {
         var exact = 5;
-        var validation = IntegerValidationHelpers.sameAmount(exact);
+        var validation = IntegerValidations.sameAmount(exact);
 
         var result = validation.test(exact);
 
@@ -21,7 +21,7 @@ class IntegerValidationHelpersTest {
     @ParameterizedTest
     @CsvSource(value = {"6", "12", "25"})
     void sameAmount_ShouldReturnInvalidResult_ForHigherAmount(int higherValue) {
-        var validation = IntegerValidationHelpers.sameAmount(5);
+        var validation = IntegerValidations.sameAmount(5);
 
         var result = validation.test(higherValue);
 
@@ -33,7 +33,7 @@ class IntegerValidationHelpersTest {
     @ParameterizedTest
     @CsvSource(value = {"2", "4", "0"})
     void sameAmount_ShouldReturnInvalidResult_ForLowerAmount(int lowerValue) {
-        var validation = IntegerValidationHelpers.sameAmount(5);
+        var validation = IntegerValidations.sameAmount(5);
 
         var result = validation.test(lowerValue);
 
@@ -45,7 +45,7 @@ class IntegerValidationHelpersTest {
     @ParameterizedTest
     @CsvSource(value = {"2", "4", "9"})
     void lowerThan_ShouldReturnValidResult_ForLowerAmountThanMax(int lowerValue) {
-        var validation = IntegerValidationHelpers.lowerThan(10);
+        var validation = IntegerValidations.lowerThan(10);
 
         var result = validation.test(lowerValue);
 
@@ -55,7 +55,7 @@ class IntegerValidationHelpersTest {
     @Test
     void lowerThan_ShouldReturnInvalidResult_ForSameAmountThanMax() {
         var max = 10;
-        var validation = IntegerValidationHelpers.lowerThan(max);
+        var validation = IntegerValidations.lowerThan(max);
 
         var result = validation.test(max);
 
@@ -67,7 +67,7 @@ class IntegerValidationHelpersTest {
     @ParameterizedTest
     @CsvSource(value = {"11", "20", "100"})
     void lowerThan_ShouldReturnInValidResult_ForHigherAmountThanMax(int higherValue) {
-        var validation = IntegerValidationHelpers.lowerThan(10);
+        var validation = IntegerValidations.lowerThan(10);
 
         var result = validation.test(higherValue);
 
@@ -79,7 +79,7 @@ class IntegerValidationHelpersTest {
     @ParameterizedTest
     @CsvSource(value = {"4", "42", "69"})
     void greaterThan_ShouldReturnValidResult_ForGreaterAmountThanMin(int greaterValue) {
-        var validation = IntegerValidationHelpers.greaterThan(3);
+        var validation = IntegerValidations.greaterThan(3);
 
         var result = validation.test(greaterValue);
 
@@ -89,7 +89,7 @@ class IntegerValidationHelpersTest {
     @Test
     void greaterThan_ShouldReturnInvalidResult_ForSameAmountThanMin() {
         var min = 3;
-        var validation = IntegerValidationHelpers.greaterThan(min);
+        var validation = IntegerValidations.greaterThan(min);
 
         var result = validation.test(min);
 
@@ -101,7 +101,7 @@ class IntegerValidationHelpersTest {
     @ParameterizedTest
     @CsvSource(value = {"0", "1", "2"})
     void greaterThan_ShouldReturnInvalidResult_ForSmallerAmountThanMin(int smallerValue) {
-        var validation = IntegerValidationHelpers.greaterThan(3);
+        var validation = IntegerValidations.greaterThan(3);
 
         var result = validation.test(smallerValue);
 
@@ -113,7 +113,7 @@ class IntegerValidationHelpersTest {
     @ParameterizedTest
     @CsvSource(value = {"4", "9", "6"})
     void inBetween_ShouldReturnValidResult_ForValueInBetweenMinAndMax(int value) {
-        var validation = IntegerValidationHelpers.inBetween(3, 10);
+        var validation = IntegerValidations.inBetween(3, 10);
 
         var result = validation.test(value);
 
@@ -124,7 +124,7 @@ class IntegerValidationHelpersTest {
     void inBetween_ShouldReturnInvalidResult_ForSameAmountAsMin() {
         var min = 3;
         var max = 10;
-        var validation = IntegerValidationHelpers.inBetween(min, max);
+        var validation = IntegerValidations.inBetween(min, max);
 
         var result = validation.test(min);
 
@@ -137,7 +137,7 @@ class IntegerValidationHelpersTest {
     void inBetween_ShouldReturnInvalidResult_ForSameAmountAsMax() {
         var min = 3;
         var max = 10;
-        var validation = IntegerValidationHelpers.inBetween(min, max);
+        var validation = IntegerValidations.inBetween(min, max);
 
         var result = validation.test(max);
 
@@ -149,7 +149,7 @@ class IntegerValidationHelpersTest {
     @ParameterizedTest
     @CsvSource(value = {"0", "1", "2"})
     void inBetween_ShouldReturnInvalidResult_ForSmallerAmountThanMin(int smallerValue) {
-        var validation = IntegerValidationHelpers.inBetween(3, 10);
+        var validation = IntegerValidations.inBetween(3, 10);
 
         var result = validation.test(smallerValue);
 
@@ -161,7 +161,7 @@ class IntegerValidationHelpersTest {
     @ParameterizedTest
     @CsvSource(value = {"11", "13", "23"})
     void inBetween_ShouldReturnInvalidResult_ForGreaterAmountThanMax(int greaterValue) {
-        var validation = IntegerValidationHelpers.inBetween(3, 10);
+        var validation = IntegerValidations.inBetween(3, 10);
 
         var result = validation.test(greaterValue);
 
@@ -173,7 +173,7 @@ class IntegerValidationHelpersTest {
     @ParameterizedTest
     @CsvSource(value = {"3", "10", "6"})
     void inBetweenInclusive_ShouldReturnValidResult_ForValueInBetweenMinAndMax(int value) {
-        var validation = IntegerValidationHelpers.inBetweenInclusive(3, 10);
+        var validation = IntegerValidations.inBetweenInclusive(3, 10);
 
         var result = validation.test(value);
 
@@ -183,7 +183,7 @@ class IntegerValidationHelpersTest {
     @ParameterizedTest
     @CsvSource(value = {"0", "1", "2"})
     void inBetweenInclusive_ShouldReturnInvalidResult_ForSmallerAmountThanMin(int smallerValue) {
-        var validation = IntegerValidationHelpers.inBetweenInclusive(3, 10);
+        var validation = IntegerValidations.inBetweenInclusive(3, 10);
 
         var result = validation.test(smallerValue);
 
@@ -195,7 +195,7 @@ class IntegerValidationHelpersTest {
     @ParameterizedTest
     @CsvSource(value = {"11", "13", "23"})
     void inBetweenInclusive_ShouldReturnInvalidResult_ForGreaterAmountThanMax(int greaterValue) {
-        var validation = IntegerValidationHelpers.inBetweenInclusive(3, 10);
+        var validation = IntegerValidations.inBetweenInclusive(3, 10);
 
         var result = validation.test(greaterValue);
 
@@ -207,7 +207,7 @@ class IntegerValidationHelpersTest {
     @ParameterizedTest
     @CsvSource(value = {"0", "2", "10"})
     void isEven_ShouldReturnValidResult_ForEvenNumber(int evenNumber) {
-        var validation = IntegerValidationHelpers.isEven();
+        var validation = IntegerValidations.isEven();
 
         var result = validation.test(evenNumber);
 
@@ -217,7 +217,7 @@ class IntegerValidationHelpersTest {
     @ParameterizedTest
     @CsvSource(value = {"1", "3", "239"})
     void isEven_ShouldReturnInvalidResult_ForOddNumber(int oddNumber) {
-        var validation = IntegerValidationHelpers.isEven();
+        var validation = IntegerValidations.isEven();
 
         var result = validation.test(oddNumber);
 
@@ -229,7 +229,7 @@ class IntegerValidationHelpersTest {
     @ParameterizedTest
     @CsvSource(value = {"1", "111", "239"})
     void isOdd_ShouldReturnValidResult_ForOddNumber(int oddNumber) {
-        var validation = IntegerValidationHelpers.isOdd();
+        var validation = IntegerValidations.isOdd();
 
         var result = validation.test(oddNumber);
 
@@ -239,7 +239,7 @@ class IntegerValidationHelpersTest {
     @ParameterizedTest
     @CsvSource(value = {"0", "2", "10"})
     void isOdd_ShouldReturnInvalidResult_ForEvenNumber(int evenNumber) {
-        var validation = IntegerValidationHelpers.isOdd();
+        var validation = IntegerValidations.isOdd();
 
         var result = validation.test(evenNumber);
 

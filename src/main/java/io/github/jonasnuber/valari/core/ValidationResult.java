@@ -1,5 +1,6 @@
-package io.github.jonasnuber.valari.api;
+package io.github.jonasnuber.valari.core;
 
+import io.github.jonasnuber.valari.api.*;
 import io.github.jonasnuber.valari.api.exceptions.InvalidAttributeValueException;
 import io.github.jonasnuber.valari.api.i18n.MessageResolutionContext;
 import io.github.jonasnuber.valari.api.i18n.MessageResolver;
@@ -38,7 +39,7 @@ import java.util.Objects;
  *
  * @author Jonas Nuber
  */
-public final class ValidationResult implements ThrowingResult {
+public final class ValidationResult implements ThrowableResult<ValidationResult> {
     private final String defaultMessage;
     private final String messageKey;
     private final List<Object> messageArguments;
@@ -64,6 +65,7 @@ public final class ValidationResult implements ThrowingResult {
      * @param label the descriptive label (e.g. field name or object name).
      * @return a new {@code ValidationResult} with updated label information.
      */
+    @Override
     public ValidationResult withLabel(LabelType labelType, String label) {
         return new Builder(this)
                 .labelType(labelType)
@@ -86,23 +88,12 @@ public final class ValidationResult implements ThrowingResult {
 
     /**
      * Resolves the validation-specific message (not the full result message).
-     * <p>
-     * This uses the global defaults from {@link MessageResolutionContext}.
-     * </p>
-     *
-     * @return the resolved validation message.
-     */
-    public String resolveValidationMessage() {
-        return resolveValidationMessage(MessageResolutionContext.getResolver(), MessageResolutionContext.getLocale());
-    }
-
-    /**
-     * Resolves the validation-specific message (not the full result message).
      *
      * @param resolver the message resolver to use.
      * @param locale the locale for which to resolve the message.
      * @return the resolved validation message.
      */
+    @Override
     public String resolveValidationMessage(MessageResolver resolver, Locale locale) {
         return resolver.resolve(messageKey, messageArguments, defaultMessage, locale);
     }
@@ -187,11 +178,13 @@ public final class ValidationResult implements ThrowingResult {
     }
 
     /** @return the type of label describing the validated subject. */
+    @Override
     public LabelType getLabelType() {
         return labelType;
     }
 
     /** @return the label (e.g. field name or object name). */
+    @Override
     public String getLabel(){
         return label;
     }

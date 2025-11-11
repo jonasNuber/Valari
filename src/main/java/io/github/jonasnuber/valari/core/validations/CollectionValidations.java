@@ -1,14 +1,14 @@
-package io.github.jonasnuber.valari.api.helpers;
+package io.github.jonasnuber.valari.core.validations;
 
-import io.github.jonasnuber.valari.api.SimpleValidation;
 import io.github.jonasnuber.valari.api.ValidationMetadata;
 import io.github.jonasnuber.valari.api.Validation;
+import io.github.jonasnuber.valari.core.SimpleValidation;
 
 import java.util.Collection;
 import java.util.Objects;
 import java.util.function.Predicate;
 
-import static io.github.jonasnuber.valari.api.helpers.ObjectValidationHelpers.notNull;
+import static io.github.jonasnuber.valari.core.validations.ObjectValidations.notNull;
 
 /**
  * Utility class providing predefined validations for {@link Collection} values.
@@ -22,11 +22,11 @@ import static io.github.jonasnuber.valari.api.helpers.ObjectValidationHelpers.no
  *
  * @author Jonas Nuber
  */
-public final class CollectionValidationHelpers {
+public final class CollectionValidations {
 
     private static final String COLLECTION_MUST_NOT_BE_NULL = "Collection must not be null";
 
-    private CollectionValidationHelpers() throws IllegalAccessException {
+    private CollectionValidations() throws IllegalAccessException {
         throw new IllegalAccessException("Utility classes should not be instantiated");
     }
 

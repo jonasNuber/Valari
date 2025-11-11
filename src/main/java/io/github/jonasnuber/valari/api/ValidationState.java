@@ -1,5 +1,7 @@
 package io.github.jonasnuber.valari.api;
 
+import io.github.jonasnuber.valari.core.ValidationResult;
+
 /**
  * Represents the outcome of a validation.
  * <p>
