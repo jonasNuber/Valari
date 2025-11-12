@@ -43,17 +43,17 @@ public final class FailFastStrategy implements ValidationStrategy<ValidationResu
         Objects.requireNonNull(validators, "Validations to validate Object by must not be null");
         Objects.requireNonNull(validationDescriptor, "The descriptor of the validation must not be null");
 
-        ValidationResultCollection results = new ValidationResultCollection(validationDescriptor);
+        ValidationResultCollection.Builder resultsBuilder = new ValidationResultCollection.Builder(validationDescriptor);
 
         for (NoInputValidator<? extends ThrowableResult<?>> validator : validators) {
             ThrowableResult<?> result = validator.validate();
 
             if (result.isInvalid()) {
-                results.add(result);
-                return results;
+                resultsBuilder.add(result);
+                return resultsBuilder.build();
             }
         }
 
-        return results;
+        return resultsBuilder.build();
     }
 }

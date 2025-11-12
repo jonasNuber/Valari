@@ -1,5 +1,9 @@
 package io.github.jonasnuber.valari.api;
 
+import io.github.jonasnuber.valari.api.i18n.MessageResolutionContext;
+import io.github.jonasnuber.valari.api.i18n.MessageResolver;
+
+import java.util.Locale;
 import java.util.Objects;
 
 /**
@@ -41,54 +45,64 @@ import java.util.Objects;
  * @author Jonas Nuber
  */
 public final class LabelType {
-    private final String name;
+    private final String key;
     
-    private LabelType(String name) {
-        this.name = name;
+    private LabelType(String key) {
+        this.key = Objects.requireNonNull(key ,"Key might not be null");
     }
 
     /** Predefined label type for object fields. */
-    public static final LabelType FIELD = new LabelType("Field");
+    public static final LabelType FIELD = new LabelType("labeltype.field");
 
     /** Predefined label type for method or function parameters. */
-    public static final LabelType PARAMETER = new LabelType("Parameter");
+    public static final LabelType PARAMETER = new LabelType("labeltype.parameter");
 
     /** Predefined label type for attributes or metadata values. */
-    public static final LabelType ATTRIBUTE = new LabelType("Attribute");
+    public static final LabelType ATTRIBUTE = new LabelType("labeltype.attribute");
 
     /** Predefined label type for plain values. */
-    public static final LabelType VALUE = new LabelType("Value");
+    public static final LabelType VALUE = new LabelType("labeltype.value");
 
     /** Predefined label type for bean or configuration properties. */
-    public static final LabelType PROPERTY = new LabelType("Property");
+    public static final LabelType PROPERTY = new LabelType("labeltype.property");
 
     /** Generic fallback label type when no specific type is provided. */
-    public static final LabelType SUBJECT = new LabelType("Subject");
+    public static final LabelType SUBJECT = new LabelType("labeltype.subject");
 
-    /**
-     * Creates a custom {@code LabelType} with the given name.
-     *
-     * @param name the name for the custom label type
-     * @return a new {@code LabelType} instance
-     */
-    public static LabelType of(String name) {
-        return new LabelType(name);
+    public static LabelType of(String key) {
+        return new LabelType(Objects.requireNonNull(key, "Key must not be null"));
+    }
+
+    public String get() {
+        return localize(MessageResolutionContext.getResolver(), MessageResolutionContext.getLocale());
+    }
+
+    public String localize(MessageResolver resolver, Locale locale) {
+        return resolver.resolveOrDefault(key, locale, defaultLabel());
+    }
+
+    public String defaultLabel() {
+        return Character.toUpperCase(key.charAt(0)) + key.substring(1);
+    }
+
+    public String getKey() {
+        return key;
     }
 
     @Override
     public String toString() {
-        return name;
+        return get();
     }
 
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         LabelType labelType = (LabelType) o;
-        return Objects.equals(name, labelType.name);
+        return Objects.equals(key, labelType.key);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(name);
+        return Objects.hashCode(key);
     }
 }

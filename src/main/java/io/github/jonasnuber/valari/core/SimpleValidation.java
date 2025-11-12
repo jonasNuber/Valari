@@ -36,7 +36,6 @@ import java.util.function.Predicate;
  */
 @SuppressWarnings("java:S119")
 public class SimpleValidation<TYPE> implements Validation<TYPE> {
-
 	private final Predicate<TYPE> predicate;
 	private final ValidationMetadata metadata;
 

@@ -115,15 +115,15 @@ public final class NestedRuleBinding<TYPE, NESTED> implements RuleBinding<Domain
         }
 
         NESTED value = valueExtractor.apply(toValidate);
-        ValidationResultCollection resultCollection = new ValidationResultCollection(validationDescriptor);
+        ValidationResultCollection.Builder builder = new ValidationResultCollection.Builder(validationDescriptor);
 
         if (shouldSkipValidation(value)) {
-            return resultCollection;
+            return builder.build();
         }
 
-        resultCollection.addAll(compositeValidator.validate(value).getResults());
+        builder.addAll(compositeValidator.validate(value).getResults());
 
-        return resultCollection;
+        return builder.build();
     }
 
     private boolean shouldSkipValidation(NESTED value) {

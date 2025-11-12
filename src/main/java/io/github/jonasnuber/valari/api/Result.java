@@ -50,10 +50,6 @@ public interface Result<SELF extends Result<SELF>> {
 
     SELF withLabel(LabelType labelType, String label);
 
-    LabelType getLabelType();
-
-    String getLabel();
-
     /**
      * Returns whether this result represents a valid outcome.
      *

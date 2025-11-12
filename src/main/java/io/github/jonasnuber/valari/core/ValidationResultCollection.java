@@ -35,55 +35,40 @@ import java.util.*;
  * @author Jonas Nuber
  */
 public final class ValidationResultCollection implements AggregatedResult<ValidationResultCollection> {
-
-  private final List<ThrowableResult<?>> results = new ArrayList<>();
   private final ValidationDescriptor validationDescriptor;
+  private final List<ThrowableResult<?>> results;
 
   /**
    * Creates a new collection for the given class.
-   *
-   * @param validationDescriptor the metadata for the given Validation
    */
-  public ValidationResultCollection(ValidationDescriptor validationDescriptor) {
-    this.validationDescriptor = validationDescriptor;
+  private ValidationResultCollection(Builder builder) {
+    this.validationDescriptor = builder.descriptor;
+    this.results = Collections.unmodifiableList(builder.results);
+  }
+
+  @Override
+  public ValidationResultCollection withLabel(LabelType labelType, String label) {
+    ValidationDescriptor newDescriptor = ValidationDescriptor.builder()
+            .labelType(labelType)
+            .label(label)
+            .validationClass(validationDescriptor.getValidationClass())
+            .build();
+
+    return new Builder(newDescriptor)
+            .addAll(results)
+            .build();
+  }
+
+  public ValidationDescriptor getValidationDescriptor() {
+    return validationDescriptor;
   }
 
   /**
-   * Adds a validation result to this collection.
-   *
-   * @param result the result to add, must not be {@code null}
-   */
-  public void add(ThrowableResult<?> result) {
-    results.add(Objects.requireNonNull(result, "ValidationResult cannot be added if null"));
-  }
-
-  public void addAll(Collection<ThrowableResult<?>> results) {
-    this.results.addAll(results);
-  }
-
-  /**
-   * @return the list of contained validation results (mutable view).
+   * @return the list of contained validation results.
    */
   @Override
   public List<ThrowableResult<?>> getResults() {
     return results;
-  }
-
-  @Override
-  public LabelType getLabelType() {
-    return validationDescriptor.getLabelType();
-  }
-
-  @Override
-  public String getLabel() {
-    return validationDescriptor.getLabel();
-  }
-
-  /**
-   * @return the class type that was validated
-   */
-  public Class<?> getValidationClass() {
-    return validationDescriptor.getValidationClass();
   }
 
   /**
@@ -109,7 +94,39 @@ public final class ValidationResultCollection implements AggregatedResult<Valida
 
   @Override
   public String resolveValidationMessage(MessageResolver resolver, Locale locale) {
-    return "";
+    return switch (getState()) {
+      case SUCCESS -> resolver.resolve(
+              "validation.result.aggregated.success",
+              List.of(
+                      validationDescriptor.getLabelType().localize(resolver, locale),
+                      validationDescriptor.getLabel(),
+                      validationDescriptor.getValidationClass()
+              ),
+              "Validation for {0} \"{1}\" ({2}) succeeded:",
+              locale
+      );
+      case SKIPPED -> resolver.resolve(
+              "validation.result.aggregated.skipped",
+              List.of(
+                      validationDescriptor.getLabelType().localize(resolver, locale),
+                      validationDescriptor.getLabel(),
+                      validationDescriptor.getValidationClass()
+              ),
+              "Validation for {0} \"{1}\" ({2}) was skipped entirely.",
+              locale
+      );
+      case FAILURE -> resolver.resolve(
+              "validation.result.aggregated.failure",
+              List.of(
+                      validationDescriptor.getLabelType().localize(resolver, locale),
+                      validationDescriptor.getLabel(),
+                      validationDescriptor.getValidationClass(),
+                      countFailures()
+              ),
+              "Validation for {0} \"{1}\" ({2}) failed with {3} error(s):",
+              locale
+      );
+    };
   }
 
   /**
@@ -127,11 +144,6 @@ public final class ValidationResultCollection implements AggregatedResult<Valida
     buildDetailedMessage(sb, 0, resolver, locale);
 
     return sb.toString();
-  }
-
-  @Override
-  public ValidationResultCollection withLabel(LabelType labelType, String label) {
-    return null;
   }
 
   @Override
@@ -158,41 +170,7 @@ public final class ValidationResultCollection implements AggregatedResult<Valida
 
     sb
             .append(indent.repeat(depth))
-            .append(
-                    switch (getState()) {
-                      case SUCCESS -> resolver.resolve(
-                              "validation.result.aggregated.success",
-                              List.of(
-                                      validationDescriptor.getLabelType(),
-                                      validationDescriptor.getLabel(),
-                                      validationDescriptor.getValidationClass()
-                              ),
-                              "Validation for {0} \"{1}\" ({2}) succeeded:",
-                              locale
-                      );
-                      case SKIPPED -> resolver.resolve(
-                              "validation.result.aggregated.skipped",
-                              List.of(
-                                      validationDescriptor.getLabelType(),
-                                      validationDescriptor.getLabel(),
-                                      validationDescriptor.getValidationClass()
-                              ),
-                              "Validation for {0} \"{1}\" ({2}) was skipped entirely.",
-                              locale
-                      );
-                      case FAILURE -> resolver.resolve(
-                              "validation.result.aggregated.failure",
-                              List.of(
-                                      validationDescriptor.getLabelType(),
-                                      validationDescriptor.getLabel(),
-                                      validationDescriptor.getValidationClass(),
-                                      countFailures()
-                              ),
-                              "Validation for {0} \"{1}\" ({2}) failed with {3} error(s):",
-                              locale
-                      );
-                    }
-            )
+            .append(resolveValidationMessage(resolver, locale))
             .append(System.lineSeparator());
 
     List<ThrowableResult<?>> currentResults = results;
@@ -222,7 +200,7 @@ public final class ValidationResultCollection implements AggregatedResult<Valida
                       case SUCCESS -> resolver.resolve(
                               "validation.result.aggregated.success",
                               List.of(
-                                      validationDescriptor.getLabelType(),
+                                      validationDescriptor.getLabelType().localize(resolver, locale),
                                       validationDescriptor.getLabel(),
                                       validationDescriptor.getValidationClass().getSimpleName()
                               ),
@@ -232,7 +210,7 @@ public final class ValidationResultCollection implements AggregatedResult<Valida
                       case SKIPPED -> resolver.resolve(
                               "validation.result.aggregated.skipped",
                               List.of(
-                                      validationDescriptor.getLabelType(),
+                                      validationDescriptor.getLabelType().localize(resolver, locale),
                                       validationDescriptor.getLabel(),
                                       validationDescriptor.getValidationClass().getSimpleName()
                               ),
@@ -242,7 +220,7 @@ public final class ValidationResultCollection implements AggregatedResult<Valida
                       case FAILURE -> resolver.resolve(
                               "validation.result.aggregated.failure",
                               List.of(
-                                      validationDescriptor.getLabelType(),
+                                      validationDescriptor.getLabelType().localize(resolver, locale),
                                       validationDescriptor.getLabel(),
                                       validationDescriptor.getValidationClass().getSimpleName(),
                                       countFailures()
@@ -279,8 +257,33 @@ public final class ValidationResultCollection implements AggregatedResult<Valida
   }
 
   private long countFailures() {
-    return results.stream()
-            .filter(r -> r.getState() == ValidationState.FAILURE)
-            .count();
+    return getFailedResults().size();
+  }
+
+  public static class Builder {
+    private final ValidationDescriptor descriptor;
+    private final List<ThrowableResult<?>> results = new ArrayList<>();
+
+    public Builder(ValidationDescriptor descriptor) {
+      this.descriptor = descriptor;
+    }
+
+    public Builder add(ThrowableResult<?> result) {
+      results.add(Objects.requireNonNull(result, "ValidationResult cannot be added if null"));
+
+      return this;
+    }
+
+    public Builder addAll(Collection<ThrowableResult<?>> results) {
+      for(ThrowableResult<?> result : results) {
+        add(result);
+      }
+
+      return this;
+    }
+
+    public ValidationResultCollection build() {
+      return new ValidationResultCollection(this);
+    }
   }
 }

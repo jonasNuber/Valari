@@ -24,6 +24,6 @@ public interface ThrowableResult<SELF extends ThrowableResult<SELF>> extends Res
      * @throws RuntimeException if the state is invalid.
      */
     default void throwIfInvalid(Function<String, ? extends RuntimeException> exceptionFactory) {
-        if (isInvalid()) throw exceptionFactory.apply(getDetailedMessage());
+        if (isInvalid()) throw exceptionFactory.apply(System.lineSeparator() + getDetailedMessage());
     }
 }

@@ -40,20 +40,17 @@ import java.util.Objects;
  * @author Jonas Nuber
  */
 public final class ValidationResult implements ThrowableResult<ValidationResult> {
-    private final String defaultMessage;
-    private final String messageKey;
-    private final List<Object> messageArguments;
-    private final LabelType labelType;
-    private final String label;
+    private final ValidationMetadata metadata;
     private final Object value;
     private final ValidationState state;
 
     private ValidationResult(Builder builder) {
-        this.defaultMessage = builder.defaultMessage;
-        this.messageKey = builder.messageKey;
-        this.messageArguments = builder.messageArguments;
-        this.labelType = builder.labelType;
-        this.label = builder.label;
+        metadata = new ValidationMetadata.Builder(builder.defaultMessage)
+                .messageKey(builder.messageKey)
+                .messageArguments(builder.messageArguments.toArray())
+                .labelType(builder.labelType)
+                .label(builder.label)
+                .build();
         this.value = builder.value;
         this.state = builder.state;
     }
@@ -62,7 +59,7 @@ public final class ValidationResult implements ThrowableResult<ValidationResult>
      * Returns a copy of this result with an updated label and label type.
      *
      * @param labelType the new label type describing the subject (e.g. FIELD, ATTRIBUTE).
-     * @param label the descriptive label (e.g. field name or object name).
+     * @param label     the descriptive label (e.g. field name or object name).
      * @return a new {@code ValidationResult} with updated label information.
      */
     @Override
@@ -90,12 +87,12 @@ public final class ValidationResult implements ThrowableResult<ValidationResult>
      * Resolves the validation-specific message (not the full result message).
      *
      * @param resolver the message resolver to use.
-     * @param locale the locale for which to resolve the message.
+     * @param locale   the locale for which to resolve the message.
      * @return the resolved validation message.
      */
     @Override
     public String resolveValidationMessage(MessageResolver resolver, Locale locale) {
-        return resolver.resolve(messageKey, messageArguments, defaultMessage, locale);
+        return resolver.resolve(metadata.getMessageKey(), metadata.getMessageArguments(), metadata.getDefaultMessage(), locale);
     }
 
     /**
@@ -111,7 +108,7 @@ public final class ValidationResult implements ThrowableResult<ValidationResult>
      * </p>
      *
      * @param resolver the message resolver to use.
-     * @param locale the locale for message resolution.
+     * @param locale   the locale for message resolution.
      * @return a fully formatted result message.
      */
     @Override
@@ -119,19 +116,19 @@ public final class ValidationResult implements ThrowableResult<ValidationResult>
         return switch (state) {
             case SUCCESS -> resolver.resolve(
                     "validation.result.success",
-                    List.of(labelType, label, resolveValidationMessage(resolver, locale)),
+                    List.of(metadata.getLabelType().localize(resolver, locale), metadata.getLabel(), resolveValidationMessage(resolver, locale)),
                     "The {0} \"{1}\" is valid: {2}",
                     locale
             );
             case SKIPPED -> resolver.resolve(
                     "validation.result.skipped",
-                    List.of(labelType, label),
+                    List.of(metadata.getLabelType().localize(resolver, locale), metadata.getLabel()),
                     "Validation for {0} \"{1}\" was skipped",
                     locale
             );
             case FAILURE -> resolver.resolve(
                     "validation.result.failure",
-                    List.of(labelType, label, resolveValidationMessage(resolver, locale)),
+                    List.of(metadata.getLabelType().localize(resolver, locale), metadata.getLabel(), resolveValidationMessage(resolver, locale)),
                     "The {0} \"{1}\" is invalid: {2}",
                     locale
             );
@@ -142,7 +139,7 @@ public final class ValidationResult implements ThrowableResult<ValidationResult>
     public String getMessage(MessageResolver resolver, Locale locale) {
         return resolver.resolve(
                 "validation.result.aggregated.field",
-                List.of(labelType, label, resolveValidationMessage()),
+                List.of(metadata.getLabelType().localize(resolver, locale), metadata.getLabel(), resolveValidationMessage()),
                 "{0} \"{1}\": {2}",
                 locale
         );
@@ -162,39 +159,55 @@ public final class ValidationResult implements ThrowableResult<ValidationResult>
         throwIfInvalid(InvalidAttributeValueException::new);
     }
 
-    /** @return the default message to use if no localized message is found. */
+    public ValidationMetadata getMetadata() {
+        return metadata;
+    }
+
+    /**
+     * @return the default message to use if no localized message is found.
+     */
     public String getDefaultMessage() {
-        return defaultMessage;
+        return metadata.getDefaultMessage();
     }
 
-    /** @return the message key for localization. */
+    /**
+     * @return the message key for localization.
+     */
     public String getMessageKey() {
-        return messageKey;
+        return metadata.getMessageKey();
     }
 
-    /** @return the arguments used for message formatting. */
-    public List<Object> getMessageArguments(){
-        return messageArguments;
+    /**
+     * @return the arguments used for message formatting.
+     */
+    public List<Object> getMessageArguments() {
+        return metadata.getMessageArguments();
     }
 
-    /** @return the type of label describing the validated subject. */
-    @Override
+    /**
+     * @return the type of label describing the validated subject.
+     */
     public LabelType getLabelType() {
-        return labelType;
+        return metadata.getLabelType();
     }
 
-    /** @return the label (e.g. field name or object name). */
-    @Override
-    public String getLabel(){
-        return label;
+    /**
+     * @return the label (e.g. field name or object name).
+     */
+    public String getLabel() {
+        return metadata.getLabel();
     }
 
-    /** @return the value that was validated, or {@code null} if not set. */
+    /**
+     * @return the value that was validated, or {@code null} if not set.
+     */
     public Object getValue() {
         return value;
     }
 
-    /** @return the current validation state. */
+    /**
+     * @return the current validation state.
+     */
     @Override
     public ValidationState getState() {
         return state;
@@ -204,22 +217,18 @@ public final class ValidationResult implements ThrowableResult<ValidationResult>
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         ValidationResult that = (ValidationResult) o;
-        return Objects.equals(defaultMessage, that.defaultMessage) && Objects.equals(messageKey, that.messageKey) && Objects.equals(messageArguments, that.messageArguments) && Objects.equals(labelType, that.labelType) && Objects.equals(label, that.label) && Objects.equals(value, that.value) && state == that.state;
+        return Objects.equals(metadata, that.metadata) && Objects.equals(value, that.value) && state == that.state;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(defaultMessage, messageKey, messageArguments, labelType, label, value, state);
+        return Objects.hash(metadata, value, state);
     }
 
     @Override
     public String toString() {
         return "ValidationResult{" +
-                "defaultMessage='" + defaultMessage + '\'' +
-                ", messageKey='" + messageKey + '\'' +
-                ", messageArguments=" + messageArguments +
-                ", labelType=" + labelType +
-                ", label='" + label + '\'' +
+                "metadata=" + metadata +
                 ", value=" + value +
                 ", state=" + state +
                 '}';
@@ -278,13 +287,13 @@ public final class ValidationResult implements ThrowableResult<ValidationResult>
         private Builder(ValidationResult existing) {
             Objects.requireNonNull(existing, "Validation Result to extend cannot be null");
 
-            defaultMessage = existing.defaultMessage;
-            messageArguments.addAll(existing.messageArguments);
-            messageKey = existing.messageKey;
-            labelType = existing.labelType;
-            label = existing.label;
-            value = existing.value;
-            state = existing.state;
+            defaultMessage = existing.getDefaultMessage();
+            messageArguments.addAll(existing.getMessageArguments());
+            messageKey = existing.getMessageKey();
+            labelType = existing.getLabelType();
+            label = existing.getLabel();
+            value = existing.getValue();
+            state = existing.getState();
         }
 
         /**
@@ -293,7 +302,7 @@ public final class ValidationResult implements ThrowableResult<ValidationResult>
          * @param messageKey the message key.
          * @return this builder for chaining.
          */
-        public Builder messageKey(String messageKey){
+        public Builder messageKey(String messageKey) {
             this.messageKey = Objects.requireNonNull(messageKey, "MessageKey must not be null");
             return this;
         }
@@ -317,7 +326,7 @@ public final class ValidationResult implements ThrowableResult<ValidationResult>
          * @return this builder for chaining.
          */
         public Builder messageArguments(Object... messageArguments) {
-            for(Object messageArgument : messageArguments) {
+            for (Object messageArgument : messageArguments) {
                 messageArgument(messageArgument);
             }
 
@@ -353,7 +362,7 @@ public final class ValidationResult implements ThrowableResult<ValidationResult>
          * @param value the validated value.
          * @return this builder for chaining.
          */
-        public Builder value(Object value){
+        public Builder value(Object value) {
             this.value = value;
             return this;
         }

@@ -43,12 +43,12 @@ public final class CollectFailuresStrategy implements ValidationStrategy<Validat
         Objects.requireNonNull(validators, "Validations to validate Object by must not be null");
         Objects.requireNonNull(validationDescriptor, "the validationDescriptor for the validation must not be null");
 
-        ValidationResultCollection results = new ValidationResultCollection(validationDescriptor);
+        ValidationResultCollection.Builder resultsBuilder = new ValidationResultCollection.Builder(validationDescriptor);
 
         for (NoInputValidator<? extends ThrowableResult<?>> validator : validators) {
-            results.add(validator.validate());
+            resultsBuilder.add(validator.validate());
         }
 
-        return results;
+        return resultsBuilder.build();
     }
 }
