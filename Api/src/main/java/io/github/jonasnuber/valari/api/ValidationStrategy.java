@@ -1,9 +1,5 @@
 package io.github.jonasnuber.valari.api;
 
-import io.github.jonasnuber.valari.core.ValidationResultCollection;
-import io.github.jonasnuber.valari.core.strategies.CollectFailuresStrategy;
-import io.github.jonasnuber.valari.core.strategies.FailFastStrategy;
-
 import java.util.ArrayList;
 import java.util.List;
 

@@ -1,6 +1,5 @@
 package io.github.jonasnuber.valari.api;
 
-import io.github.jonasnuber.valari.core.ValidationResult;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -11,11 +10,11 @@ class ValidationTest {
     private static Validation<Object> valid;
     private static Validation<Object> inValid;
 
-    @BeforeAll
-    static void init() {
-        valid = k -> new ValidationResult.Builder("Validation succeeded").ok();
-        inValid = k -> new ValidationResult.Builder("Validation failed").fail();
-    }
+//    @BeforeAll
+//    static void init() {
+//        valid = k -> new ValidationResult.Builder("Validation succeeded").ok();
+//        inValid = k -> new ValidationResult.Builder("Validation failed").fail();
+//    }
 
     @Test
     void and_ShouldBeTrue_ForTwoValidValidation() {
