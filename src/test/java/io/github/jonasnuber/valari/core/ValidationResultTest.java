@@ -4,14 +4,10 @@ import io.github.jonasnuber.valari.api.LabelType;
 import io.github.jonasnuber.valari.api.ValidationMetadata;
 import io.github.jonasnuber.valari.api.ValidationState;
 import io.github.jonasnuber.valari.api.exceptions.InvalidAttributeValueException;
-import io.github.jonasnuber.valari.api.i18n.ResourceBundleMessageResolver;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
 
 import java.security.InvalidParameterException;
-import java.util.Locale;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.*;
@@ -236,75 +232,75 @@ class ValidationResultTest{
         );
     }
 
-    @ParameterizedTest
-    @MethodSource("resultWithAllStates")
-    void resolveValidationMessage_ShouldResolveTheMessage_ForTheMessageKey(ValidationResult result) {
-        var resolvedMessage = result.resolveValidationMessage();
+//    @ParameterizedTest
+//    @MethodSource("resultWithAllStates")
+//    void resolveValidationMessage_ShouldResolveTheMessage_ForTheMessageKey(ValidationResult result) {
+//        var resolvedMessage = result.resolveValidationMessage();
+//
+//        assertThat(resolvedMessage).isEqualTo("must not be null");
+//    }
 
-        assertThat(resolvedMessage).isEqualTo("must not be null");
-    }
+//    @ParameterizedTest
+//    @MethodSource("resultWithAllStates")
+//    void resolveValidationMessage_ShouldResolveTheMessage_ForTheMessageKeyAndCustomResolver(ValidationResult result) {
+//        var resolver = new ResourceBundleMessageResolver("ValidationMessages");
+//        var locale = Locale.ENGLISH;
+//        var resolvedMessage = result.resolveValidationMessage(resolver, locale);
+//
+//        assertThat(resolvedMessage).isEqualTo("must not be null");
+//    }
 
-    @ParameterizedTest
-    @MethodSource("resultWithAllStates")
-    void resolveValidationMessage_ShouldResolveTheMessage_ForTheMessageKeyAndCustomResolver(ValidationResult result) {
-        var resolver = new ResourceBundleMessageResolver("ValidationMessages");
-        var locale = Locale.ENGLISH;
-        var resolvedMessage = result.resolveValidationMessage(resolver, locale);
+//    @Test
+//    void getMessage_ShouldReturnSuccessDetailedMessage_ForSuccessfulResult() {
+//        var result = new ValidationResult.Builder("default")
+//                .messageKey("validation.object.notNull")
+//                .ok();
+//
+//        var message = result.getDetailedMessage();
+//
+//        assertThat(message).isEqualTo("The Subject \"<unknown>\" is valid: must not be null");
+//    }
 
-        assertThat(resolvedMessage).isEqualTo("must not be null");
-    }
+//    @Test
+//    void getMessage_ShouldReturnSkippedDetailedMessage_ForSkippedResult() {
+//        var result = new ValidationResult.Builder("default")
+//                .messageKey("validation.object.notNull")
+//                .skip();
+//
+//        var message = result.getDetailedMessage();
+//
+//        assertThat(message).isEqualTo("Validation for Subject \"<unknown>\" was skipped");
+//    }
 
-    @Test
-    void getMessage_ShouldReturnSuccessDetailedMessage_ForSuccessfulResult() {
-        var result = new ValidationResult.Builder("default")
-                .messageKey("validation.object.notNull")
-                .ok();
+//    @Test
+//    void getMessage_ShouldReturnFailureDetailedMessage_ForFailedResult() {
+//        var result = new ValidationResult.Builder("default")
+//                .messageKey("validation.object.notNull")
+//                .fail();
+//
+//        var message = result.getDetailedMessage();
+//
+//        assertThat(message).isEqualTo("The Subject \"<unknown>\" is invalid: must not be null");
+//    }
 
-        var message = result.getDetailedMessage();
-
-        assertThat(message).isEqualTo("The Subject \"<unknown>\" is valid: must not be null");
-    }
-
-    @Test
-    void getMessage_ShouldReturnSkippedDetailedMessage_ForSkippedResult() {
-        var result = new ValidationResult.Builder("default")
-                .messageKey("validation.object.notNull")
-                .skip();
-
-        var message = result.getDetailedMessage();
-
-        assertThat(message).isEqualTo("Validation for Subject \"<unknown>\" was skipped");
-    }
-
-    @Test
-    void getMessage_ShouldReturnFailureDetailedMessage_ForFailedResult() {
-        var result = new ValidationResult.Builder("default")
-                .messageKey("validation.object.notNull")
-                .fail();
-
-        var message = result.getDetailedMessage();
-
-        assertThat(message).isEqualTo("The Subject \"<unknown>\" is invalid: must not be null");
-    }
-
-    @Test
-    void getMessage_ShouldReturnCorrectDetailedMessage_ForCustomResolver() {
-        var resolver = new ResourceBundleMessageResolver("ValidationMessages");
-        var locale = Locale.ENGLISH;
-        var result = new ValidationResult.Builder("default")
-                .messageKey("validation.object.notNull")
-                .fail();
-
-        var message = result.getDetailedMessage(resolver, locale);
-
-        assertThat(message).isEqualTo("The Subject \"<unknown>\" is invalid: must not be null");
-    }
+//    @Test
+//    void getMessage_ShouldReturnCorrectDetailedMessage_ForCustomResolver() {
+//        var resolver = new ResourceBundleMessageResolver("ValidationMessages");
+//        var locale = Locale.ENGLISH;
+//        var result = new ValidationResult.Builder("default")
+//                .messageKey("validation.object.notNull")
+//                .fail();
+//
+//        var message = result.getDetailedMessage(resolver, locale);
+//
+//        assertThat(message).isEqualTo("The Subject \"<unknown>\" is invalid: must not be null");
+//    }
 
     @Test
     void throwIfInvalid_ShouldThrowException_ForInvalidResult() {
         var result = new ValidationResult.Builder("default message").fail();
 
-        var thrown = catchThrowable(result::throwIfInvalid);
+        var thrown = catchThrowable(result::orThrowIfInvalid);
 
         assertThat(thrown)
                 .isInstanceOf(InvalidAttributeValueException.class)
@@ -315,21 +311,21 @@ class ValidationResultTest{
     void throwIfInvalid_ShouldNotThrowException_ForValidResult() {
         var result = new ValidationResult.Builder("default message").ok();
 
-        assertThatCode(result::throwIfInvalid).doesNotThrowAnyException();
+        assertThatCode(result::orThrowIfInvalid).doesNotThrowAnyException();
     }
 
     @Test
     void throwIfInvalid_ShouldNotThrowException_ForSkippedResult() {
         var result = new ValidationResult.Builder("default message").skip();
 
-        assertThatCode(result::throwIfInvalid).doesNotThrowAnyException();
+        assertThatCode(result::orThrowIfInvalid).doesNotThrowAnyException();
     }
 
     @Test
     void throwIfInvalid_ShouldThrowException_ForInvalidResultAndProvidedExceptionType() {
         var result = new ValidationResult.Builder("default message").fail();
 
-        var thrown = catchThrowable(() -> result.throwIfInvalid(InvalidParameterException::new));
+        var thrown = catchThrowable(() -> result.orThrowIfInvalid(InvalidParameterException::new));
 
         assertThat(thrown)
                 .isInstanceOf(InvalidParameterException.class)

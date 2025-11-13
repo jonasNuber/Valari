@@ -1,4 +1,6 @@
-package io.github.jonasnuber.valari.api.i18n;
+package io.github.jonasnuber.valari.core;
+
+import io.github.jonasnuber.valari.api.i18n.MessageResolver;
 
 import java.text.MessageFormat;
 import java.util.*;

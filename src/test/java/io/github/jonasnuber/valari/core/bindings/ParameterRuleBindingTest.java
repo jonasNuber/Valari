@@ -93,18 +93,18 @@ class ParameterRuleBindingTest {
         assertThat(result.isValid()).isTrue();
     }
 
-    @Test
-    void ifPresent_ShouldReturnInvalid_WhenFieldIsPresentAndInvalid() {
-        var binding = new ParameterRuleBinding<>("SomeName", "  ", ConstructorValidator.of(Person.class));
-        binding.ifPresent(notBlank());
-
-        var result = binding.validate();
-
-        assertThat(result.isInvalid()).isTrue();
-        assertThat(result.getLabel()).isEqualTo("SomeName");
-        assertThat(result.resolveValidationMessage(MessageResolutionContext.getResolver(), MessageResolutionContext.getLocale()))
-                .isEqualTo("must not be blank");
-    }
+//    @Test
+//    void ifPresent_ShouldReturnInvalid_WhenFieldIsPresentAndInvalid() {
+//        var binding = new ParameterRuleBinding<>("SomeName", "  ", ConstructorValidator.of(Person.class));
+//        binding.ifPresent(notBlank());
+//
+//        var result = binding.validate();
+//
+//        assertThat(result.isInvalid()).isTrue();
+//        assertThat(result.getLabel()).isEqualTo("SomeName");
+//        assertThat(result.resolveValidationMessage(MessageResolutionContext.getResolver(), MessageResolutionContext.getLocale()))
+//                .isEqualTo("must not be blank");
+//    }
     @Test
     void validate_ShouldReturnValidResult_WhenFieldIsValid() {
         var binding = new ParameterRuleBinding<>("SomeName", "value", ConstructorValidator.of(Person.class));

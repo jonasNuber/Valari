@@ -1,5 +1,6 @@
 package io.github.jonasnuber.valari.api.i18n;
 
+import io.github.jonasnuber.valari.core.ResourceBundleMessageResolver;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 

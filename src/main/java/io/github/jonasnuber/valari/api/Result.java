@@ -2,69 +2,60 @@ package io.github.jonasnuber.valari.api;
 
 import io.github.jonasnuber.valari.api.i18n.MessageResolutionContext;
 import io.github.jonasnuber.valari.api.i18n.MessageResolver;
+import io.github.jonasnuber.valari.api.i18n.ResultFormatter;
 
 import java.util.Locale;
 
 @SuppressWarnings("java:S119")
 public interface Result<SELF extends Result<SELF>> {
 
-    /**
-     * Returns the validation state for this result.
-     *
-     * @return the current {@link ValidationState}.
-     */
-    ValidationState getState();
+  SELF withLabel(LabelType labelType, String label);
 
-    /**
-     * Resolves the validation-specific message (not the full result message).
-     *
-     * @param resolver the message resolver to use.
-     * @param locale the locale for which to resolve the message.
-     * @return the resolved validation message.
-     */
-    String resolveValidationMessage(MessageResolver resolver, Locale locale);
+  /**
+   * Returns the validation state for this result.
+   *
+   * @return the current {@link ValidationState}.
+   */
+  ValidationState getState();
 
-    String getMessage(MessageResolver resolver, Locale locale);
+  ValidationMetadata getMetadata();
 
-    String getDetailedMessage(MessageResolver resolver, Locale locale);
+  default <R> R getMessage(ResultFormatter<R> formatter, MessageResolver resolver, Locale locale) {
+    return formatter.format(this, resolver, locale);
+  }
 
-    /**
-     * Resolves the validation-specific message (not the full result message).
-     * <p>
-     * This uses the global defaults from {@link MessageResolutionContext}.
-     * </p>
-     *
-     * @return the resolved validation message.
-     */
-    default String resolveValidationMessage() {
-        return resolveValidationMessage(MessageResolutionContext.getResolver(), MessageResolutionContext.getLocale());
-    }
+  default <R> R getMessage(ResultFormatter<R> formatter) {
+    return getMessage(
+        formatter, MessageResolutionContext.getResolver(), MessageResolutionContext.getLocale());
+  }
 
-    default String getMessage() {
-        return getMessage(MessageResolutionContext.getResolver(), MessageResolutionContext.getLocale());
-    }
+  default <R> R getMessage() {
+    return getMessage(
+        MessageResolutionContext.getFormatter(),
+        MessageResolutionContext.getResolver(),
+        MessageResolutionContext.getLocale());
+  }
 
-    default String getDetailedMessage() {
-        return getDetailedMessage(MessageResolutionContext.getResolver(), MessageResolutionContext.getLocale());
-    }
+  /** Convenience alias for {@link #getMessage()}. */
+  default String prettyPrint() {
+    return getMessage();
+  }
 
-    SELF withLabel(LabelType labelType, String label);
+  /**
+   * Returns whether this result represents a valid outcome.
+   *
+   * @return {@code true} if valid, {@code false} otherwise.
+   */
+  default boolean isValid() {
+    return getState().isValid();
+  }
 
-    /**
-     * Returns whether this result represents a valid outcome.
-     *
-     * @return {@code true} if valid, {@code false} otherwise.
-     */
-    default boolean isValid() {
-        return getState().isValid();
-    }
-
-    /**
-     * Returns whether this result represents an invalid outcome.
-     *
-     * @return {@code true} if invalid, {@code false} otherwise.
-     */
-    default boolean isInvalid() {
-        return getState().isInvalid();
-    }
+  /**
+   * Returns whether this result represents an invalid outcome.
+   *
+   * @return {@code true} if invalid, {@code false} otherwise.
+   */
+  default boolean isInvalid() {
+    return getState().isInvalid();
+  }
 }
