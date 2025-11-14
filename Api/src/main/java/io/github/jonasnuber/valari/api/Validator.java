@@ -1,42 +1,51 @@
 package io.github.jonasnuber.valari.api;
 
 /**
- * A generic interface for performing validation on an object of type {@code T},
- * producing a result of type {@code R}.
- * <p>
- * This interface abstracts the validation logic and allows flexible result handling,
- * such as collecting all validation failures or stopping at the first failure.
- * </p>
+ * Functional interface representing a validator that inspects an input value of type {@code TYPE}
+ * and produces a {@link Result} describing the outcome.
  *
- * <p>Typical implementations may return a result object containing success or failure
- * information, and optionally throw an exception for invalid objects.
- * </p>
+ * <p>This interface forms the core abstraction for validation logic within the Valari framework. A
+ * validator does not throw exceptions directly during validation; instead, it returns a {@link
+ * Result} that expresses whether the input is valid, invalid, or carries additional metadata or
+ * messages.
  *
- * @param <TYPE> the type of object to validate
- * @param <RESULT> the type of result returned by the validation process
+ * <p>Implementations may represent:
  *
+ * <ul>
+ *   <li>simple single-constraint validators,
+ *   <li>composite validators combining multiple rules,
+ *   <li>domain-specific object validators, or
+ *   <li>context-aware validators wrapping multiple delegated checks.
+ * </ul>
+ *
+ * The caller may choose to act on the returned result or trigger exception-based flow using the
+ * {@link io.github.jonasnuber.valari.api.ThrowableResult} mixin interfaces provided by the
+ * framework.
+ *
+ * <p>This type is a functional interface, enabling validators to be implemented as lambdas or
+ * method references.
+ *
+ * @param <TYPE> the type of object being validated
+ * @param <RESULT> the result type produced, which must extend {@link Result}
+ * @see Result
+ * @see ThrowableResult
+ * @see GenericValidator
  * @author Jonas Nuber
  */
 @SuppressWarnings("java:S119")
 @FunctionalInterface
-public non-sealed interface Validator<TYPE, RESULT extends Result<RESULT>> extends GenericValidator {
+public non-sealed interface Validator<TYPE, RESULT extends Result<RESULT>>
+    extends GenericValidator {
 
   /**
-   * Validates the given object and returns the result.
+   * Validates the given object and returns a {@link Result} describing success or failure.
    *
-   * @param toValidate the object to validate
-   * @return the result of the validation
+   * <p>Implementations must not throw exceptions for validation failure; callers may explicitly
+   * convert the returned result into an exception using {@link
+   * io.github.jonasnuber.valari.api.ThrowableResult#throwIfInvalid()} if desired.
+   *
+   * @param toValidate the object to validate; may be {@code null} depending on the validator
+   * @return a {@code RESULT} describing the validation outcome
    */
   RESULT validate(TYPE toValidate);
-
-  //TODO:
-  /*
-    - Look at the Result implementations and make them better
-    - The ValidationResultCollection still has not implemented methods and methods with too much content / repetition
-    - Look in core what the different classes use from the Result interfaces / classes and use the lowest possible interface or class
-    - The detailed Message and normal message options do not have enough differences yet. Think about how they can be bettered, else
-      remove one of them entirely
-    - give both api and core their own maven modules
-
-   */
 }

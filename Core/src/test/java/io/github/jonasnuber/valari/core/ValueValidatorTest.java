@@ -142,7 +142,7 @@ class ValueValidatorTest {
     void validateAndThrow_ShouldNotThrowException_WhenOptionalAndNullObject() {
         var validator = ValueValidator.optional(notEmpty());
 
-        ThrowableAssert.ThrowingCallable executable = () -> validator.validate(null).orThrowIfInvalid();
+        ThrowableAssert.ThrowingCallable executable = () -> validator.validate(null).throwIfInvalid();
 
         assertThatCode(executable).doesNotThrowAnyException();
     }

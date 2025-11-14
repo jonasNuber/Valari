@@ -1,10 +1,8 @@
 package io.github.jonasnuber.valari.core;
 
 import io.github.jonasnuber.valari.api.*;
-import io.github.jonasnuber.valari.api.exceptions.InvalidAttributeValueException;
 import io.github.jonasnuber.valari.api.i18n.MessageResolutionContext;
 import io.github.jonasnuber.valari.api.i18n.MessageResolver;
-import io.github.jonasnuber.valari.api.i18n.ResultFormatter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,7 +46,7 @@ public final class ValidationResult implements ThrowableResult<ValidationResult>
 
   private ValidationResult(Builder builder) {
     metadata =
-        new ValidationMetadata.Builder(builder.defaultMessage)
+        ValidationMetadata.builder(builder.defaultMessage)
             .messageKey(builder.messageKey)
             .messageArguments(builder.messageArguments.toArray())
             .labelType(builder.labelType)

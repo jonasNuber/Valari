@@ -109,7 +109,7 @@ public final class ValidationResultCollection
       default -> throw new IllegalStateException("Unexpected state: " + getState());
     }
 
-    return new ValidationMetadata.Builder(defaultMessage)
+    return ValidationMetadata.builder(defaultMessage)
         .messageKey(key)
         .validationClass(clazz)
         .labelType(labelType)

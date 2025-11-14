@@ -7,102 +7,144 @@ import java.util.Locale;
 import java.util.Objects;
 
 /**
- * Represents the semantic type of label used in validation results.
- * <p>
- * A {@code LabelType} provides context for identifying <em>what</em>
- * a validation result refers to, such as a field, parameter, or property.
- * This helps generate meaningful, human-readable messages:
+ * Represents the semantic type of a label used in validation results.
+ *
+ * <p>A {@code LabelType} provides contextual information about <em>what</em> a validation result
+ * refers to, such as a field, method parameter, property, or generic value. Label types are used to
+ * generate human-readable messages:
+ *
  * <pre>
  * "The field 'username' is invalid"
  * "The parameter 'age' must not be negative"
  * </pre>
- * </p>
  *
  * <h2>Predefined label types</h2>
- * The following constants are available out of the box:
+ *
+ * The library provides common built-in label types:
+ *
  * <ul>
- *   <li>{@link #FIELD} – For validation of object fields.</li>
- *   <li>{@link #PARAMETER} – For validation of method or function parameters.</li>
- *   <li>{@link #ATTRIBUTE} – For validation of attributes or metadata values.</li>
- *   <li>{@link #VALUE} – For validation of plain values.</li>
- *   <li>{@link #PROPERTY} – For validation of properties (e.g. bean properties).</li>
- *   <li>{@link #SUBJECT} – Generic fallback for unspecified subjects.</li>
+ *   <li>{@link #FIELD} – For object fields.
+ *   <li>{@link #PARAMETER} – For method or function parameters.
+ *   <li>{@link #ATTRIBUTE} – For attributes or metadata values.
+ *   <li>{@link #VALUE} – For plain or untyped values.
+ *   <li>{@link #PROPERTY} – For bean or configuration properties.
+ *   <li>{@link #SUBJECT} – Generic fallback for unspecified subjects.
  * </ul>
  *
  * <h2>Custom label types</h2>
- * <p>
- * Additional label types can be created dynamically using {@link #of(String)}:
- * </p>
+ *
+ * <p>Users can create custom label types dynamically using {@link #of(String)}:
+ *
  * <pre>{@code
  * LabelType column = LabelType.of("column");
  * }</pre>
  *
+ * <h2>Localization</h2>
+ *
+ * <p>Labels can be localized using a {@link MessageResolver} and a {@link Locale}. The {@link
+ * #get()} method automatically uses the globally configured resolver and locale from {@link
+ * MessageResolutionContext}.
+ *
+ * <p>The {@code key} of the label type should ideally correspond to a message entry that the {@link
+ * MessageResolver} can resolve. If the key cannot be resolved by the provided resolver, a fallback
+ * human-readable label is used, as returned by {@link #defaultLabel()}.
+ *
  * <h2>Equality</h2>
- * <p>
- * Two {@code LabelType} instances are considered equal if their names are equal.
- * </p>
+ *
+ * <p>Two {@code LabelType} instances are considered equal if their internal keys are equal.
  *
  * @author Jonas Nuber
+ * @see MessageResolver
+ * @see MessageResolutionContext
  */
 public final class LabelType {
-    private final String key;
-    
-    private LabelType(String key) {
-        this.key = Objects.requireNonNull(key ,"Key might not be null");
-    }
+  private final String key;
 
-    /** Predefined label type for object fields. */
-    public static final LabelType FIELD = new LabelType("labeltype.field");
+  private LabelType(String key) {
+    this.key = Objects.requireNonNull(key, "Key might not be null");
+  }
 
-    /** Predefined label type for method or function parameters. */
-    public static final LabelType PARAMETER = new LabelType("labeltype.parameter");
+  /** Predefined label type for object fields. */
+  public static final LabelType FIELD = new LabelType("labeltype.field");
 
-    /** Predefined label type for attributes or metadata values. */
-    public static final LabelType ATTRIBUTE = new LabelType("labeltype.attribute");
+  /** Predefined label type for method or function parameters. */
+  public static final LabelType PARAMETER = new LabelType("labeltype.parameter");
 
-    /** Predefined label type for plain values. */
-    public static final LabelType VALUE = new LabelType("labeltype.value");
+  /** Predefined label type for attributes or metadata values. */
+  public static final LabelType ATTRIBUTE = new LabelType("labeltype.attribute");
 
-    /** Predefined label type for bean or configuration properties. */
-    public static final LabelType PROPERTY = new LabelType("labeltype.property");
+  /** Predefined label type for plain values. */
+  public static final LabelType VALUE = new LabelType("labeltype.value");
 
-    /** Generic fallback label type when no specific type is provided. */
-    public static final LabelType SUBJECT = new LabelType("labeltype.subject");
+  /** Predefined label type for bean or configuration properties. */
+  public static final LabelType PROPERTY = new LabelType("labeltype.property");
 
-    public static LabelType of(String key) {
-        return new LabelType(Objects.requireNonNull(key, "Key must not be null"));
-    }
+  /** Generic fallback label type when no specific type is provided. */
+  public static final LabelType SUBJECT = new LabelType("labeltype.subject");
 
-    public String get() {
-        return localize(MessageResolutionContext.getResolver(), MessageResolutionContext.getLocale());
-    }
+  /**
+   * Creates a custom label type with the given key.
+   *
+   * @param key the unique key for this label type (must not be {@code null})
+   * @return a new {@code LabelType} instance
+   */
+  public static LabelType of(String key) {
+    return new LabelType(Objects.requireNonNull(key, "Key must not be null"));
+  }
 
-    public String localize(MessageResolver resolver, Locale locale) {
-        return resolver.resolveOrDefault(key, locale, defaultLabel());
-    }
+  /**
+   * Returns the localized label using the globally configured {@link MessageResolver} and {@link
+   * Locale}.
+   *
+   * @return the localized label
+   */
+  public String get() {
+    return localize(MessageResolutionContext.getResolver(), MessageResolutionContext.getLocale());
+  }
 
-    public String defaultLabel() {
-        return Character.toUpperCase(key.charAt(0)) + key.substring(1);
-    }
+  /**
+   * Returns the localized label using the specified resolver and locale.
+   *
+   * @param resolver the resolver to use
+   * @param locale the locale to use
+   * @return the localized label
+   */
+  public String localize(MessageResolver resolver, Locale locale) {
+    return resolver.resolveOrDefault(key, locale, defaultLabel());
+  }
 
-    public String getKey() {
-        return key;
-    }
+  /**
+   * Returns the default human-readable label derived from the key.
+   *
+   * @return the default label string
+   */
+  public String defaultLabel() {
+    return Character.toUpperCase(key.charAt(0)) + key.substring(1);
+  }
 
-    @Override
-    public String toString() {
-        return get();
-    }
+  /**
+   * Returns the internal key of this label type.
+   *
+   * @return the label key
+   */
+  public String getKey() {
+    return key;
+  }
 
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        LabelType labelType = (LabelType) o;
-        return Objects.equals(key, labelType.key);
-    }
+  @Override
+  public String toString() {
+    return get();
+  }
 
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(key);
-    }
+  @Override
+  public boolean equals(Object o) {
+    if (o == null || getClass() != o.getClass()) return false;
+    LabelType labelType = (LabelType) o;
+    return Objects.equals(key, labelType.key);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(key);
+  }
 }

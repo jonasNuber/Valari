@@ -1,75 +1,88 @@
 package io.github.jonasnuber.valari.api;
 
 /**
- * Represents the outcome of a validation.
- * <p>
- * A {@code ValidationState} captures whether a validation succeeded,
- * failed, or was intentionally skipped. It is the core status indicator
- * for {@link ValidationResult}
- * and related types.
+ * Represents the outcome of a validation step.
  *
- * <h2>States</h2>
+ * <p>A {@code ValidationState} expresses whether a validation rule <em>succeeded</em>,
+ * <em>failed</em>, or was <em>intentionally skipped</em>. It serves as the core status indicator
+ * for {@link Result} and related types within the validation framework.
+ *
+ * <h2>Defined States</h2>
+ *
  * <ul>
- *   <li>{@link #SUCCESS} – The validation passed successfully and the
- *       input is considered valid.</li>
- *   <li>{@link #SKIPPED} – The validation was deliberately bypassed,
- *       e.g. due to conditional rules. Skipped validations are still
- *       considered valid for aggregation purposes.</li>
- *   <li>{@link #FAILURE} – The validation failed and the input is
- *       considered invalid.</li>
+ *   <li>{@link #SUCCESS} – The validation completed normally and the value is considered valid.
+ *   <li>{@link #SKIPPED} – The validation was intentionally not executed, for example due to a
+ *       conditional rule or short-circuit logic. Skipped validations are still treated as valid.
+ *   <li>{@link #FAILURE} – The validation failed and the value is considered invalid.
  * </ul>
  *
- * <h2>Validity helpers</h2>
- * Each state carries a boolean flag indicating whether it is considered
- * valid. By convention:
+ * <h2>Validity Classification</h2>
+ *
+ * Each state carries an internal {@code boolean} flag indicating whether it should be interpreted
+ * as valid. By convention:
+ *
  * <ul>
- *   <li>{@code SUCCESS} → valid</li>
- *   <li>{@code SKIPPED} → valid</li>
- *   <li>{@code FAILURE} → invalid</li>
+ *   <li>{@code SUCCESS} → valid
+ *   <li>{@code SKIPPED} → valid
+ *   <li>{@code FAILURE} → invalid
  * </ul>
  *
- * The methods {@link #isValid()} and {@link #isInvalid()} provide a
- * convenient way to test this.
+ * Use {@link #isValid()} or {@link #isInvalid()} as convenience helpers to inspect this flag.
+ *
+ * <p>These methods allow higher-level result types (such as aggregated or throwable results) to
+ * classify their overall state based on multiple {@code ValidationState} entries.
  *
  * @author Jonas Nuber
  * @since 1.0
  */
 public enum ValidationState {
 
-    /**
-     * Validation succeeded. Input is valid.
-     */
-    SUCCESS(true),
+  /**
+   * The validation completed successfully.
+   *
+   * <p>This indicates that the value meets the validation criteria.
+   */
+  SUCCESS(true),
 
-    /**
-     * Validation was skipped but is still considered valid in aggregate.
-     */
-    SKIPPED(true),
+  /**
+   * The validation was intentionally bypassed.
+   *
+   * <p>Skipped rules do not contribute negatively to an aggregated validation result and are
+   * treated as valid. Strategies may use this state for conditional or optional rules.
+   */
+  SKIPPED(true),
 
-    /**
-     * Validation failed. Input is invalid.
-     */
-    FAILURE(false);
+  /**
+   * The validation failed.
+   *
+   * <p>This indicates that the value did not satisfy the validation rule. When aggregated, this
+   * state typically marks the entire validation as invalid unless overridden by the evaluation
+   * strategy.
+   */
+  FAILURE(false);
 
-    private final boolean valid;
+  private final boolean valid;
 
-    ValidationState(boolean valid) {
-        this.valid = valid;
-    }
+  ValidationState(boolean valid) {
+    this.valid = valid;
+  }
 
-    /**
-     * @return {@code true} if this state represents a valid outcome
-     *         ({@link #SUCCESS} or {@link #SKIPPED}), {@code false} otherwise
-     */
-    public boolean isValid() {
-        return valid;
-    }
+  /**
+   * Indicates whether this state represents a valid outcome.
+   *
+   * @return {@code true} if this state is {@link #SUCCESS} or {@link #SKIPPED}, {@code false} if it
+   *     is {@link #FAILURE}
+   */
+  public boolean isValid() {
+    return valid;
+  }
 
-    /**
-     * @return {@code true} if this state represents an invalid outcome
-     *         ({@link #FAILURE}), {@code false} otherwise
-     */
-    public boolean isInvalid() {
-        return !valid;
-    }
+  /**
+   * Indicates whether this state represents an invalid outcome.
+   *
+   * @return {@code true} if this state is {@link #FAILURE}, {@code false} otherwise
+   */
+  public boolean isInvalid() {
+    return !valid;
+  }
 }

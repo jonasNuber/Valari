@@ -1,79 +1,164 @@
 package io.github.jonasnuber.valari.api.i18n;
 
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Locale;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.Mockito.*;
 
 class MessageResolutionContextTest {
 
-    private final MessageResolver originalResolver = MessageResolutionContext.getResolver();
-    private final Locale originalLocale = MessageResolutionContext.getLocale();
+  private final MessageResolver resolver = mock(MessageResolver.class);
+  private final Locale locale = Locale.ENGLISH;
+  private final ResultFormatter<String> formatter = mock(ResultFormatter.class);
 
-    @AfterEach
-    void resetContext() {
-        MessageResolutionContext.setResolver(originalResolver);
-        MessageResolutionContext.setLocale(originalLocale);
-    }
+  @BeforeEach
+  void reset() {
+    MessageResolutionContext.resetForTests();
+  }
 
-//    @Test
-//    void getResolver_ShouldReturnDefault() {
-//        var resolver = MessageResolutionContext.getResolver();
-//
-//        assertThat(resolver)
-//                .isInstanceOf(ResourceBundleMessageResolver.class)
-//                .isEqualTo(originalResolver);
-//    }
+  @Test
+  void getResolver_ShouldReturnDefault() {
+    MessageResolutionContext.setResolver(resolver);
 
-    @Test
-    void getLocale_ShouldReturnDefault() {
-        var locale = MessageResolutionContext.getLocale();
+    var actualResolver = MessageResolutionContext.getResolver();
 
-        assertThat(locale).isEqualTo(Locale.ENGLISH);
-    }
+    assertThat(actualResolver).isEqualTo(resolver);
+  }
 
-    @Test
-    void setResolver_ShouldSetNewResolver(){
-        var mockResolver = mock(MessageResolver.class);
+  @Test
+  void getResolver_ShouldThrowException_ForNotSetDefault() {
+    var thrown = catchThrowable(MessageResolutionContext::getResolver);
 
-        MessageResolutionContext.setResolver(mockResolver);
+    assertThat(thrown)
+        .isInstanceOf(IllegalStateException.class)
+        .hasMessage(
+            "No default MessageResolver configured. Call MessageResolutionContext.setResolver(...) in your application startup.");
+  }
 
-        assertThat(MessageResolutionContext.getResolver()).isSameAs(mockResolver);
-    }
+  @Test
+  void getLocale_ShouldReturnDefault() {
+    MessageResolutionContext.setLocale(locale);
 
-    @Test
-    void setLocale_ShouldSetNewLocale() {
-        var german = Locale.GERMAN;
+    var actualLocale = MessageResolutionContext.getLocale();
 
-        MessageResolutionContext.setLocale(german);
+    assertThat(actualLocale).isEqualTo(Locale.ENGLISH);
+  }
 
-        assertThat(MessageResolutionContext.getLocale()).isEqualTo(german);
-    }
+  @Test
+  void getLocale_ShouldThrowException_ForNotSetDefault() {
+    var thrown = catchThrowable(MessageResolutionContext::getLocale);
 
-    @Test
-    void resolve_ShouldDelegateToResolver() {
-        var mockResolver = mock(MessageResolver.class);
-        MessageResolutionContext.setResolver(mockResolver);
-        when(mockResolver.resolve("key", new Object[]{})).thenReturn("resolved!");
+    assertThat(thrown)
+        .isInstanceOf(IllegalStateException.class)
+        .hasMessage(
+            "No default Locale configured. Call MessageResolutionContext.setLocale(...) in your application startup.");
+  }
 
-        var result = MessageResolutionContext.resolve("key");
+  @Test
+  void getFormatter_ShouldReturnDefault() {
+    MessageResolutionContext.setFormatter(formatter);
 
-        assertThat(result).isEqualTo("resolved!");
-        verify(mockResolver).resolve("key", new Object[]{});
-    }
+    var actualFormatter = MessageResolutionContext.getFormatter();
 
-    @Test
-    void resolve_ShouldResolveArguments() {
-        var mockResolver = mock(MessageResolver.class);
-        MessageResolutionContext.setResolver(mockResolver);
-        when(mockResolver.resolve("key", "arg1", 123)).thenReturn("resolvedWithArgs");
+    assertThat(actualFormatter).isEqualTo(formatter);
+  }
 
-        String result = MessageResolutionContext.resolve("key", "arg1", 123);
+  @Test
+  void getFormatter_ShouldThrowException_ForNotSetDefault() {
+    var thrown = catchThrowable(MessageResolutionContext::getFormatter);
 
-        assertThat(result).isEqualTo("resolvedWithArgs");
-        verify(mockResolver).resolve("key", "arg1", 123);
-    }
+    assertThat(thrown)
+        .isInstanceOf(IllegalStateException.class)
+        .hasMessage(
+            "No default ResultFormatter configured. Call MessageResolutionContext.setFormatter(...) in your application startup.");
+  }
+
+  @Test
+  void setResolver_ShouldSetNewResolver() {
+    MessageResolutionContext.setResolver(resolver);
+    var mockResolver = mock(MessageResolver.class);
+
+    MessageResolutionContext.setResolver(mockResolver);
+
+    assertThat(MessageResolutionContext.getResolver()).isSameAs(mockResolver).isNotSameAs(resolver);
+  }
+
+  @Test
+  void setResolver_ShouldThrowException_ForNullResolver() {
+    var thrown = catchThrowable(() -> MessageResolutionContext.setResolver(null));
+
+    assertThat(thrown)
+        .isInstanceOf(NullPointerException.class)
+        .hasMessage("Resolver must not be null");
+  }
+
+  @Test
+  void setLocale_ShouldSetNewLocale() {
+    MessageResolutionContext.setLocale(locale);
+    var german = Locale.GERMAN;
+
+    MessageResolutionContext.setLocale(german);
+
+    assertThat(MessageResolutionContext.getLocale()).isEqualTo(german).isNotEqualTo(locale);
+  }
+
+  @Test
+  void setLocale_ShouldThrowException_ForNullLocale() {
+    var thrown = catchThrowable(() -> MessageResolutionContext.setLocale(null));
+
+    assertThat(thrown)
+        .isInstanceOf(NullPointerException.class)
+        .hasMessage("Locale must not be null");
+  }
+
+  @Test
+  void setFormatter_ShouldSetNewFormatter() {
+    MessageResolutionContext.setFormatter(formatter);
+    var newFormatter = mock(ResultFormatter.class);
+
+    MessageResolutionContext.setFormatter(newFormatter);
+
+    assertThat(MessageResolutionContext.getFormatter())
+        .isEqualTo(newFormatter)
+        .isNotEqualTo(formatter);
+  }
+
+  @Test
+  void setFormatter_ShouldThrowException_ForNullFormatter() {
+    var thrown = catchThrowable(() -> MessageResolutionContext.setFormatter(null));
+
+    assertThat(thrown)
+        .isInstanceOf(NullPointerException.class)
+        .hasMessage("Formatter must not be null");
+  }
+
+  @Test
+  void resolve_ShouldDelegateToResolver() {
+    var mockResolver = mock(MessageResolver.class);
+    MessageResolutionContext.setResolver(mockResolver);
+    MessageResolutionContext.setLocale(locale);
+    when(mockResolver.resolve("key", new Object[] {})).thenReturn("resolved!");
+
+    var result = MessageResolutionContext.resolve("key");
+
+    assertThat(result).isEqualTo("resolved!");
+    verify(mockResolver).resolve("key", new Object[] {});
+  }
+
+  @Test
+  void resolve_ShouldResolveArguments() {
+    var mockResolver = mock(MessageResolver.class);
+    MessageResolutionContext.setResolver(mockResolver);
+    MessageResolutionContext.setLocale(locale);
+    when(mockResolver.resolve("key", "arg1", 123)).thenReturn("resolvedWithArgs");
+
+    String result = MessageResolutionContext.resolve("key", "arg1", 123);
+
+    assertThat(result).isEqualTo("resolvedWithArgs");
+    verify(mockResolver).resolve("key", "arg1", 123);
+  }
 }

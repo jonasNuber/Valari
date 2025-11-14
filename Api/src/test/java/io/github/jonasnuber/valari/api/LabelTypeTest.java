@@ -1,54 +1,68 @@
 package io.github.jonasnuber.valari.api;
 
+import io.github.jonasnuber.valari.api.i18n.MessageResolutionContext;
+import io.github.jonasnuber.valari.api.i18n.MessageResolver;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 
+import java.util.Locale;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 class LabelTypeTest {
 
-    @Test
-    void of_ShouldCreateNewInstance_ForCustomName() {
-        LabelType custom = LabelType.of("custom");
+  @Test
+  void predefinedConstants_ShouldHaveCorrectKeys() {
+    assertThat(LabelType.FIELD.getKey()).isEqualTo("labeltype.field");
+    assertThat(LabelType.PARAMETER.getKey()).isEqualTo("labeltype.parameter");
+    assertThat(LabelType.ATTRIBUTE.getKey()).isEqualTo("labeltype.attribute");
+    assertThat(LabelType.VALUE.getKey()).isEqualTo("labeltype.value");
+    assertThat(LabelType.PROPERTY.getKey()).isEqualTo("labeltype.property");
+    assertThat(LabelType.SUBJECT.getKey()).isEqualTo("labeltype.subject");
+  }
 
-        assertThat(custom)
-                .hasToString("custom")
-                .isEqualTo(LabelType.of("custom"));
-    }
+  @Test
+  void defaultLabel_ShouldReturnKey_WithUpperCaseFirstLetter() {
+    var newLabel = LabelType.of("test");
 
-    @Test
-    void predefinedConstants_ShouldHaveCorrectNames() {
-        assertThat(LabelType.FIELD).hasToString("Field");
-        assertThat(LabelType.PARAMETER).hasToString("Parameter");
-        assertThat(LabelType.ATTRIBUTE).hasToString("Attribute");
-        assertThat(LabelType.VALUE).hasToString("Value");
-        assertThat(LabelType.PROPERTY).hasToString("Property");
-        assertThat(LabelType.SUBJECT).hasToString("Subject");
-    }
+    assertThat(newLabel.defaultLabel()).isEqualTo("Test");
+  }
 
-    @Test
-    void equals_ShouldReturnTrue_ForObjectsWithSameName() {
-        LabelType one = LabelType.of("field");
-        LabelType two = LabelType.of("field");
+  @Test
+  void get_ShouldUseDefaultResolver() {
+    var resolverMock = mock(MessageResolver.class);
+    MessageResolutionContext.setResolver(resolverMock);
+    MessageResolutionContext.setLocale(Locale.GERMAN);
 
-        assertThat(one)
-                .isEqualTo(two)
-                .hasSameHashCodeAs(two);
-    }
+    LabelType.SUBJECT.get();
 
-    @Test
-    void equals_ShouldReturnFalse_ForDifferentNames() {
-        LabelType one = LabelType.of("field");
-        LabelType two = LabelType.of("different");
+    verify(resolverMock)
+        .resolveOrDefault(
+            LabelType.SUBJECT.getKey(), Locale.GERMAN, LabelType.SUBJECT.defaultLabel());
+  }
 
-        assertThat(one).isNotEqualTo(two);
-    }
+  @Test
+  void equals_ShouldReturnTrue_ForObjectsWithSameKey() {
+    LabelType one = LabelType.of("field");
+    LabelType two = LabelType.of("field");
 
-    @Test
-    void equals_ShouldReturnFalse_WhenComparingWithNullOrOtherClass() {
-        LabelType one = LabelType.of("field");
+    assertThat(one).isEqualTo(two).hasSameHashCodeAs(two);
+  }
 
-        assertThat(one)
-                .isNotEqualTo(null)
-                .isNotEqualTo("field");
-    }
+  @Test
+  void equals_ShouldReturnFalse_ForDifferentKeys() {
+    LabelType one = LabelType.of("field");
+    LabelType two = LabelType.of("different");
+
+    assertThat(one).isNotEqualTo(two);
+  }
+
+  @Test
+  void equals_ShouldReturnFalse_WhenComparingWithNullOrOtherClass() {
+    LabelType one = LabelType.of("field");
+
+    assertThat(one).isNotEqualTo(null).isNotEqualTo(new Object());
+  }
 }

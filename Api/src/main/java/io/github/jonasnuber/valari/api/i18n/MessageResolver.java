@@ -5,43 +5,52 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * Abstraction for resolving message keys into localized, human-readable messages.
- * <p>
- * Implementations of this interface allow the validation framework to remain
- * independent of any specific internationalization (i18n) technology. For example,
- * a {@code MessageResolver} may be backed by {@link java.util.ResourceBundle},
- * a database, or a custom translation service.
- * </p>
+ * Strategy interface for resolving message keys into localized, human-readable text. This
+ * abstraction decouples the Valari validation framework from any concrete internationalization
+ * technology.
  *
- * <h2>Contract</h2>
+ * <p>Implementations may be backed by:
+ *
  * <ul>
- *   <li>Messages are identified by a unique {@code key}.</li>
- *   <li>Optional {@code args} can be supplied for parameterized formatting
- *       (e.g. {@code {0}, {1}, ...} placeholders).</li>
- *   <li>A {@code defaultMessage} may be provided as a fallback if the key
- *       cannot be resolved.</li>
- *   <li>All lookups are locale-specific, using the given {@link Locale}.</li>
+ *   <li>{@link java.util.ResourceBundle}-based resolvers
+ *   <li>database-backed message catalogs
+ *   <li>remote translation services
+ *   <li>custom logic for dynamic or computed messages
  * </ul>
  *
- * <h2>Default methods</h2>
- * <p>
- * This interface provides several convenience methods that delegate to the main
- * {@link #resolve(String, List, String, Locale)} method:
- * </p>
+ * <h2>General contract</h2>
+ *
  * <ul>
- *   <li>Overloads accepting varargs for message arguments.</li>
- *   <li>Overloads that automatically use the current locale from
- *       {@link MessageResolutionContext}.</li>
- *   <li>Overloads that provide a {@code defaultMessage} fallback.</li>
+ *   <li>Each message is identified by a unique, non-null {@code key}.
+ *   <li>Placeholders (e.g., <code>{0}</code>, <code>{1}</code>) MAY appear in the message and will
+ *       be replaced using the provided {@code args} list.
+ *   <li>If the key cannot be resolved, implementations MUST:
+ *       <ul>
+ *         <li>use {@code defaultMessage} if provided, otherwise
+ *         <li>fallback to the key itself
+ *       </ul>
+ *   <li>Resolution is locale-specific and MUST use the supplied {@link Locale}.
  * </ul>
  *
- * <h2>Usage example</h2>
+ * <h2>Convenience methods</h2>
+ *
+ * <p>This interface provides several default methods that delegate to the main {@link
+ * #resolve(String, List, String, Locale)} method:
+ *
+ * <ul>
+ *   <li>Overloads accepting varargs instead of {@code List<Object>}.
+ *   <li>Overloads using the current locale from {@link MessageResolutionContext}.
+ *   <li>Overloads that include a {@code defaultMessage} fallback.
+ * </ul>
+ *
+ * <h2>Example</h2>
+ *
  * <pre>{@code
  * MessageResolver resolver = new ResourceBundleMessageResolver("messages");
  *
- * String msg1 = resolver.resolve("validation.object.notNull");
- * String msg2 = resolver.resolve("validation.object.equalTo", "expectedValue");
- * String msg3 = resolver.resolveOrDefault("missing.key", "Default fallback");
+ * String plain = resolver.resolve("validation.missingField");
+ * String withArgs = resolver.resolve("validation.range", minValue, maxValue);
+ * String withFallback = resolver.resolveOrDefault("unknown.key", "Fallback text");
  * }</pre>
  *
  * @author Jonas Nuber
@@ -49,100 +58,109 @@ import java.util.Locale;
 @FunctionalInterface
 public interface MessageResolver {
 
-    /**
-     * Resolves a message for the given key, arguments, and locale.
-     *
-     * @param key the message key to resolve (must not be {@code null})
-     * @param args optional arguments to be substituted into the resolved message, may be {@code null}
-     * @param defaultMessage a fallback message if the key cannot be resolved, may be {@code null}
-     * @param locale the target locale (must not be {@code null})
-     * @return the resolved and formatted message; never {@code null} but may fall back to
-     *         {@code defaultMessage} or the {@code key} itself if no resolution was possible
-     */
-    String resolve(String key, List<Object> args, String defaultMessage, Locale locale);
+  /**
+   * Resolves a message for the given key, arguments, and locale.
+   *
+   * <p>This is the central resolution method, called by all convenience overloads. Implementations
+   * should:
+   *
+   * <ul>
+   *   <li>look up the message for the given key
+   *   <li>apply placeholder substitution using {@code args}
+   *   <li>fallback to {@code defaultMessage} if lookup fails
+   *   <li>fallback to the key itself if both lookup and {@code defaultMessage} fail
+   * </ul>
+   *
+   * @param key the message key to resolve (must not be {@code null})
+   * @param args optional arguments for placeholder substitution; may be {@code null}
+   * @param defaultMessage optional fallback message if the key cannot be resolved; may be {@code
+   *     null}
+   * @param locale the locale to use for resolution (must not be {@code null})
+   * @return the resolved and formatted message; never {@code null}
+   */
+  String resolve(String key, List<Object> args, String defaultMessage, Locale locale);
 
-    /**
-     * Resolves a message for the given key using the current locale
-     * from {@link MessageResolutionContext}.
-     *
-     * @param key the message key
-     * @return the resolved message
-     */
-    default String resolve(String key) {
-        return resolve(key, null, null, MessageResolutionContext.getLocale());
-    }
+  /**
+   * Resolves a message for the given key using the current locale from {@link
+   * MessageResolutionContext}.
+   *
+   * @param key the message key
+   * @return the resolved message (never {@code null})
+   */
+  default String resolve(String key) {
+    return resolve(key, null, null, MessageResolutionContext.getLocale());
+  }
 
-    /**
-     * Resolves a message for the given key and arguments using the current locale
-     * from {@link MessageResolutionContext}.
-     *
-     * @param key the message key
-     * @param args arguments for parameter substitution
-     * @return the resolved message
-     */
-    default String resolve(String key, Object... args) {
-        return resolve(key, Arrays.asList(args), null, MessageResolutionContext.getLocale());
-    }
+  /**
+   * Resolves a message for the given key and arguments using the current locale.
+   *
+   * @param key the message key
+   * @param args arguments for placeholder substitution
+   * @return the resolved message (never {@code null})
+   */
+  default String resolve(String key, Object... args) {
+    return resolve(key, Arrays.asList(args), null, MessageResolutionContext.getLocale());
+  }
 
-    /**
-     * Resolves a message for the given key using the current locale,
-     * or falls back to the given default message if the key cannot be resolved.
-     *
-     * @param key the message key
-     * @param defaultMessage the fallback message
-     * @return the resolved message or the fallback
-     */
-    default String resolveOrDefault(String key, String defaultMessage) {
-        return resolve(key, null, defaultMessage, MessageResolutionContext.getLocale());
-    }
+  /**
+   * Resolves a message or returns the provided default message if the key cannot be resolved.
+   *
+   * @param key the message key
+   * @param defaultMessage the fallback message to use if lookup fails
+   * @return the resolved message or {@code defaultMessage} (never {@code null})
+   */
+  default String resolveOrDefault(String key, String defaultMessage) {
+    return resolve(key, null, defaultMessage, MessageResolutionContext.getLocale());
+  }
 
-    /**
-     * Resolves a message for the given key and arguments using the current locale,
-     * or falls back to the given default message if the key cannot be resolved.
-     *
-     * @param key the message key
-     * @param defaultMessage the fallback message
-     * @param args arguments for parameter substitution
-     * @return the resolved message or the fallback
-     */
-    default String resolveOrDefault(String key, String defaultMessage, Object... args) {
-        return resolve(key, Arrays.asList(args), defaultMessage, MessageResolutionContext.getLocale());
-    }
+  /**
+   * Resolves a message with arguments or returns the provided default message if the key cannot be
+   * resolved.
+   *
+   * @param key the message key
+   * @param defaultMessage the fallback message
+   * @param args arguments for placeholder substitution
+   * @return the resolved message or {@code defaultMessage} (never {@code null})
+   */
+  default String resolveOrDefault(String key, String defaultMessage, Object... args) {
+    return resolve(key, Arrays.asList(args), defaultMessage, MessageResolutionContext.getLocale());
+  }
 
-    /**
-     * Resolves a message for the given key and locale.
-     *
-     * @param key the message key
-     * @param locale the target locale
-     * @return the resolved message
-     */
-    default String resolve(String key, Locale locale) {
-        return resolve(key, null, null, locale);
-    }
+  /**
+   * Resolves a message for the given key using the specified locale.
+   *
+   * @param key the message key
+   * @param locale the target locale
+   * @return the resolved message (never {@code null})
+   */
+  default String resolve(String key, Locale locale) {
+    return resolve(key, null, null, locale);
+  }
 
-    /**
-     * Resolves a message for the given key, arguments, and locale.
-     *
-     * @param key the message key
-     * @param locale the target locale
-     * @param args arguments for parameter substitution
-     * @return the resolved message
-     */
-    default String resolve(String key, Locale locale, Object... args) {
-        return resolve(key, Arrays.asList(args), null, locale);
-    }
+  /**
+   * Resolves a message with arguments for the specified locale.
+   *
+   * @param key the message key
+   * @param locale the target locale
+   * @param args arguments for placeholder substitution
+   * @return the resolved message (never {@code null})
+   */
+  default String resolve(String key, Locale locale, Object... args) {
+    return resolve(key, Arrays.asList(args), null, locale);
+  }
 
-    /**
-     * Resolves a message for the given key, locale, arguments,
-     * and a fallback default message.
-     *
-     * @param key the message key
-     * @param locale the target locale
-     * @param defaultMessage the fallback message
-     * @param args arguments for parameter substitution
-     * @return the resolved message or the fallback
-     */
-    default String resolveOrDefault(String key, Locale locale, String defaultMessage, Object... args) {
-        return resolve(key, Arrays.asList(args), defaultMessage, locale);
-    }
+  /**
+   * Resolves a message or returns the provided default message for the specified locale if the key
+   * cannot be resolved.
+   *
+   * @param key the message key
+   * @param locale the target locale
+   * @param defaultMessage the fallback message
+   * @param args arguments for placeholder substitution
+   * @return the resolved message or {@code defaultMessage} (never {@code null})
+   */
+  default String resolveOrDefault(
+      String key, Locale locale, String defaultMessage, Object... args) {
+    return resolve(key, Arrays.asList(args), defaultMessage, locale);
+  }
 }

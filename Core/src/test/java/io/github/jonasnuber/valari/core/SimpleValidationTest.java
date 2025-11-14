@@ -15,7 +15,7 @@ class SimpleValidationTest {
 
     @BeforeAll
     static void init() {
-        validation = SimpleValidation.from(i -> i == 2, new ValidationMetadata.Builder("error").build());
+        validation = SimpleValidation.from(i -> i == 2, ValidationMetadata.builder("error").build());
     }
 
     @Test
