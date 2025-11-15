@@ -1,159 +1,179 @@
 package io.github.jonasnuber.valari.core.bindings;
 
-import io.github.jonasnuber.valari.Person;
-import io.github.jonasnuber.valari.api.i18n.MessageResolutionContext;
-import io.github.jonasnuber.valari.core.ValidationResult;
-import io.github.jonasnuber.valari.core.ConstructorValidator;
-import org.junit.jupiter.api.Test;
-
 import static io.github.jonasnuber.valari.core.validations.ObjectValidations.notNull;
 import static io.github.jonasnuber.valari.core.validations.StringValidations.notBlank;
 import static io.github.jonasnuber.valari.core.validations.StringValidations.notEmpty;
 import static org.assertj.core.api.Assertions.*;
 
+import io.github.jonasnuber.valari.Person;
+import io.github.jonasnuber.valari.api.exceptions.ValidationException;
+import io.github.jonasnuber.valari.core.ConstructorValidator;
+import io.github.jonasnuber.valari.core.CoreDefaults;
+import io.github.jonasnuber.valari.core.ValidationResult;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
 class ParameterRuleBindingTest {
 
-    @Test
-    void constructor_ShouldThrowException_ForNullInputs() {
-        var nullParameterName = catchThrowable(() -> new ParameterRuleBinding<>(null, null, null));
-        var nullParent = catchThrowable(() -> new ParameterRuleBinding<>("someName", null, null));
+  @BeforeAll
+  static void init() {
+    CoreDefaults.initializeDefaults();
+  }
 
-        assertThat(nullParameterName)
-                .isInstanceOf(NullPointerException.class)
-                .hasMessage("ParameterName must not be null");
-        assertThat(nullParent)
-                .isInstanceOf(NullPointerException.class)
-                .hasMessage("Constructor Validator must not be null");
-    }
+  @Test
+  void constructor_ShouldThrowException_ForNullInputs() {
+    var nullParameterName = catchThrowable(() -> new ParameterRuleBinding<>(null, null, null));
+    var nullParent = catchThrowable(() -> new ParameterRuleBinding<>("someName", null, null));
 
-    @Test
-    void mustSatisfy_ShouldThrowException_WhenValidationIsNull() {
-        var binding = new ParameterRuleBinding<>("SomeName", "Value", ConstructorValidator.of(Person.class));
+    assertThat(nullParameterName)
+        .isInstanceOf(NullPointerException.class)
+        .hasMessage("ParameterName must not be null");
+    assertThat(nullParent)
+        .isInstanceOf(NullPointerException.class)
+        .hasMessage("Constructor Validator must not be null");
+  }
 
-        var thrown = catchThrowable(() -> binding.mustSatisfy(null));
+  @Test
+  void mustSatisfy_ShouldThrowException_WhenValidationIsNull() {
+    var binding =
+        new ParameterRuleBinding<>("SomeName", "Value", ConstructorValidator.of(Person.class));
 
-        assertThat(thrown)
-                .isInstanceOf(NullPointerException.class)
-                .hasMessage("Validation must not be null");
-    }
+    var thrown = catchThrowable(() -> binding.mustSatisfy(null));
 
-    @Test
-    void mustSatisfy_ShouldSetValidationUsed_ForBinding(){
-        var validPersonField = new ParameterRuleBinding<>("SomeName", "Value", ConstructorValidator.of(Person.class));
-        var invalidPersonField = new ParameterRuleBinding<>("SomeName", null, ConstructorValidator.of(Person.class));
-        validPersonField.mustSatisfy(notEmpty());
-        invalidPersonField.mustSatisfy(notNull());
+    assertThat(thrown)
+        .isInstanceOf(NullPointerException.class)
+        .hasMessage("Validation must not be null");
+  }
 
-        var validResult = validPersonField.validate();
-        var invalidResult = invalidPersonField.validate();
+  @Test
+  void mustSatisfy_ShouldSetValidationUsed_ForBinding() {
+    var validPersonField =
+        new ParameterRuleBinding<>("SomeName", "Value", ConstructorValidator.of(Person.class));
+    var invalidPersonField =
+        new ParameterRuleBinding<>("SomeName", null, ConstructorValidator.of(Person.class));
+    validPersonField.mustSatisfy(notEmpty());
+    invalidPersonField.mustSatisfy(notNull());
 
-        assertThat(validResult.isValid()).isTrue();
-        assertThat(invalidResult.isValid()).isFalse();
-    }
+    var validResult = validPersonField.validate();
+    var invalidResult = invalidPersonField.validate();
 
-    @Test
-    void mustSatisfy_ShouldOverridePreviousValidation() {
-        var binding = new ParameterRuleBinding<>("SomeName", "Value", ConstructorValidator.of(Person.class));
-        binding.mustSatisfy(value -> new ValidationResult.Builder("first rule").fail());
-        binding.mustSatisfy(notEmpty()); // overrides previous
+    assertThat(validResult.isValid()).isTrue();
+    assertThat(invalidResult.isValid()).isFalse();
+  }
 
-        var result = binding.validate();
+  @Test
+  void mustSatisfy_ShouldOverridePreviousValidation() {
+    var binding =
+        new ParameterRuleBinding<>("SomeName", "Value", ConstructorValidator.of(Person.class));
+    binding.mustSatisfy(value -> new ValidationResult.Builder("first rule").fail());
+    binding.mustSatisfy(notEmpty()); // overrides previous
 
-        assertThat(result.isValid()).isTrue();
-    }
+    var result = binding.validate();
 
-    @Test
-    void ifPresent_ShouldThrowException_WhenValidationIsNull() {
-        var binding = new ParameterRuleBinding<>("SomeName", "Value", ConstructorValidator.of(Person.class));
+    assertThat(result.isValid()).isTrue();
+  }
 
-        var thrown = catchThrowable(() -> binding.ifPresent(null));
+  @Test
+  void ifPresent_ShouldThrowException_WhenValidationIsNull() {
+    var binding =
+        new ParameterRuleBinding<>("SomeName", "Value", ConstructorValidator.of(Person.class));
 
-        assertThat(thrown)
-                .isInstanceOf(NullPointerException.class)
-                .hasMessage("Validation must not be null");
-    }
+    var thrown = catchThrowable(() -> binding.ifPresent(null));
 
-    @Test
-    void ifPresent_ShouldReturnValid_WhenFieldIsNull() {
-        var binding = new ParameterRuleBinding<>("SomeName", null, ConstructorValidator.of(Person.class));
-        binding.ifPresent(notNull());
+    assertThat(thrown)
+        .isInstanceOf(NullPointerException.class)
+        .hasMessage("Validation must not be null");
+  }
 
-        var result = binding.validate();
+  @Test
+  void ifPresent_ShouldReturnValid_WhenFieldIsNull() {
+    var binding =
+        new ParameterRuleBinding<>("SomeName", null, ConstructorValidator.of(Person.class));
+    binding.ifPresent(notNull());
 
-        assertThat(result.isValid()).isTrue();
-    }
+    var result = binding.validate();
 
-    @Test
-    void ifPresent_ShouldReturnValid_WhenFieldIsPresentAndValid() {
-        var binding = new ParameterRuleBinding<>("SomeName", "value", ConstructorValidator.of(Person.class));
-        binding.ifPresent(notEmpty());
+    assertThat(result.isValid()).isTrue();
+  }
 
-        var result = binding.validate();
+  @Test
+  void ifPresent_ShouldReturnValid_WhenFieldIsPresentAndValid() {
+    var binding =
+        new ParameterRuleBinding<>("SomeName", "value", ConstructorValidator.of(Person.class));
+    binding.ifPresent(notEmpty());
 
-        assertThat(result.isValid()).isTrue();
-    }
+    var result = binding.validate();
 
-//    @Test
-//    void ifPresent_ShouldReturnInvalid_WhenFieldIsPresentAndInvalid() {
-//        var binding = new ParameterRuleBinding<>("SomeName", "  ", ConstructorValidator.of(Person.class));
-//        binding.ifPresent(notBlank());
-//
-//        var result = binding.validate();
-//
-//        assertThat(result.isInvalid()).isTrue();
-//        assertThat(result.getLabel()).isEqualTo("SomeName");
-//        assertThat(result.resolveValidationMessage(MessageResolutionContext.getResolver(), MessageResolutionContext.getLocale()))
-//                .isEqualTo("must not be blank");
-//    }
-    @Test
-    void validate_ShouldReturnValidResult_WhenFieldIsValid() {
-        var binding = new ParameterRuleBinding<>("SomeName", "value", ConstructorValidator.of(Person.class));
-        binding.mustSatisfy(notBlank());
+    assertThat(result.isValid()).isTrue();
+  }
 
-        var result = binding.validate();
+  @Test
+  void ifPresent_ShouldReturnInvalid_WhenFieldIsPresentAndInvalid() {
+    var binding =
+        new ParameterRuleBinding<>("SomeName", "  ", ConstructorValidator.of(Person.class));
+    binding.ifPresent(notBlank());
 
-        assertThat(result.isValid()).isTrue();
-    }
+    var result = binding.validate();
 
-    @Test
-    void validate_ShouldReturnInvalidResult_WhenFieldIsInvalid() {
-        var binding = new ParameterRuleBinding<>("SomeName", null, ConstructorValidator.of(Person.class));
-        binding.mustSatisfy(notNull());
+    assertThat(result.isInvalid()).isTrue();
+    assertThat(result.getLabel()).isEqualTo("SomeName");
+  }
 
-        var result = binding.validate();
+  @Test
+  void validate_ShouldReturnValidResult_WhenFieldIsValid() {
+    var binding =
+        new ParameterRuleBinding<>("SomeName", "value", ConstructorValidator.of(Person.class));
+    binding.mustSatisfy(notBlank());
 
-        assertThat(result.isInvalid()).isTrue();
-        assertThat(result.getLabel()).isEqualTo("SomeName");
-    }
+    var result = binding.validate();
 
-    @Test
-    void validate_ShouldThrowException_WhenNoValidationIsSet() {
-        var binding = new ParameterRuleBinding<>("SomeName", null, ConstructorValidator.of(Person.class));
+    assertThat(result.isValid()).isTrue();
+  }
 
-        var thrown = catchThrowable(binding::validate);
+  @Test
+  void validate_ShouldReturnInvalidResult_WhenFieldIsInvalid() {
+    var binding =
+        new ParameterRuleBinding<>("SomeName", null, ConstructorValidator.of(Person.class));
+    binding.mustSatisfy(notNull());
 
-        assertThat(thrown)
-                .isInstanceOf(IllegalStateException.class)
-                .hasMessage("No validation rule was set. Call mustSatisfy(...) or ifPresent(...) before validation");
-    }
+    var result = binding.validate();
 
-//    @Test
-//    void validateAndThrow_ShouldNotThrowException_WhenValidationSucceeds() {
-//        var binding = new ParameterRuleBinding<>("SomeName", "value", ConstructorValidator.of(Person.class));
-//        binding.mustSatisfy(notBlank());
-//
-//        assertThatCode(binding::validateAndThrow).doesNotThrowAnyException();
-//    }
-//
-//    @Test
-//    void validateAndThrow_ShouldThrowException_WhenValidationFails() {
-//        var binding = new ParameterRuleBinding<>("SomeName", null, ConstructorValidator.of(Person.class));
-//        binding.mustSatisfy(notNull());
-//
-//        var thrown = catchThrowable(binding::validateAndThrow);
-//
-//        assertThat(thrown)
-//                .isInstanceOf(InvalidAttributeValueException.class)
-//                .hasMessage("The field: \"SomeName\" is invalid: must not be null");
-//    }
+    assertThat(result.isInvalid()).isTrue();
+    assertThat(result.getLabel()).isEqualTo("SomeName");
+  }
+
+  @Test
+  void validate_ShouldThrowException_WhenNoValidationIsSet() {
+    var binding =
+        new ParameterRuleBinding<>("SomeName", null, ConstructorValidator.of(Person.class));
+
+    var thrown = catchThrowable(binding::validate);
+
+    assertThat(thrown)
+        .isInstanceOf(IllegalStateException.class)
+        .hasMessage(
+            "No validation rule was set. Call mustSatisfy(...) or ifPresent(...) before validation");
+  }
+
+  @Test
+  void validateAndThrow_ShouldNotThrowException_WhenValidationSucceeds() {
+    var binding =
+        new ParameterRuleBinding<>("SomeName", "value", ConstructorValidator.of(Person.class));
+    binding.mustSatisfy(notBlank());
+
+    assertThatCode(() -> binding.validate().throwIfInvalid()).doesNotThrowAnyException();
+  }
+
+  @Test
+  void validateAndThrow_ShouldThrowException_WhenValidationFails() {
+    var binding =
+        new ParameterRuleBinding<>("SomeName", null, ConstructorValidator.of(Person.class));
+    binding.mustSatisfy(notNull());
+
+    var thrown = catchThrowable(() -> binding.validate().throwIfInvalid());
+
+    assertThat(thrown)
+        .isInstanceOf(ValidationException.class)
+        .hasMessageContaining("The Parameter \"SomeName\" is invalid: must not be null");
+  }
 }

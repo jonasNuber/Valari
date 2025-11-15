@@ -42,12 +42,7 @@ public class DefaultResultFormatter implements ResultFormatter<String> {
     ValidationState state = aggregated.getState();
 
     sb.append(INDENT.repeat(depth))
-        .append(
-            resolver.resolve(
-                metadata.getMessageKey(),
-                metadata.getMessageArguments(),
-                metadata.getDefaultMessage(),
-                locale))
+        .append(metadata.resolveMessage(resolver, locale))
         .append(System.lineSeparator());
 
     if (state == ValidationState.SKIPPED) return;
@@ -63,12 +58,7 @@ public class DefaultResultFormatter implements ResultFormatter<String> {
 
     String labelType = metadata.getLabelType().localize(resolver, locale);
     String label = metadata.getLabel();
-    String validationMessage =
-        resolver.resolve(
-            metadata.getMessageKey(),
-            metadata.getMessageArguments(),
-            metadata.getDefaultMessage(),
-            locale);
+    String validationMessage = metadata.resolveMessage(resolver, locale);
 
     return switch (state) {
       case SUCCESS ->

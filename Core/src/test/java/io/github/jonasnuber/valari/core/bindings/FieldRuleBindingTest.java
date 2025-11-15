@@ -1,9 +1,11 @@
 package io.github.jonasnuber.valari.core.bindings;
 
 import io.github.jonasnuber.valari.Person;
-import io.github.jonasnuber.valari.api.i18n.MessageResolutionContext;
+import io.github.jonasnuber.valari.api.exceptions.ValidationException;
+import io.github.jonasnuber.valari.core.CoreDefaults;
 import io.github.jonasnuber.valari.core.DomainValidator;
 import io.github.jonasnuber.valari.core.ValidationResult;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import static io.github.jonasnuber.valari.core.validations.StringValidations.notEmpty;
@@ -11,174 +13,175 @@ import static org.assertj.core.api.Assertions.*;
 
 class FieldRuleBindingTest {
 
-    @Test
-    void constructor_ShouldThrowException_ForNullInputs() {
-        var nullFieldName = catchThrowable(() -> new FieldRuleBinding<>(null, null, null));
-        var nullValueExtractor = catchThrowable(() -> new FieldRuleBinding<>("someFieldName", null, null));
-        var nullParent = catchThrowable(() -> new FieldRuleBinding<>("someFieldName", Person::getName, null));
+  @BeforeAll
+  static void init() {
+    CoreDefaults.initializeDefaults();
+  }
 
-        assertThat(nullFieldName)
-                .isInstanceOf(NullPointerException.class)
-                .hasMessage("FieldName of the value to validate must not be null");
-        assertThat(nullValueExtractor)
-                .isInstanceOf(NullPointerException.class)
-                .hasMessage("Extractor Method to get value for validation must not be null");
-        assertThat(nullParent)
-                .isInstanceOf(NullPointerException.class)
-                .hasMessage("Parent Validator must not be null");
-    }
+  @Test
+  void constructor_ShouldThrowException_ForNullInputs() {
+    var nullFieldName = catchThrowable(() -> new FieldRuleBinding<>(null, null, null));
+    var nullValueExtractor =
+        catchThrowable(() -> new FieldRuleBinding<>("someFieldName", null, null));
+    var nullParent =
+        catchThrowable(() -> new FieldRuleBinding<>("someFieldName", Person::getName, null));
 
-    @Test
-    void mustSatisfy_ShouldThrowException_WhenValidationIsNull() {
-        var binding = new FieldRuleBinding<>("Name", Person::getName, DomainValidator.of(Person.class));
+    assertThat(nullFieldName)
+        .isInstanceOf(NullPointerException.class)
+        .hasMessage("FieldName of the value to validate must not be null");
+    assertThat(nullValueExtractor)
+        .isInstanceOf(NullPointerException.class)
+        .hasMessage("Extractor Method to get value for validation must not be null");
+    assertThat(nullParent)
+        .isInstanceOf(NullPointerException.class)
+        .hasMessage("Parent Validator must not be null");
+  }
 
-        var thrown = catchThrowable(() -> binding.mustSatisfy(null));
+  @Test
+  void mustSatisfy_ShouldThrowException_WhenValidationIsNull() {
+    var binding = new FieldRuleBinding<>("Name", Person::getName, DomainValidator.of(Person.class));
 
-        assertThat(thrown)
-                .isInstanceOf(NullPointerException.class)
-                .hasMessage("validation must not be null");
-    }
+    var thrown = catchThrowable(() -> binding.mustSatisfy(null));
 
-    @Test
-    void mustSatisfy_ShouldSetValidationUsed_ForBinding(){
-        var validPerson = new Person("Bob", 25);
-        var invalidPerson = new Person(null, 25);
-        var binding = new FieldRuleBinding<>("Name", Person::getName, DomainValidator.of(Person.class));
-        binding.mustSatisfy(notEmpty());
+    assertThat(thrown)
+        .isInstanceOf(NullPointerException.class)
+        .hasMessage("validation must not be null");
+  }
 
-        var validResult = binding.validate(validPerson);
-        var invalidResult = binding.validate(invalidPerson);
+  @Test
+  void mustSatisfy_ShouldSetValidationUsed_ForBinding() {
+    var validPerson = new Person("Bob", 25);
+    var invalidPerson = new Person(null, 25);
+    var binding = new FieldRuleBinding<>("Name", Person::getName, DomainValidator.of(Person.class));
+    binding.mustSatisfy(notEmpty());
 
-        assertThat(validResult.isValid()).isTrue();
-        assertThat(invalidResult.isValid()).isFalse();
-    }
+    var validResult = binding.validate(validPerson);
+    var invalidResult = binding.validate(invalidPerson);
 
-    @Test
-    void mustSatisfy_ShouldOverridePreviousValidation() {
-        var person = new Person("Bob", 25);
-        var binding = new FieldRuleBinding<>("Name", Person::getName, DomainValidator.of(Person.class));
-        binding.mustSatisfy(value -> new ValidationResult.Builder("first rule").fail());
-        binding.mustSatisfy(notEmpty()); // overrides previous
+    assertThat(validResult.isValid()).isTrue();
+    assertThat(invalidResult.isValid()).isFalse();
+  }
 
-        var result = binding.validate(person);
+  @Test
+  void mustSatisfy_ShouldOverridePreviousValidation() {
+    var person = new Person("Bob", 25);
+    var binding = new FieldRuleBinding<>("Name", Person::getName, DomainValidator.of(Person.class));
+    binding.mustSatisfy(value -> new ValidationResult.Builder("first rule").fail());
+    binding.mustSatisfy(notEmpty()); // overrides previous
 
-        assertThat(result.isValid()).isTrue();
-    }
+    var result = binding.validate(person);
 
-    @Test
-    void ifPresent_ShouldNotThrowException_WhenValidationIsNull() {
-        var binding = new FieldRuleBinding<>("Name", Person::getName, DomainValidator.of(Person.class));
+    assertThat(result.isValid()).isTrue();
+  }
 
-        assertThatCode(() -> binding.ifPresent(null))
-                .doesNotThrowAnyException();
-    }
+  @Test
+  void ifPresent_ShouldNotThrowException_WhenValidationIsNull() {
+    var binding = new FieldRuleBinding<>("Name", Person::getName, DomainValidator.of(Person.class));
 
+    assertThatCode(() -> binding.ifPresent(null)).doesNotThrowAnyException();
+  }
 
-    @Test
-    void ifPresent_ShouldReturnValid_WhenFieldIsNull() {
-        var person = new Person(null, 25);
-        var binding = new FieldRuleBinding<>("Name", Person::getName, DomainValidator.of(Person.class));
-        binding.ifPresent(notEmpty());
+  @Test
+  void ifPresent_ShouldReturnValid_WhenFieldIsNull() {
+    var person = new Person(null, 25);
+    var binding = new FieldRuleBinding<>("Name", Person::getName, DomainValidator.of(Person.class));
+    binding.ifPresent(notEmpty());
 
-        var result = binding.validate(person);
+    var result = binding.validate(person);
 
-        assertThat(result.isValid()).isTrue();
-    }
+    assertThat(result.isValid()).isTrue();
+  }
 
-    @Test
-    void ifPresent_ShouldReturnValid_WhenFieldIsPresentAndValid() {
-        var person = new Person("Bob", 25);
-        var binding = new FieldRuleBinding<>("Name", Person::getName, DomainValidator.of(Person.class));
-        binding.ifPresent(notEmpty());
+  @Test
+  void ifPresent_ShouldReturnValid_WhenFieldIsPresentAndValid() {
+    var person = new Person("Bob", 25);
+    var binding = new FieldRuleBinding<>("Name", Person::getName, DomainValidator.of(Person.class));
+    binding.ifPresent(notEmpty());
 
-        var result = binding.validate(person);
+    var result = binding.validate(person);
 
-        assertThat(result.isValid()).isTrue();
-    }
+    assertThat(result.isValid()).isTrue();
+  }
 
-//    @Test
-//    void ifPresent_ShouldReturnInvalid_WhenFieldIsPresentAndInvalid() {
-//        var person = new Person("", 25);
-//        var binding = new FieldRuleBinding<>("Name", Person::getName, DomainValidator.of(Person.class));
-//        binding.ifPresent(notEmpty());
-//
-//        var result = binding.validate(person);
-//
-//        assertThat(result.isInvalid()).isTrue();
-//        assertThat(result.getLabel()).isEqualTo("Name");
-//        assertThat(result.resolveValidationMessage(MessageResolutionContext.getResolver(), MessageResolutionContext.getLocale()))
-//                .isEqualTo("must not be empty");
-//    }
+  @Test
+  void ifPresent_ShouldReturnInvalid_WhenFieldIsPresentAndInvalid() {
+    var person = new Person("", 25);
+    var binding = new FieldRuleBinding<>("Name", Person::getName, DomainValidator.of(Person.class));
+    binding.ifPresent(notEmpty());
 
-    @Test
-    void validate_ShouldReturnValidResult_WhenFieldIsValid() {
-        var person = new Person("Alice", 25);
-        var binding = new FieldRuleBinding<>("Name", Person::getName, DomainValidator.of(Person.class));
-        binding.mustSatisfy(notEmpty());
+    var result = binding.validate(person);
 
-        var result = binding.validate(person);
+    assertThat(result.isInvalid()).isTrue();
+    assertThat(result.getLabel()).isEqualTo("Name");
+  }
 
-        assertThat(result.isValid()).isTrue();
-    }
+  @Test
+  void validate_ShouldReturnValidResult_WhenFieldIsValid() {
+    var person = new Person("Alice", 25);
+    var binding = new FieldRuleBinding<>("Name", Person::getName, DomainValidator.of(Person.class));
+    binding.mustSatisfy(notEmpty());
 
-//    @Test
-//    void validate_ShouldReturnInvalidResult_WhenFieldIsInvalid() {
-//        var person = new Person(null, 25);
-//        var binding = new FieldRuleBinding<>("Name", Person::getName, DomainValidator.of(Person.class));
-//        binding.mustSatisfy(notEmpty());
-//
-//        var result = binding.validate(person);
-//
-//        assertThat(result.isInvalid()).isTrue();
-//        assertThat(result.getLabel()).isEqualTo("Name");
-//        assertThat(result.resolveValidationMessage(MessageResolutionContext.getResolver(), MessageResolutionContext.getLocale()))
-//                .isEqualTo("must not be empty");
-//    }
+    var result = binding.validate(person);
 
-    @Test
-    void validate_ShouldThrowException_WhenToValidateIsNull() {
-        var binding = new FieldRuleBinding<>("Name", Person::getName, DomainValidator.of(Person.class));
-        binding.mustSatisfy(notEmpty());
+    assertThat(result.isValid()).isTrue();
+  }
 
-        var thrown = catchThrowable(() -> binding.validate(null));
+  @Test
+  void validate_ShouldReturnInvalidResult_WhenFieldIsInvalid() {
+    var person = new Person(null, 25);
+    var binding = new FieldRuleBinding<>("Name", Person::getName, DomainValidator.of(Person.class));
+    binding.mustSatisfy(notEmpty());
 
-        assertThat(thrown)
-                .isInstanceOf(NullPointerException.class)
-                .hasMessage("Object to validate must not be null");
-    }
+    var result = binding.validate(person);
 
-    @Test
-    void validate_ShouldThrowException_WhenValidationIsNull() {
-        var person = new Person("Name", 25);
-        var binding = new FieldRuleBinding<>("Name", Person::getName, DomainValidator.of(Person.class));
+    assertThat(result.isInvalid()).isTrue();
+    assertThat(result.getLabel()).isEqualTo("Name");
+  }
 
-        var thrown = catchThrowable(() -> binding.validate(person));
+  @Test
+  void validate_ShouldThrowException_WhenToValidateIsNull() {
+    var binding = new FieldRuleBinding<>("Name", Person::getName, DomainValidator.of(Person.class));
+    binding.mustSatisfy(notEmpty());
 
-        assertThat(thrown)
-                .isInstanceOf(IllegalStateException.class)
-                .hasMessage("No validation rule was set. Call mustSatisfy(...) or ifPresent(...) before validation");
-    }
+    var thrown = catchThrowable(() -> binding.validate(null));
 
-//    @Test
-//    void validateAndThrow_ShouldNotThrowException_WhenValidationSucceeds() {
-//        var validPerson = new Person("Name", 25);
-//        var binding = new FieldRuleBinding<>("Name", Person::getName, DomainValidator.of(Person.class));
-//        binding.mustSatisfy(notEmpty());
-//
-//        assertThatCode(() -> binding.validateAndThrow(validPerson))
-//                .doesNotThrowAnyException();
-//    }
-//
-//    @Test
-//    void validateAndThrow_ShouldThrowException_WhenValidationFails() {
-//        var invalidPerson = new Person(null, 25);
-//        var binding = new FieldRuleBinding<>("Name", Person::getName, DomainValidator.of(Person.class));
-//        binding.mustSatisfy(notEmpty());
-//
-//        var thrown = catchThrowable(() -> binding.validateAndThrow(invalidPerson));
-//
-//        assertThat(thrown)
-//                .isInstanceOf(InvalidAttributeValueException.class)
-//                .hasMessage("The Field \"Name\" is invalid: must not be empty");
-//    }
+    assertThat(thrown)
+        .isInstanceOf(NullPointerException.class)
+        .hasMessage("Object to validate must not be null");
+  }
+
+  @Test
+  void validate_ShouldThrowException_WhenValidationIsNull() {
+    var person = new Person("Name", 25);
+    var binding = new FieldRuleBinding<>("Name", Person::getName, DomainValidator.of(Person.class));
+
+    var thrown = catchThrowable(() -> binding.validate(person));
+
+    assertThat(thrown)
+        .isInstanceOf(IllegalStateException.class)
+        .hasMessage(
+            "No validation rule was set. Call mustSatisfy(...) or ifPresent(...) before validation");
+  }
+
+  @Test
+  void validateAndThrow_ShouldNotThrowException_WhenValidationSucceeds() {
+    var validPerson = new Person("Name", 25);
+    var binding = new FieldRuleBinding<>("Name", Person::getName, DomainValidator.of(Person.class));
+    binding.mustSatisfy(notEmpty());
+
+    assertThatCode(() -> binding.validate(validPerson).throwIfInvalid()).doesNotThrowAnyException();
+  }
+
+  @Test
+  void validateAndThrow_ShouldThrowException_WhenValidationFails() {
+    var invalidPerson = new Person(null, 25);
+    var binding = new FieldRuleBinding<>("Name", Person::getName, DomainValidator.of(Person.class));
+    binding.mustSatisfy(notEmpty());
+
+    var thrown = catchThrowable(() -> binding.validate(invalidPerson).throwIfInvalid());
+
+    assertThat(thrown)
+        .isInstanceOf(ValidationException.class)
+        .hasMessageContaining("The Field \"Name\" is invalid: must not be empty");
+  }
 }

@@ -1,14 +1,22 @@
 package io.github.jonasnuber.valari.core.validations;
 
-import io.github.jonasnuber.valari.api.ValidationMetadata;
 import io.github.jonasnuber.valari.api.Validation;
+import io.github.jonasnuber.valari.api.ValidationMetadata;
 import io.github.jonasnuber.valari.core.SimpleValidation;
-
 import java.util.Objects;
 
 /**
- * Utility class providing predefined validations for objects. These validations define conditions
- * that an object must meet to be considered valid.
+ * Collection of predefined {@link io.github.jonasnuber.valari.api.Validation} instances for general
+ * object handling. These validations cover fundamental object-level constraints such as null-checks
+ * and equality checks.
+ *
+ * <p>All validations assume the input value is non-{@code null}. If a {@code null} value is passed,
+ * the validation will fail immediately.
+ *
+ * <p>Each validation is implemented using {@link SimpleValidation} and includes an associated
+ * {@link ValidationMetadata} describing the constraint and message resolution details.
+ *
+ * <p>This class cannot be instantiated.
  *
  * @author Jonas Nuber
  */
@@ -20,10 +28,14 @@ public final class ObjectValidations {
   }
 
   /**
-   * Returns a validation that passes only if the object is not {@code null}.
+   * Returns a validation that succeeds only if the evaluated object is <strong>not</strong> {@code
+   * null}.
    *
-   * @param <K> the type of the object
-   * @return a validation ensuring the object is not null
+   * <p>This is one of the most commonly used validations and is particularly useful as a
+   * prerequisite for subsequent constraint checks.
+   *
+   * @param <K> the type of the validated value
+   * @return a validation that fails when the value is {@code null}
    */
   public static <K> Validation<K> notNull() {
     return SimpleValidation.from(
@@ -34,13 +46,17 @@ public final class ObjectValidations {
   }
 
   /**
-   * Returns a validation that passes only if the object is equal to the specified value.
+   * Returns a validation that succeeds only if the evaluated object is equal to the given {@code
+   * other} object as determined by {@link Object#equals(Object)}.
    *
-   * <p>The provided comparison object must not be {@code null}.
+   * <p>The comparison target must not be {@code null}. This ensures a consistent equality check and
+   * avoids ambiguity between "value is null" and "value differs from expected". If a {@code null}
+   * value must be permitted or explicitly checked, combine this validation with {@link #notNull()}
+   * or use a custom validation.
    *
-   * @param <K> the type of the object
-   * @param other the object to compare against (must not be {@code null})
-   * @return a validation ensuring equality with the specified object
+   * @param <K> the type of the validated values
+   * @param other the expected value (must not be {@code null})
+   * @return a validation ensuring that the evaluated value equals {@code other}
    * @throws NullPointerException if {@code other} is {@code null}
    */
   public static <K> Validation<K> isEqualTo(K other) {
@@ -55,12 +71,15 @@ public final class ObjectValidations {
   }
 
   /**
-   * Internal helper method that asserts the provided object is not {@code null}.
+   * Internal helper that checks whether the given object is not {@code null}.
    *
-   * @param o the object to check
-   * @param errorMessage the exception message if the object is {@code null}
-   * @return always {@code true} if no exception is thrown
-   * @throws NullPointerException if {@code o} is {@code null}
+   * <p>This method is used internally to ensure safe execution of validations that require a
+   * non-null input before applying further logic.
+   *
+   * @param o the object to test
+   * @param errorMessage message for the resulting {@link NullPointerException}
+   * @return always {@code true} if the object is non-null
+   * @throws NullPointerException if the object is {@code null}
    */
   static boolean notNull(Object o, String errorMessage) throws NullPointerException {
     Objects.requireNonNull(o, errorMessage);

@@ -1,7 +1,11 @@
 package io.github.jonasnuber.valari.api;
 
+import io.github.jonasnuber.valari.api.i18n.MessageResolutionContext;
+import io.github.jonasnuber.valari.api.i18n.MessageResolver;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
 /**
@@ -60,6 +64,30 @@ public final class ValidationMetadata {
    */
   public static Builder builder(String defaultMessage) {
     return new Builder(defaultMessage);
+  }
+
+  /**
+   * Resolves the message using the global defaults defined in {@link MessageResolutionContext}.
+   *
+   * @return the resolved message text
+   */
+  public String resolveMessage() {
+    return resolveMessage(
+        MessageResolutionContext.getResolver(), MessageResolutionContext.getLocale());
+  }
+
+  /**
+   * Resolves this validation metadata into a localized human-readable message.
+   *
+   * @param resolver the resolver used to translate the message key
+   * @param locale the target locale
+   * @return the resolved message text
+   */
+  public String resolveMessage(MessageResolver resolver, Locale locale) {
+    Objects.requireNonNull(resolver, "Resolver must not be null");
+    Objects.requireNonNull(locale, "Locale must not be null");
+
+    return resolver.resolve(messageKey, messageArguments, defaultMessage, locale);
   }
 
   /**

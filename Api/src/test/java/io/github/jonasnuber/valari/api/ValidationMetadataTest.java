@@ -1,9 +1,17 @@
 package io.github.jonasnuber.valari.api;
 
+import io.github.jonasnuber.valari.api.i18n.MessageResolver;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
+import java.util.Locale;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class ValidationMetadataTest {
 
@@ -124,5 +132,44 @@ class ValidationMetadataTest {
     var metadata2 = ValidationMetadata.builder("msg").messageKey("key2").build();
 
     assertThat(metadata1).isNotEqualTo(metadata2);
+  }
+
+  @Test
+  void resolveMessage_ShouldReturnMessage_ForValidInput() {
+    var resolver = mock(MessageResolver.class);
+    var locale = Locale.ENGLISH;
+    var metadata =
+        ValidationMetadata.builder("someDefault")
+            .messageKey("some.key")
+            .messageArguments(List.of("argument").toArray())
+            .build();
+    when(resolver.resolve("some.key", List.of("argument"), "someDefault", locale))
+        .thenReturn("Some resolved message with argument");
+
+    var message = metadata.resolveMessage(resolver, locale);
+
+    assertThat(message).isEqualTo("Some resolved message with argument");
+  }
+
+  @Test
+  void resolveMessage_ShouldThrowException_ForNullResolver() {
+    var metadata = ValidationMetadata.builder("default").build();
+
+    var thrown = catchThrowable(() -> metadata.resolveMessage(null, null));
+
+    assertThat(thrown)
+        .isInstanceOf(NullPointerException.class)
+        .hasMessage("Resolver must not be null");
+  }
+
+  @Test
+  void resolveMessage_ShouldThrowException_ForNullLocale() {
+    var metadata = ValidationMetadata.builder("default").build();
+
+    var thrown = catchThrowable(() -> metadata.resolveMessage(mock(MessageResolver.class), null));
+
+    assertThat(thrown)
+        .isInstanceOf(NullPointerException.class)
+        .hasMessage("Locale must not be null");
   }
 }

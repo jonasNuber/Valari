@@ -1,12 +1,20 @@
 package io.github.jonasnuber.valari.core.validations;
 
-import io.github.jonasnuber.valari.api.ValidationMetadata;
 import io.github.jonasnuber.valari.api.Validation;
+import io.github.jonasnuber.valari.api.ValidationMetadata;
 import io.github.jonasnuber.valari.core.SimpleValidation;
 
 /**
- * Utility class providing predefined validations for {@link Integer} values. These validations
- * define conditions that an integer must satisfy to be considered valid.
+ * Utility class providing predefined {@link Validation} instances for {@link Integer} values.
+ *
+ * <p>These validations cover common numerical constraints such as equality, range checks, and
+ * parity checks. All validations assume the input value is non-{@code null}. If a {@code null}
+ * value is passed, the validation will fail immediately.
+ *
+ * <p>Each validation is implemented using {@link SimpleValidation} and includes an associated
+ * {@link ValidationMetadata} describing the constraint and message resolution details.
+ *
+ * <p>This class is a pure utility class and cannot be instantiated.
  *
  * @author Jonas Nuber
  */
@@ -18,10 +26,12 @@ public final class IntegerValidations {
   }
 
   /**
-   * Returns a validation that passes only if the integer value equals the specified amount.
+   * Returns a validation that passes only if the input integer is equal to the specified value.
    *
-   * @param exact the exact integer value required
-   * @return the validation for equality
+   * <p>The check is performed using {@code i == exact}. A {@code null} input results in failure.
+   *
+   * @param exact the required integer value
+   * @return a validation checking numerical equality
    */
   public static Validation<Integer> sameAmount(int exact) {
     return SimpleValidation.from(
@@ -33,11 +43,13 @@ public final class IntegerValidations {
   }
 
   /**
-   * Returns a validation that passes only if the integer value is strictly less than the specified
+   * Returns a validation that passes only if the input integer is strictly less than the specified
    * maximum.
    *
-   * @param max the maximum value (exclusive)
-   * @return the validation for values lower than the maximum
+   * <p>The validation checks {@code i < max}. A {@code null} input results in failure.
+   *
+   * @param max the exclusive upper bound
+   * @return a validation ensuring the input is less than the given maximum
    */
   public static Validation<Integer> lowerThan(int max) {
     return SimpleValidation.from(
@@ -49,11 +61,13 @@ public final class IntegerValidations {
   }
 
   /**
-   * Returns a validation that passes only if the integer value is strictly greater than the
+   * Returns a validation that passes only if the input integer is strictly greater than the
    * specified minimum.
    *
-   * @param min the minimum value (exclusive)
-   * @return the validation for values greater than the minimum
+   * <p>The validation checks {@code i > min}. A {@code null} input results in failure.
+   *
+   * @param min the exclusive lower bound
+   * @return a validation ensuring the input is greater than the given minimum
    */
   public static Validation<Integer> greaterThan(int min) {
     return SimpleValidation.from(
@@ -65,33 +79,44 @@ public final class IntegerValidations {
   }
 
   /**
-   * Returns a validation that passes only if the integer value is strictly between the specified
+   * Returns a validation that passes only if the input integer is strictly between the specified
    * minimum and maximum.
    *
-   * @param min the minimum value (exclusive)
-   * @param max the maximum value (exclusive)
-   * @return the validation for values within the exclusive range
+   * <p>This is equivalent to {@code i > min} <em>and</em> {@code i < max}. The input must not be
+   * {@code null}.
+   *
+   * @param min the exclusive lower bound
+   * @param max the exclusive upper bound
+   * @return a validation ensuring the input lies strictly within the exclusive range
    */
   public static Validation<Integer> inBetween(int min, int max) {
     return greaterThan(min).and(lowerThan(max));
   }
 
   /**
-   * Returns a validation that passes only if the integer value is between the specified minimum and
+   * Returns a validation that passes only if the input integer is between the specified minimum and
    * maximum, inclusive.
    *
-   * @param min the minimum value (inclusive)
-   * @param max the maximum value (inclusive)
-   * @return the validation for values within the inclusive range
+   * <p>This is logically equivalent to {@code i >= min} and {@code i <= max}. Internally, the
+   * implementation reuses the exclusive-range methods by adjusting boundaries.
+   *
+   * <p>The input must not be {@code null}.
+   *
+   * @param min the inclusive lower bound
+   * @param max the inclusive upper bound
+   * @return a validation ensuring the input lies within the inclusive range
    */
   public static Validation<Integer> inBetweenInclusive(int min, int max) {
     return greaterThan(--min).and(lowerThan(++max));
   }
 
   /**
-   * Returns a validation that passes only if the integer value is even.
+   * Returns a validation that passes only if the input integer is even.
    *
-   * @return the validation for even numbers
+   * <p>A number is considered even if {@code i % 2 == 0}. A {@code null} input fails the
+   * validation.
+   *
+   * @return a validation checking for even integers
    */
   public static Validation<Integer> isEven() {
     return SimpleValidation.from(
@@ -100,9 +125,11 @@ public final class IntegerValidations {
   }
 
   /**
-   * Returns a validation that passes only if the integer value is odd.
+   * Returns a validation that passes only if the input integer is odd.
    *
-   * @return the validation for odd numbers
+   * <p>A number is considered odd if {@code i % 2 != 0}. A {@code null} input fails the validation.
+   *
+   * @return a validation checking for odd integers
    */
   public static Validation<Integer> isOdd() {
     return SimpleValidation.from(
