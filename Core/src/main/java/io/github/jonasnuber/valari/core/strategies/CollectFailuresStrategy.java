@@ -83,7 +83,7 @@ public final class CollectFailuresStrategy
         validationDescriptor, "The validationDescriptor for the validation must not be null");
 
     ValidationResultCollection.Builder resultsBuilder =
-        new ValidationResultCollection.Builder(validationDescriptor);
+        ValidationResultCollection.builder(validationDescriptor);
 
     for (NoInputValidator<? extends ThrowableResult<?>> validator : validators) {
       resultsBuilder.add(validator.validate());

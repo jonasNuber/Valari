@@ -1,246 +1,246 @@
 package io.github.jonasnuber.valari.core;
 
-import io.github.jonasnuber.valari.Person;
-import io.github.jonasnuber.valari.core.bindings.FieldRuleBinding;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-
-import java.util.function.Function;
-
 import static io.github.jonasnuber.valari.core.validations.IntegerValidations.greaterThan;
 import static io.github.jonasnuber.valari.core.validations.StringValidations.notEmpty;
 import static org.assertj.core.api.Assertions.*;
 
+import io.github.jonasnuber.valari.Person;
+import io.github.jonasnuber.valari.api.exceptions.AggregatedValidationException;
+import io.github.jonasnuber.valari.core.bindings.FieldRuleBinding;
+import io.github.jonasnuber.valari.core.bindings.NestedRuleBinding;
+import java.util.function.Function;
+import org.assertj.core.api.ThrowableAssert;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
 class DomainValidatorTest {
-    private static DomainValidator<Person> validator;
+  private static DomainValidator<Person> validator;
 
-    @BeforeAll
-    static void init() {
-        validator = DomainValidator.of(Person.class)
-                .field("Name", Person::getName)
-                .mustSatisfy(notEmpty())
-                .field("Age", Person::getAge)
-                .mustSatisfy(greaterThan(0));
-    }
+  @BeforeAll
+  static void init() {
+    validator =
+        DomainValidator.of(Person.class)
+            .field("Name", Person::getName)
+            .mustSatisfy(notEmpty())
+            .field("Age", Person::getAge)
+            .mustSatisfy(greaterThan(0));
+  }
 
-    @Test
-    void of_ShouldThrowException_ForNullClass() {
-        var thrown = catchThrowable(() -> DomainValidator.of(null));
+  @Test
+  void of_ShouldThrowException_ForNullClass() {
+    var thrown = catchThrowable(() -> DomainValidator.of(null));
 
-        assertThat(thrown)
-                .isInstanceOf(NullPointerException.class)
-                .hasMessage("Class must not be null");
-    }
+    assertThat(thrown)
+        .isInstanceOf(NullPointerException.class)
+        .hasMessage("Class must not be null");
+  }
 
-    @Test
-    void field_ShouldThrowException_ForNullInput() {
-        var nullFieldName = catchThrowable(() -> DomainValidator.of(Person.class).field(null, null));
-        var nullExtractor = catchThrowable(() -> DomainValidator.of(Person.class).field("someFieldName", null));
+  @Test
+  void field_ShouldThrowException_ForNullInput() {
+    var nullFieldName = catchThrowable(() -> DomainValidator.of(Person.class).field(null, null));
+    var nullExtractor =
+        catchThrowable(() -> DomainValidator.of(Person.class).field("someFieldName", null));
 
-        assertThat(nullFieldName)
-                .isInstanceOf(NullPointerException.class)
-                .hasMessage("FieldName must not be null");
-        assertThat(nullExtractor)
-                .isInstanceOf(NullPointerException.class)
-                .hasMessage("Extractor Function must not be null");
-    }
+    assertThat(nullFieldName)
+        .isInstanceOf(NullPointerException.class)
+        .hasMessage("FieldName must not be null");
+    assertThat(nullExtractor)
+        .isInstanceOf(NullPointerException.class)
+        .hasMessage("Extractor Function must not be null");
+  }
 
-    @Test
-    void field_ShouldReturnFieldRuleBinding_ForValidInput() {
-        var fieldName = "Age";
-        Function<Person, Integer> extractor = Person::getAge;
+  @Test
+  void field_ShouldReturnFieldRuleBinding_ForValidInput() {
+    var fieldName = "Age";
+    Function<Person, Integer> extractor = Person::getAge;
 
-        var fieldRuleBinding = DomainValidator.of(Person.class).field(fieldName, extractor);
+    var fieldRuleBinding = DomainValidator.of(Person.class).field(fieldName, extractor);
 
-        assertThat(fieldRuleBinding)
-                .isInstanceOf(FieldRuleBinding.class);
-    }
+    assertThat(fieldRuleBinding).isInstanceOf(FieldRuleBinding.class);
+  }
 
-//    @Test
-//    void nested_ShouldThrowException_ForNullInput() {
-//        var nullFieldName = catchThrowable(() -> DomainValidator.of(Person.class).nested(null, null));
-//        var nullExtractor = catchThrowable(() -> DomainValidator.of(Person.class).nested("someFieldName", null));
-//
-//        assertThat(nullFieldName)
-//                .isInstanceOf(NullPointerException.class)
-//                .hasMessage("FieldName must not be null");
-//        assertThat(nullExtractor)
-//                .isInstanceOf(NullPointerException.class)
-//                .hasMessage("Extractor Function must not be null");
-//    }
+  @Test
+  void nested_ShouldThrowException_ForNullInput() {
+    var nullFieldName =
+        catchThrowable(() -> DomainValidator.of(Person.class).nested(null, null, null));
+    var nullValidationClass =
+        catchThrowable(() -> DomainValidator.of(Person.class).nested("someFieldName", null, null));
+    var nullExtractor =
+        catchThrowable(
+            () -> DomainValidator.of(Person.class).nested("someFieldName", String.class, null));
 
-//    @Test
-//    void nested_ShouldReturnNestedValidationBinding_ForValidInput() {
-//        Function<Person, Integer> extractor = Person::getAge;
-//        var fieldName = "Age";
-//
-//        var nestedValidationBinding = DomainValidator.of(Person.class).nested(fieldName, extractor);
-//
-//        assertThat(nestedValidationBinding)
-//                .isInstanceOf(NestedRuleBinding.class);
-//    }
+    assertThat(nullFieldName)
+        .isInstanceOf(NullPointerException.class)
+        .hasMessage("FieldName must not be null");
+    assertThat(nullValidationClass)
+        .isInstanceOf(NullPointerException.class)
+        .hasMessage("Class to validate may not be null");
+    assertThat(nullExtractor)
+        .isInstanceOf(NullPointerException.class)
+        .hasMessage("Extractor Function must not be null");
+  }
 
-    @Test
-    void validate_ShouldThrowException_ForNullObject() {
-        var nullToValidate = catchThrowable(() -> validator.validate(null));
+  @Test
+  void nested_ShouldReturnNestedValidationBinding_ForValidInput() {
+    Function<Person, Integer> extractor = Person::getAge;
+    var fieldName = "Age";
 
-        assertThat(nullToValidate)
-                .isInstanceOf(NullPointerException.class)
-                .hasMessage("Object to validate must not be null");
-    }
+    var nestedValidationBinding =
+        DomainValidator.of(Person.class).nested(fieldName, Integer.class, extractor);
 
-    @Test
-    void validate_ShouldReturnValid_WhenAllFieldsPass() {
-        var name = "Alice";
-        var age = 30;
+    assertThat(nestedValidationBinding).isInstanceOf(NestedRuleBinding.class);
+  }
 
-        var result = validator.validate(new Person(name, age));
+  @Test
+  void validate_ShouldThrowException_ForNullObject() {
+    var nullToValidate = catchThrowable(() -> validator.validate(null));
 
-        assertThat(result.isInvalid()).isFalse();
-    }
+    assertThat(nullToValidate)
+        .isInstanceOf(NullPointerException.class)
+        .hasMessage("Object to validate must not be null");
+  }
 
-    @Test
-    void validate_ShouldReturnInvalid_WhenFieldFails() {
-        var age = -1;
+  @Test
+  void validate_ShouldReturnValid_WhenAllFieldsPass() {
+    var name = "Alice";
+    var age = 30;
 
-        var result = validator.validate(new Person(null, age));
+    var result = validator.validate(new Person(name, age));
 
-//        assertThat(result.isInvalid()).isTrue();
-//        assertThat(((List<ValidationResult>) result.getResults()))
-//                .extracting(ValidationResult::getLabel)
-//                .containsExactlyInAnyOrder("Name", "Age");
-    }
+    assertThat(result.isInvalid()).isFalse();
+  }
 
-    @Test
-    void validate_ShouldIgnoreNullFields_WhenUsingIfPresent() {
-        var validatorWithOptionalName = DomainValidator.of(Person.class)
-                .field("Name", Person::getName)
-                .ifPresent(notEmpty())
-                .field("Age", Person::getAge)
-                .mustSatisfy(greaterThan(0));
-        var person = new Person(null, 42);
+  @Test
+  void validate_ShouldReturnInvalid_WhenFieldFails() {
+    var age = -1;
 
-        var result = validatorWithOptionalName.validate(person);
+    var result = validator.validate(new Person(null, age));
 
-        assertThat(result.isInvalid()).isFalse();
-    }
+    assertThat(result.isInvalid()).isTrue();
+    assertThat((result.getResults()))
+        .extracting(r -> r.getMetadata().getLabel())
+        .containsExactlyInAnyOrder("Name", "Age");
+  }
 
-    @Test
-    void validate_ShouldFail_WhenIfPresentFieldIsInvalid() {
-        var validatorWithOptionalName = DomainValidator.of(Person.class)
-                .field("Name", Person::getName)
-                .ifPresent(notEmpty())
-                .field("Age", Person::getAge)
-                .mustSatisfy(greaterThan(0));
-        var person = new Person("", 42);
+  @Test
+  void validate_ShouldIgnoreNullFields_WhenUsingIfPresent() {
+    var validatorWithOptionalName =
+        DomainValidator.of(Person.class)
+            .field("Name", Person::getName)
+            .ifPresent(notEmpty())
+            .field("Age", Person::getAge)
+            .mustSatisfy(greaterThan(0));
+    var person = new Person(null, 42);
 
-        var result = validatorWithOptionalName.validate(person);
+    var result = validatorWithOptionalName.validate(person);
 
-        assertThat(result.isInvalid()).isTrue();
-    }
+    assertThat(result.isInvalid()).isFalse();
+  }
 
-//    @Test
-//    void validateAndThrow_ShouldThrowException_ForNullObject() {
-//        var nullToValidate = catchThrowable(() -> validator.validateAndThrow(null));
-//
-//        assertThat(nullToValidate)
-//                .isInstanceOf(NullPointerException.class)
-//                .hasMessage("Object to validate must not be null");
-//    }
-//
-//    @Test
-//    void validateAndThrow_ShouldNotThrow_WhenFieldsPass() {
-//        var name = "Bob";
-//        var age = 25;
-//
-//        ThrowableAssert.ThrowingCallable executable = () -> validator.validateAndThrow(new Person(name, age));
-//
-//        assertThatCode(executable).doesNotThrowAnyException();
-//    }
+  @Test
+  void validate_ShouldFail_WhenIfPresentFieldIsInvalid() {
+    var validatorWithOptionalName =
+        DomainValidator.of(Person.class)
+            .field("Name", Person::getName)
+            .ifPresent(notEmpty())
+            .field("Age", Person::getAge)
+            .mustSatisfy(greaterThan(0));
+    var person = new Person("", 42);
 
-//    @Test
-//    void validateAndThrow_ShouldThrow_WhenFieldsFail() {
-//        var age = 0;
-//
-//        var thrown = catchThrowable(() -> validator.validateAndThrow(new Person(null, age)));
-//
-//        assertThat(thrown)
-//                .isInstanceOf(AggregatedValidationException.class)
-//                .hasMessageContaining("Validation for class io.github.jonasnuber.valari.Person failed with 2 error(s):")
-//                .hasMessageContaining("- Field \"Age\": must be greater than 0")
-//                .hasMessageContaining("- Field \"Name\": must not be empty");
-//    }
+    var result = validatorWithOptionalName.validate(person);
 
-    @Test
-    void failFast_ShouldUseFailFastStrategy() {
-        var age = 0;
+    assertThat(result.isInvalid()).isTrue();
+  }
 
-        var result = validator
-                .failFast()
-                .validate(new Person(null, age));
+  @Test
+  void validateAndThrow_ShouldNotThrow_WhenFieldsPass() {
+    var name = "Bob";
+    var age = 25;
 
-        assertThat(result.isInvalid()).isTrue();
-//        assertThat(result.getResults())
-//                .hasSize(1)
-//                .extracting(ValidationResult::getLabel)
-//                .containsExactly("Name");
-    }
+    ThrowableAssert.ThrowingCallable executable =
+        () -> validator.validate(new Person(name, age)).throwIfInvalid();
 
-    @Test
-    void collectFailures_ShouldUseCollectFailuresStrategy() {
-        var age = 0;
+    assertThatCode(executable).doesNotThrowAnyException();
+  }
 
-        var result = validator
-                .collectFailures()
-                .validate(new Person(null, age));
+  @Test
+  void validateAndThrow_ShouldThrow_WhenFieldsFail() {
+    var age = 0;
 
-        assertThat(result.isInvalid()).isTrue();
-//        assertThat(result.getResults())
-//                .hasSize(2)
-//                .extracting(ValidationResult::getLabel)
-//                .containsExactlyInAnyOrder("Name", "Age");
-    }
+    var thrown = catchThrowable(() -> validator.validate(new Person(null, age)).throwIfInvalid());
 
-    @Test
-    void and_ShouldReturnSameInstance() {
-        var expectedValidator = validator;
+    assertThat(thrown)
+        .isInstanceOf(AggregatedValidationException.class)
+        .hasMessageContaining(
+            "Validation for Field \"Person\" (class io.github.jonasnuber.valari.Person) failed with 2 error(s):")
+        .hasMessageContaining("The Field \"Name\" is invalid: must not be empty")
+        .hasMessageContaining("The Field \"Age\" is invalid: must be greater than 0");
+  }
 
-        var actualValidator = validator.and();
+  @Test
+  void failFast_ShouldUseFailFastStrategy() {
+    var age = 0;
 
-        assertThat(actualValidator).isEqualTo(expectedValidator);
-    }
+    var result = validator.failFast().validate(new Person(null, age));
 
-    @Test
-    void and_ShouldNotAffectValidation() {
-        var andValidator = DomainValidator.of(Person.class)
-                .field("Name", Person::getName)
-                .mustSatisfy(notEmpty())
-                .and()
-                .field("Age", Person::getAge)
-                .mustSatisfy(greaterThan(0));
-        var age = -1;
+    assertThat(result.isInvalid()).isTrue();
+    assertThat(result.getResults())
+        .hasSize(1)
+        .extracting(r -> r.getMetadata().getLabel())
+        .containsExactly("Name");
+  }
 
-        var result = andValidator.validate(new Person(null, age));
+  @Test
+  void collectFailures_ShouldUseCollectFailuresStrategy() {
+    var age = 0;
 
-        assertThat(result.isInvalid()).isTrue();
-//        assertThat(result.getResults())
-//                .extracting(ValidationResult::getLabel)
-//                .containsExactlyInAnyOrder("Name", "Age");
-    }
+    var result = validator.collectFailures().validate(new Person(null, age));
 
-    @Test
-    void shouldAllowStrategySwitching() {
-        var age = 0;
+    assertThat(result.isInvalid()).isTrue();
+    assertThat(result.getResults())
+        .hasSize(2)
+        .extracting(r -> r.getMetadata().getLabel())
+        .containsExactlyInAnyOrder("Name", "Age");
+  }
 
-        var result = validator
-                .failFast()
-                .collectFailures()
-                .validate(new Person(null, age));
+  @Test
+  void and_ShouldReturnSameInstance() {
+    var expectedValidator = validator;
 
-        assertThat(result.isInvalid()).isTrue();
-//        assertThat(result.getResults())
-//                .hasSize(2)
-//                .extracting(ValidationResult::getLabel)
-//                .containsExactlyInAnyOrder("Name", "Age");
-    }
+    var actualValidator = validator.and();
+
+    assertThat(actualValidator).isEqualTo(expectedValidator);
+  }
+
+  @Test
+  void and_ShouldNotAffectValidation() {
+    var andValidator =
+        DomainValidator.of(Person.class)
+            .field("Name", Person::getName)
+            .mustSatisfy(notEmpty())
+            .and()
+            .field("Age", Person::getAge)
+            .mustSatisfy(greaterThan(0));
+    var age = -1;
+
+    var result = andValidator.validate(new Person(null, age));
+
+    assertThat(result.isInvalid()).isTrue();
+    assertThat(result.getResults())
+        .extracting(r -> r.getMetadata().getLabel())
+        .containsExactlyInAnyOrder("Name", "Age");
+  }
+
+  @Test
+  void shouldAllowStrategySwitching() {
+    var age = 0;
+
+    var result = validator.failFast().collectFailures().validate(new Person(null, age));
+
+    assertThat(result.isInvalid()).isTrue();
+    assertThat(result.getResults())
+        .hasSize(2)
+        .extracting(r -> r.getMetadata().getLabel())
+        .containsExactlyInAnyOrder("Name", "Age");
+  }
 }

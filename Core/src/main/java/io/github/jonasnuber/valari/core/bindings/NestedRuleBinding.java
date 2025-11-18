@@ -1,10 +1,9 @@
 package io.github.jonasnuber.valari.core.bindings;
 
 import io.github.jonasnuber.valari.api.*;
-import io.github.jonasnuber.valari.core.DomainValidator;
 import io.github.jonasnuber.valari.api.RuleBinding;
+import io.github.jonasnuber.valari.core.DomainValidator;
 import io.github.jonasnuber.valari.core.ValidationResultCollection;
-
 import java.util.Objects;
 import java.util.function.Function;
 
@@ -141,7 +140,7 @@ public final class NestedRuleBinding<TYPE, NESTED>
 
     NESTED value = valueExtractor.apply(toValidate);
     ValidationResultCollection.Builder builder =
-        new ValidationResultCollection.Builder(validationDescriptor);
+        ValidationResultCollection.builder(validationDescriptor);
 
     if (shouldSkipValidation(value)) {
       return builder.build();

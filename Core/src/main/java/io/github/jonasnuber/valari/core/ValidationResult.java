@@ -3,7 +3,7 @@ package io.github.jonasnuber.valari.core;
 import io.github.jonasnuber.valari.api.*;
 import io.github.jonasnuber.valari.api.i18n.MessageResolutionContext;
 import io.github.jonasnuber.valari.api.i18n.MessageResolver;
-
+import io.github.jonasnuber.valari.api.i18n.ResultFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -12,19 +12,26 @@ import java.util.Objects;
 /**
  * Represents the outcome of a single validation operation.
  *
- * <p>A {@code ValidationResult} encapsulates both the logical state of the validation (success,
- * failure, or skipped) and the metadata necessary to produce human-readable or localized validation
- * messages. It acts as the standard result container for all {@link Validation} executions within
- * the Valari framework.
+ * <p>A {@code ValidationResult} encapsulates the logical result of a validation ({@linkplain
+ * ValidationState#SUCCESS success}, {@linkplain ValidationState#FAILURE failure}, or {@linkplain
+ * ValidationState#SKIPPED skipped}) together with the {@link ValidationMetadata} required to
+ * produce human-readable or localized validation messages.
+ *
+ * <p>It acts as the standard result container for all {@link Validation} executions within the
+ * Valari framework.
  *
  * <h2>Message resolution</h2>
  *
- * Messages can be resolved via the configured {@link MessageResolver} and {@link Locale}. For
- * convenience, the {@link #resolveValidationMessage()} method uses the global defaults from {@link
- * MessageResolutionContext}.
+ * Message text can be resolved using a {@link MessageResolver} and a target {@link Locale}. If a
+ * {@linkplain #getMessageKey() message key} is provided and resolvable, the resolved localized
+ * message is used. Otherwise, the metadata's {@linkplain #getDefaultMessage() default message} is
+ * used as a fallback.
  *
- * <p>The higher-level {@link #getDetailedMessage(MessageResolver, Locale)} method wraps the raw
- * validation message into a standardized result message such as:
+ * <p>The convenience method {@link #getMessage()} ()} uses the globally configured resolver,
+ * formatter, and locale from {@link MessageResolutionContext}.
+ *
+ * <p>The higher-level method {@link #getMessage(ResultFormatter, MessageResolver, Locale)} wraps
+ * the resolved validation message in a standardized description such as:
  *
  * <ul>
  *   <li>"The field 'username' is valid: must not be null"
@@ -34,9 +41,13 @@ import java.util.Objects;
  *
  * <h2>Construction</h2>
  *
- * Instances are created using the nested {@link Builder} class, which ensures consistency of state
- * and metadata.
+ * Instances are created through the nested {@link Builder} class, which ensures consistent metadata
+ * and state handling.
  *
+ * @see ThrowableResult
+ * @see ValidationMetadata
+ * @see io.github.jonasnuber.valari.api.i18n.ResultFormatter
+ * @see ValidationState
  * @author Jonas Nuber
  */
 public final class ValidationResult implements ThrowableResult<ValidationResult> {
@@ -57,11 +68,35 @@ public final class ValidationResult implements ThrowableResult<ValidationResult>
   }
 
   /**
-   * Returns a copy of this result with an updated label and label type.
+   * Creates a builder with the given default message.
    *
-   * @param labelType the new label type describing the subject (e.g. FIELD, ATTRIBUTE).
-   * @param label the descriptive label (e.g. field name or object name).
-   * @return a new {@code ValidationResult} with updated label information.
+   * @param defaultMessage the fallback message used if no localized message is resolvable
+   */
+  public static Builder builder(String defaultMessage) {
+    return new Builder(defaultMessage);
+  }
+
+  /**
+   * Initializes a builder from the given validation metadata.
+   *
+   * <p>This extracts all message-related and label-related information from the provided metadata,
+   * making it a convenient factory for rule implementations such as {@code SimpleValidation}.
+   *
+   * @param metadata the metadata used to initialize this builder
+   */
+  public static Builder builder(ValidationMetadata metadata) {
+    return new Builder(metadata);
+  }
+
+  /**
+   * Returns a copy of this result with the given label and label type.
+   *
+   * <p>This does not modify the current instance. Instead, a new {@code ValidationResult} is
+   * created using the builder copy constructor.
+   *
+   * @param labelType the semantic type of label (e.g. {@link LabelType#FIELD})
+   * @param label the descriptive label (e.g. "username", "email")
+   * @return a new {@code ValidationResult} with updated label information
    */
   @Override
   public ValidationResult withLabel(LabelType labelType, String label) {
@@ -71,15 +106,20 @@ public final class ValidationResult implements ThrowableResult<ValidationResult>
   /**
    * Creates a new result representing a skipped validation.
    *
-   * <p>Skipped results indicate that the validation was intentionally not executed (e.g. due to a
-   * precondition).
+   * <p>A skipped result indicates that the validation rule was intentionally not executed—for
+   * example because a prerequisite failed or short-circuiting logic prevented evaluation.
    *
-   * @return a {@code ValidationResult} with state {@link ValidationState#SKIPPED}.
+   * @return a {@code ValidationResult} with state {@link ValidationState#SKIPPED}
    */
   public static ValidationResult skip() {
     return new Builder("Validation was skipped").skip();
   }
 
+  /**
+   * Returns the default message used when no localized message can be resolved.
+   *
+   * @return the fallback message
+   */
   @Override
   public ValidationMetadata getMetadata() {
     return metadata;
@@ -164,9 +204,14 @@ public final class ValidationResult implements ThrowableResult<ValidationResult>
   /**
    * Builder for constructing {@link ValidationResult} instances.
    *
-   * <p>The builder collects message metadata, labeling information, and an optional value, then
-   * finalizes the result into one of the supported states: {@link #ok()}, {@link #fail()}, or
-   * {@link #skip()}.
+   * <p>The builder collects message metadata, label information, arguments, and an optional
+   * validated value. It then finalizes the result into one of the supported states:
+   *
+   * <ul>
+   *   <li>{@link #ok()} – validation succeeded
+   *   <li>{@link #fail()} – validation failed
+   *   <li>{@link #skip()} – validation was not executed
+   * </ul>
    *
    * <h2>Usage example</h2>
    *
@@ -192,19 +237,23 @@ public final class ValidationResult implements ThrowableResult<ValidationResult>
     /**
      * Creates a builder with the given default message.
      *
-     * @param defaultMessage the default message to use if no localized message is available.
+     * @param defaultMessage the fallback message used if no localized message is resolvable
      */
-    public Builder(String defaultMessage) {
+    private Builder(String defaultMessage) {
       this.defaultMessage =
           Objects.requireNonNull(defaultMessage, "DefaultMessage must not be null");
     }
 
     /**
-     * Initializes a builder from validation metadata.
+     * Initializes a builder from the given validation metadata.
      *
-     * @param metadata metadata containing message and label information.
+     * <p>This extracts all message-related and label-related information from the provided
+     * metadata, making it a convenient factory for rule implementations such as {@code
+     * SimpleValidation}.
+     *
+     * @param metadata the metadata used to initialize this builder
      */
-    public Builder(ValidationMetadata metadata) {
+    private Builder(ValidationMetadata metadata) {
       defaultMessage = metadata.getDefaultMessage();
       messageKey = metadata.getMessageKey();
       messageArguments.addAll(metadata.getMessageArguments());
@@ -212,6 +261,15 @@ public final class ValidationResult implements ThrowableResult<ValidationResult>
       label = metadata.getLabel();
     }
 
+    /**
+     * Creates a new builder pre-initialized with all properties from an existing {@link
+     * ValidationResult}.
+     *
+     * <p>This is used internally to implement immutable mutations such as {@link
+     * ValidationResult#withLabel(LabelType, String)}.
+     *
+     * @param existing the result to copy
+     */
     private Builder(ValidationResult existing) {
       Objects.requireNonNull(existing, "Validation Result to extend cannot be null");
 

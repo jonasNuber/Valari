@@ -1,212 +1,278 @@
 package io.github.jonasnuber.valari.core;
 
 import io.github.jonasnuber.valari.api.*;
-import io.github.jonasnuber.valari.api.exceptions.AggregatedValidationException;
-import io.github.jonasnuber.valari.core.strategies.CollectFailuresStrategy;
-import io.github.jonasnuber.valari.core.bindings.NestedRuleBinding;
-import io.github.jonasnuber.valari.core.strategies.FailFastStrategy;
-import io.github.jonasnuber.valari.core.bindings.FieldRuleBinding;
 import io.github.jonasnuber.valari.api.ValidationStrategy;
-
+import io.github.jonasnuber.valari.api.exceptions.AggregatedValidationException;
+import io.github.jonasnuber.valari.core.bindings.FieldRuleBinding;
+import io.github.jonasnuber.valari.core.bindings.NestedRuleBinding;
+import io.github.jonasnuber.valari.core.strategies.CollectFailuresStrategy;
+import io.github.jonasnuber.valari.core.strategies.FailFastStrategy;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 
 /**
- * A {@code DomainValidator} is a fluent, type-safe validator for domain models.
- * <p>
- * It supports defining per-field and nested validation logic using extractors and rules,
- * with options for mandatory ({@code mustSatisfy(...)}) and optional ({@code ifPresent(...)}) validation.
- * It also provides two validation strategies: fail-fast and collect-all-failures.
- * </p>
+ * A {@code DomainValidator} is a fluent, type-safe validator for domain model objects.
  *
- * Example usage:
+ * <h2>Overview</h2>
+ *
+ * <p>This validator allows defining validation rules for individual fields as well as recursively
+ * validating nested objects. Each field or nested value is associated with a human-readable logical
+ * name, which is included in the validation metadata and contributes to readable, localized error
+ * messages.
+ *
+ * <h2>Field and Nested Validation</h2>
+ *
+ * <p>Fields are validated by providing an extractor function along with one or more rules. Required
+ * fields use {@link RuleBinding#mustSatisfy(Object)}, while optional fields can be validated
+ * conditionally via {@link RuleBinding#ifPresent(Object)}.
+ *
+ * <p>Nested objects are validated through sub-validators, allowing composition and reuse of
+ * domain-specific validation logic. Nested validators follow the same fluent DSL.
+ *
+ * <h2>Validation Strategies</h2>
+ *
+ * <p>Two strategies are supported:
+ *
+ * <ul>
+ *   <li><b>Fail-fast:</b> Stops at the first validation failure.
+ *   <li><b>Collect-all-failures:</b> Evaluates all rules and aggregates their failures. This is the
+ *       default.
+ * </ul>
+ *
+ * <h2>Example</h2>
+ *
  * <pre>{@code
  * DomainValidator<User> validator = DomainValidator.of(User.class)
  *     .field("name", User::getName)
- *          .mustSatisfy(notBlank())
+ *         .mustSatisfy(notBlank())
  *     .field("nickname", User::getNickname)
- *          .ifPresent(notBlank()) // optional field, validated only if non-null
- *     .field("email", User::getEmail)
- *          .mustSatisfy(validEmail());
+ *         .ifPresent(notBlank())
+ *     .nested("address", Address.class, User::getAddress)
+ *         .mustSatisfy(
+ *             DomainValidator.of(Address.class)
+ *                 .field("street", Address::getStreet).mustSatisfy(notBlank())
+ *                 .and()
+ *                 .field("zip", Address::getZip).mustSatisfy(validZip())
+ *         );
  *
  * ValidationResultCollection results = validator.validate(user);
- * results.throwIfInvalid(); // throws AggregatedValidationException if any validation failed
+ * results.throwIfInvalid(); // throws AggregatedValidationException if errors exist
  * }</pre>
  *
- * @param <TYPE> the type of object to validate
+ * <h2>Thread Safety</h2>
+ *
+ * <p>Instances of {@code DomainValidator} are mutable during configuration but become effectively
+ * immutable once rules are defined. Validators can be reused safely to validate multiple objects as
+ * long as the configured rules remain unchanged.
+ *
+ * @param <TYPE> the type of the root object being validated
  * @see ValidationResultCollection
  * @see AggregatedValidationException
- *
+ * @see RuleBinding
+ * @see ValidationDescriptor
  * @author Jonas Nuber
  */
 @SuppressWarnings("java:S119")
 public class DomainValidator<TYPE> implements Validator<TYPE, ValidationResultCollection> {
-    private final Class<TYPE> clazz;
-    private final List<Validator<TYPE, ? extends ThrowableResult<?>>> validationBindings = new ArrayList<>();
+  private final Class<TYPE> clazz;
+  private final List<Validator<TYPE, ? extends ThrowableResult<?>>> validationBindings =
+      new ArrayList<>();
 
-    private ValidationStrategy<ValidationResultCollection> validationStrategy = new CollectFailuresStrategy();
+  private ValidationStrategy<ValidationResultCollection> validationStrategy =
+      new CollectFailuresStrategy();
 
-    private DomainValidator(Class<TYPE> clazz) {
-        this.clazz = Objects.requireNonNull(clazz, "Class must not be null");
-    }
+  private DomainValidator(Class<TYPE> clazz) {
+    this.clazz = Objects.requireNonNull(clazz, "Class must not be null");
+  }
 
-    /**
-     * Creates a new {@code DomainValidator} instance for the specified type.
-     *
-     * @param clazz the class of the object to validate
-     * @param <TYPE>   the type parameter
-     * @return a new instance of {@code DomainValidator}
-     */
-    public static <TYPE> DomainValidator<TYPE> of(Class<TYPE> clazz) {
-        return new DomainValidator<>(clazz);
-    }
+  /**
+   * Creates a new {@code DomainValidator} instance for the specified type.
+   *
+   * @param clazz the class of the object to validate (must not be {@code null})
+   * @param <TYPE> the domain type to validate
+   * @return a new {@code DomainValidator} instance
+   * @throws NullPointerException if {@code clazz} is {@code null}
+   */
+  public static <TYPE> DomainValidator<TYPE> of(Class<TYPE> clazz) {
+    return new DomainValidator<>(clazz);
+  }
 
-    /**
-     * Begins validation configuration for a specific field.
-     * <p>
-     * This method allows binding a field extractor and associating it with a name,
-     * which will be used in validation results.
-     * </p>
-     *
-     * Example usage:
-     * <pre>{@code
-     * DomainValidator<User> validator = DomainValidator.of(User.class)
-     *     .field("name", User::getName)
-     *         .mustSatisfy(notBlank());
-     * }</pre>
-     *
-     * @param fieldName the logical name of the field (used in error reporting)
-     * @param extractor the function to extract the field value from the object
-     * @param <FIELD>       the field type
-     * @return a binding that allows attaching a validation rule via {@code mustSatisfy} or {@code ifPresent}
-     */
-    public <FIELD> RuleBinding<DomainValidator<TYPE>, Validation<FIELD>> field(String fieldName, Function<TYPE, FIELD> extractor) {
-        Objects.requireNonNull(fieldName, "FieldName must not be null");
-        Objects.requireNonNull(extractor, "Extractor Function must not be null");
+  /**
+   * Begins validation configuration for a specific field of the domain object.
+   *
+   * <h2>Usage</h2>
+   *
+   * <p>A <em>field binding</em> associates:
+   *
+   * <ul>
+   *   <li>a logical field name (used in error messages), and
+   *   <li>a field extractor function for retrieving the value from the root object.
+   * </ul>
+   *
+   * You may then attach required rules via {@link RuleBinding#mustSatisfy(Object)} or optional
+   * validations via {@link RuleBinding#ifPresent(Object)}.
+   *
+   * <h3>Example</h3>
+   *
+   * <pre>{@code
+   * DomainValidator<User> validator = DomainValidator.of(User.class)
+   *     .field("email", User::getEmail)
+   *         .mustSatisfy(validEmail());
+   * }</pre>
+   *
+   * @param fieldName the descriptive name of the field (must not be {@code null})
+   * @param extractor a function extracting the field value from the domain object
+   * @param <FIELD> the field type
+   * @return a rule binding that allows attaching validation rules
+   * @throws NullPointerException if {@code fieldName} or {@code extractor} is {@code null}
+   */
+  public <FIELD> RuleBinding<DomainValidator<TYPE>, Validation<FIELD>> field(
+      String fieldName, Function<TYPE, FIELD> extractor) {
+    Objects.requireNonNull(fieldName, "FieldName must not be null");
+    Objects.requireNonNull(extractor, "Extractor Function must not be null");
 
-        FieldRuleBinding<TYPE, FIELD> fieldValidationBinding = new FieldRuleBinding<>(fieldName, extractor, this);
-        validationBindings.add(fieldValidationBinding);
+    FieldRuleBinding<TYPE, FIELD> fieldValidationBinding =
+        new FieldRuleBinding<>(fieldName, extractor, this);
+    validationBindings.add(fieldValidationBinding);
 
-        return fieldValidationBinding;
-    }
+    return fieldValidationBinding;
+  }
 
-    /**
-     * Begins nested validation for a composite (nested) field.
-     * <p>
-     * This method allows specifying a sub-validator for a nested object, enabling recursive validation.
-     * The nested validator can itself contain validations for its fields using the same fluent API.
-     * You can choose whether the nested field is required using {@code mustSatisfy(...)} or optional using {@code ifPresent(...)}.
-     * </p>
-     *
-     * Example usage:
-     * <pre>{@code
-     * DomainValidator<User> validator = DomainValidator.of(User.class)
-     *     .field("name", User::getName)
-     *         .mustSatisfy(notBlank())
-     *     .nested("address", User::getAddress)
-     *         .mustSatisfy(
-     *             DomainValidator.of(Address.class)
-     *                 .field("street", Address::getStreet).mustSatisfy(notBlank())
-     *                 .and()
-     *                 .field("zipCode", Address::getZipCode).mustSatisfy(validZip())
-     *         );
-     * }</pre>
-     *
-     * @param label the logical name of the nested field (used in error messages)
-     * @param extractor the function to extract the nested object
-     * @param <FIELD>       the type of the nested object
-     * @return a binding that allows specifying required or optional nested validation
-     */
-    public <FIELD> RuleBinding<DomainValidator<TYPE>, DomainValidator<FIELD>> nested(String label, Class<FIELD> validationClass, Function<TYPE, FIELD> extractor) {
-        Objects.requireNonNull(label, "FieldName must not be null");
-        Objects.requireNonNull(extractor, "Extractor Function must not be null");
+  /**
+   * Begins validation configuration for a nested object.
+   *
+   * <h2>Purpose</h2>
+   *
+   * <p>Nested validation allows delegating validation of a sub-object to another {@code
+   * DomainValidator}, enabling recursive domain validation structures.
+   *
+   * <h2>Behavior</h2>
+   *
+   * <ul>
+   *   <li>The nested validator's metadata is wrapped into a {@link ValidationDescriptor}.
+   *   <li>Depending on the applied binding method:
+   *       <ul>
+   *         <li>{@code mustSatisfy(...)} → nested object is required
+   *         <li>{@code ifPresent(...)} → nested object validated only when non-null
+   *       </ul>
+   * </ul>
+   *
+   * <h3>Example</h3>
+   *
+   * <pre>{@code
+   * validator
+   *     .nested("address", Address.class, User::getAddress)
+   *         .mustSatisfy(
+   *             DomainValidator.of(Address.class)
+   *                 .field("zip", Address::getZip).mustSatisfy(validZip())
+   *         );
+   * }</pre>
+   *
+   * @param label the name of the nested field shown in validation messages
+   * @param validationClass the class of the nested type being validated
+   * @param extractor extracts the nested object from the root object
+   * @param <FIELD> the nested object's type
+   * @return a binding used to attach required or optional nested validation rules
+   * @throws NullPointerException if any argument is {@code null}
+   */
+  public <FIELD> RuleBinding<DomainValidator<TYPE>, DomainValidator<FIELD>> nested(
+      String label, Class<FIELD> validationClass, Function<TYPE, FIELD> extractor) {
+    Objects.requireNonNull(label, "FieldName must not be null");
+    Objects.requireNonNull(validationClass, "Class to validate may not be null");
+    Objects.requireNonNull(extractor, "Extractor Function must not be null");
 
-        NestedRuleBinding<TYPE, FIELD> nestedValidationBinding = new NestedRuleBinding<>(
-                ValidationDescriptor.builder()
-                        .validationClass(validationClass)
-                        .labelType(LabelType.FIELD)
-                        .label(label)
-                        .build()
-                , extractor,
-                this);
+    NestedRuleBinding<TYPE, FIELD> nestedValidationBinding =
+        new NestedRuleBinding<>(
+            ValidationDescriptor.builder()
+                .validationClass(validationClass)
+                .labelType(LabelType.FIELD)
+                .label(label)
+                .build(),
+            extractor,
+            this);
 
-        validationBindings.add(nestedValidationBinding);
+    validationBindings.add(nestedValidationBinding);
 
-        return nestedValidationBinding;
-    }
+    return nestedValidationBinding;
+  }
 
-    /**
-     * A no-op method for visual separation in the fluent DSL.
-     * <p>
-     * Use {@code and()} to improve readability when chaining multiple field validations.
-     * This method has no effect on validation behavior and simply returns {@code this}.
-     * </p>
-     *
-     * Example usage:
-     * <pre>{@code
-     * DomainValidator<User> validator = DomainValidator.of(User.class)
-     *     .field(User::getName, "name")
-     *         .mustSatisfy(notBlank())
-     *     .and()
-     *     .field(User::getEmail, "email")
-     *         .mustSatisfy(validEmail());
-     * }</pre>
-     *
-     * @return this validator instance (for chaining)
-     */
-    public DomainValidator<TYPE> and(){
-        return this;
-    }
+  /**
+   * A no-op method used to improve readability in the fluent validation DSL.
+   *
+   * <p>This method allows visually separating rule chains without affecting behavior. It simply
+   * returns this validator instance.
+   *
+   * <h3>Example</h3>
+   *
+   * <pre>{@code
+   * DomainValidator<User> validator = DomainValidator.of(User.class)
+   *     .field("name", User::getName).mustSatisfy(notBlank())
+   *     .and()
+   *     .field("email", User::getEmail).mustSatisfy(validEmail());
+   * }</pre>
+   *
+   * @return this validator instance
+   */
+  public DomainValidator<TYPE> and() {
+    return this;
+  }
 
-    /**
-     * Sets the validation strategy to fail-fast mode.
-     * <p>
-     * In fail-fast mode, validation stops on the first failed rule.
-     * </p>
-     *
-     * @return this validator instance (for chaining)
-     */
-    public DomainValidator<TYPE> failFast() {
-        validationStrategy = new FailFastStrategy();
-        return this;
-    }
+  /**
+   * Configures this validator to operate in fail-fast mode.
+   *
+   * <p>In fail-fast mode, validation stops as soon as the first rule fails, and no further fields
+   * or nested validators are evaluated.
+   *
+   * @return this validator instance (for chaining)
+   */
+  public DomainValidator<TYPE> failFast() {
+    validationStrategy = new FailFastStrategy();
+    return this;
+  }
 
-    /**
-     * Sets the validation strategy to collect-all-failures mode.
-     * <p>
-     * In this mode, all validation rules are evaluated, and all failures are reported together.
-     * This is the default behavior.
-     * </p>
-     *
-     * @return this validator instance (for chaining)
-     */
-    public DomainValidator<TYPE> collectFailures() {
-        validationStrategy = new CollectFailuresStrategy();
-        return this;
-    }
+  /**
+   * Configures this validator to collect all failures.
+   *
+   * <p>This strategy evaluates all field and nested rules and aggregates failures into a single
+   * {@link ValidationResultCollection}. This is the default behavior.
+   *
+   * @return this validator instance (for chaining)
+   */
+  public DomainValidator<TYPE> collectFailures() {
+    validationStrategy = new CollectFailuresStrategy();
+    return this;
+  }
 
-    /**
-     * Validates the given object using the current validation strategy.
-     * <p>
-     * This includes both field-level and nested object validations if configured.
-     * </p>
-     *
-     * @param toValidate the object to validate
-     * @return a collection of validation results
-     */
-    @Override
-    public ValidationResultCollection validate(TYPE toValidate) {
-        Objects.requireNonNull(toValidate, "Object to validate must not be null");
+  /**
+   * Validates the given domain object using the configured validation strategy.
+   *
+   * <h2>Behavior</h2>
+   *
+   * <ul>
+   *   <li>All field bindings and nested validations are evaluated according to the selected
+   *       strategy (fail-fast or collect-all).
+   *   <li>A {@link ValidationDescriptor} for the root object is created and passed to the strategy
+   *       implementation.
+   *   <li>The validation result may contain arbitrarily deep nested structures.
+   * </ul>
+   *
+   * @param toValidate the object to validate (must not be {@code null})
+   * @return a {@link ValidationResultCollection} representing all validation outcomes
+   * @throws NullPointerException if {@code toValidate} is {@code null}
+   */
+  @Override
+  public ValidationResultCollection validate(TYPE toValidate) {
+    Objects.requireNonNull(toValidate, "Object to validate must not be null");
 
-        return validationStrategy.validate(validationBindings,
-                toValidate,
-                ValidationDescriptor.builder()
-                        .validationClass(clazz)
-                        .labelType(LabelType.FIELD)
-                        .label(clazz.getSimpleName())
-                        .build()
-        );
-    }
+    return validationStrategy.validate(
+        validationBindings,
+        toValidate,
+        ValidationDescriptor.builder()
+            .validationClass(clazz)
+            .labelType(LabelType.FIELD)
+            .label(clazz.getSimpleName())
+            .build());
+  }
 }

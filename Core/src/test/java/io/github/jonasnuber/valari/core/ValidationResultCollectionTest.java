@@ -1,130 +1,173 @@
 package io.github.jonasnuber.valari.core;
 
-class ValidationResultCollectionTest{
+import static org.assertj.core.api.Assertions.*;
 
-//    @Test
-//    void add_ShouldAddResultToCollection() {
-//        var result = ValidationResult.skip();
-//        var resultCollection = new ValidationResultCollection(Person.class);
-//
-//        resultCollection.add(result);
-//
-//        assertThat(resultCollection.getResults()).containsExactly(result);
-//    }
-//
-//    @Test
-//    void add_ShouldThrowException_ForNullResult() {
-//        var resultCollection = new ValidationResultCollection(Person.class);
-//
-//        var thrown = catchThrowable(() -> resultCollection.add(null));
-//
-//        assertThat(thrown)
-//                .isInstanceOf(NullPointerException.class)
-//                .hasMessage("ValidationResult cannot be added if null");
-//    }
-//
-//    @Test
-//    void getState_ShouldReturnFailure_WhenAnyResultFailed() {
-//        var collection = new ValidationResultCollection(String.class);
-//        collection.add(new ValidationResult.Builder("msg").fail());
-//        collection.add(new ValidationResult.Builder("msg").ok());
-//        collection.add(new ValidationResult.Builder("msg").skip());
-//
-//        assertThat(collection.getState()).isEqualTo(ValidationState.FAILURE);
-//    }
-//
-//    @Test
-//    void getState_ShouldReturnSkipped_WhenAllResultsSkipped() {
-//        var collection = new ValidationResultCollection(String.class);
-//        collection.add(new ValidationResult.Builder("msg").skip());
-//        collection.add(new ValidationResult.Builder("msg").skip());
-//
-//        assertThat(collection.getState()).isEqualTo(ValidationState.SKIPPED);
-//    }
-//
-//    @Test
-//    void getState_ShouldReturnSuccess_WhenNoFailuresAndNotAllSkipped() {
-//        var collection = new ValidationResultCollection(String.class);
-//        collection.add(new ValidationResult.Builder("msg").ok());
-//        collection.add(new ValidationResult.Builder("msg").skip());
-//
-//        assertThat(collection.getState()).isEqualTo(ValidationState.SUCCESS);
-//    }
-//
-//    @Test
-//    void getMessage_ShouldResolveSuccessMessage() {
-//        var collection = new ValidationResultCollection(Person.class);
-//        collection.add(
-//                new ValidationResult.Builder("some validation it passed")
-//                .labelType(LabelType.FIELD)
-//                .label("some Field")
-//                .ok());
-//
-//        var message = collection.getMessage();
-//
-//        assertThat(message)
-//                .contains("Validation for class io.github.jonasnuber.valari.Person succeeded:")
-//                .contains("- Field \"some Field\": some validation it passed");
-//    }
-//
-//    @Test
-//    void getMessage_ShouldResolveSkippedMessage() {
-//        var collection = new ValidationResultCollection(Person.class);
-//        collection.add(new ValidationResult.Builder("skipped").skip());
-//
-//        var message = collection.getMessage();
-//
-//        assertThat(message).isEqualTo("Validation for class io.github.jonasnuber.valari.Person was skipped entirely.");
-//    }
-//
-//    @Test
-//    void getMessage_ShouldResolveFailureMessage() {
-//        var collection = new ValidationResultCollection(String.class);
-//        collection.add(
-//                new ValidationResult.Builder("some validation which was failed")
-//                        .labelType(LabelType.VALUE)
-//                        .label("age")
-//                        .fail());
-//
-//        var message = collection.getMessage();
-//
-//        assertThat(message)
-//                .contains("Validation for class java.lang.String failed with 1 error(s):")
-//                .contains("- Value \"age\": some validation which was failed");
-//    }
-//
-//    @Test
-//    void throwIfInvalid_ShouldThrowException_WhenFailuresExist() {
-//        var collection = new ValidationResultCollection(Person.class);
-//        collection.add(new ValidationResult.Builder("fail").fail());
-//
-//        var thrown = catchThrowable(collection::throwIfInvalid);
-//
-//        assertThat(thrown)
-//                .isInstanceOf(AggregatedValidationException.class)
-//                .hasMessage("Validation for class io.github.jonasnuber.valari.Person failed with 1 error(s):\n" +
-//                        "- Subject \"<unknown>\": fail\n");
-//    }
-//
-//    @Test
-//    void toValidationResult_ShouldReturnAggregatedValidationResult() {
-//        var collection = new ValidationResultCollection(Person.class);
-//        var aggregated = collection.toValidationResult();
-//
-//        assertThat(aggregated).isInstanceOf(ValidationResult.class);
-//        assertThat(aggregated.getMessage())
-//                .isEqualTo(collection.getMessage());
-//    }
-//
-//    @Test
-//    void aggregatedValidationResult_EqualsAndHashCode() {
-//        var collection1 = new ValidationResultCollection(Person.class);
-//        var collection2 = new ValidationResultCollection(Person.class);
-//
-//        var result1 = collection1.toValidationResult();
-//        var result2 = collection2.toValidationResult();
-//
-//        assertThat(result1).isNotEqualTo(result2);
-//        assertThat(result1.hashCode()).isNotEqualTo(result2.hashCode());
-//    }
+import io.github.jonasnuber.valari.Person;
+import io.github.jonasnuber.valari.api.LabelType;
+import io.github.jonasnuber.valari.api.ValidationDescriptor;
+import io.github.jonasnuber.valari.api.ValidationState;
+import io.github.jonasnuber.valari.api.exceptions.AggregatedValidationException;
+import java.util.List;
+import org.junit.jupiter.api.Test;
+
+class ValidationResultCollectionTest {
+
+  @Test
+  void builder_ShouldCreateResultCollectionWithAllValues_ForBuildInput() {
+    var builder =
+        ValidationResultCollection.builder(ValidationDescriptor.builder().build())
+            .add(ValidationResult.skip());
+
+    var result = builder.build();
+
+    assertThat(result.getResults()).containsExactly(ValidationResult.skip());
+    assertThat(result.getState()).isEqualByComparingTo(ValidationState.SKIPPED);
+    assertThat(result.getMetadata().getMessageKey())
+        .isEqualTo("validation.result.aggregated.skipped");
+  }
+
+  @Test
+  void builder_ShouldThrowException_ForNullDescriptor() {
+    var thrown = catchThrowable(() -> ValidationResultCollection.builder(null));
+
+    assertThat(thrown)
+        .isInstanceOf(NullPointerException.class)
+        .hasMessage("Descriptor must not be null");
+  }
+
+  @Test
+  void builder_ShouldThrowException_ForNullResultAdded() {
+    var builder = ValidationResultCollection.builder(ValidationDescriptor.builder().build());
+
+    var thrown = catchThrowable(() -> builder.add(null));
+
+    assertThat(thrown)
+        .isInstanceOf(NullPointerException.class)
+        .hasMessage("Result cannot be added if null");
+  }
+
+  @Test
+  void builder_ShouldThrowException_ForNullResultList() {
+    var builder = ValidationResultCollection.builder(ValidationDescriptor.builder().build());
+
+    var thrown = catchThrowable(() -> builder.addAll(null));
+
+    assertThat(thrown)
+        .isInstanceOf(NullPointerException.class)
+        .hasMessage("Results must not be null");
+  }
+
+  @Test
+  void builder_ShouldAddSingleResult() {
+    var result =
+        ValidationResultCollection.builder(ValidationDescriptor.builder().build())
+            .add(ValidationResult.skip())
+            .build();
+
+    assertThat(result.getResults()).hasSize(1);
+  }
+
+  @Test
+  void builder_ShouldAddAllResults() {
+    var result =
+        ValidationResultCollection.builder(ValidationDescriptor.builder().build())
+            .addAll(List.of(ValidationResult.skip(), ValidationResult.skip()))
+            .build();
+
+    assertThat(result.getResults()).hasSize(2);
+  }
+
+  @Test
+  void withLabel_ShouldReturnNewInstance_WithUpdatedDescriptor() {
+    var result = ValidationResultCollection.builder(ValidationDescriptor.builder().build()).build();
+
+    var changedResult = result.withLabel(LabelType.FIELD, "SomeLabel");
+
+    assertThat(changedResult).isNotEqualTo(result);
+    assertThat(changedResult.getMetadata().getLabelType())
+        .isNotEqualTo(result.getMetadata().getLabelType())
+        .isEqualTo(LabelType.FIELD);
+    assertThat(changedResult.getMetadata().getLabel())
+        .isNotEqualTo(result.getMetadata().getLabel())
+        .isEqualTo("SomeLabel");
+  }
+
+  @Test
+  void withLabel_ShouldRetainAllOtherParameters() {
+    var singleResult = ValidationResult.skip();
+    var result =
+        ValidationResultCollection.builder(ValidationDescriptor.builder().build())
+            .add(singleResult)
+            .build();
+
+    var changedResult = result.withLabel(LabelType.FIELD, "SomeLabel");
+
+    assertThat(changedResult.getResults()).containsExactly(singleResult);
+    assertThat(changedResult.getState()).isEqualTo(result.getState());
+    assertThat(changedResult.getMetadata().getMessageKey())
+        .isEqualTo(result.getMetadata().getMessageKey());
+  }
+
+  @Test
+  void results_ShouldBeImmutable() {
+    var col =
+        ValidationResultCollection.builder(ValidationDescriptor.builder().build())
+            .add(ValidationResult.skip())
+            .build();
+
+    var thrown = catchThrowable(() -> col.getResults().add(ValidationResult.skip()));
+
+    assertThat(thrown).isInstanceOf(UnsupportedOperationException.class);
+  }
+
+  @Test
+  void getState_ShouldReturnFailure_WhenAnyResultFailed() {
+    var collection =
+        ValidationResultCollection.builder(ValidationDescriptor.builder().build())
+            .add(ValidationResult.builder("msg").fail())
+            .add(ValidationResult.builder("msg").ok())
+            .add(ValidationResult.builder("msg").skip())
+            .build();
+
+    assertThat(collection.getState()).isEqualTo(ValidationState.FAILURE);
+  }
+
+  @Test
+  void getState_ShouldReturnSkipped_WhenAllResultsSkipped() {
+    var collection =
+        ValidationResultCollection.builder(ValidationDescriptor.builder().build())
+            .add(ValidationResult.builder("msg").skip())
+            .add(ValidationResult.builder("msg").skip())
+            .build();
+
+    assertThat(collection.getState()).isEqualTo(ValidationState.SKIPPED);
+  }
+
+  @Test
+  void getState_ShouldReturnSuccess_WhenNoFailuresAndNotAllSkipped() {
+    var collection =
+        ValidationResultCollection.builder(ValidationDescriptor.builder().build())
+            .add(ValidationResult.builder("msg").ok())
+            .add(ValidationResult.builder("msg").skip())
+            .build();
+
+    assertThat(collection.getState()).isEqualTo(ValidationState.SUCCESS);
+  }
+
+  @Test
+  void throwIfInvalid_ShouldThrowException_WhenFailuresExist() {
+    var collection =
+        ValidationResultCollection.builder(
+                ValidationDescriptor.builder().validationClass(Person.class).build())
+            .add(ValidationResult.builder("fail").fail())
+            .build();
+
+    var thrown = catchThrowable(collection::throwIfInvalid);
+
+    assertThat(thrown)
+        .isInstanceOf(AggregatedValidationException.class)
+        .hasMessageContaining(
+            "Validation for Subject \"<unknown>\" (class io.github.jonasnuber.valari.Person) failed with 1 error(s):")
+        .hasMessageContaining("The Subject \"<unknown>\" is invalid: fail");
+  }
 }

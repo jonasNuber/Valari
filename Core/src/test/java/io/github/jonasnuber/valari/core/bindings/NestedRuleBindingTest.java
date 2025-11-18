@@ -4,7 +4,7 @@ import io.github.jonasnuber.valari.CreditCard;
 import io.github.jonasnuber.valari.Person;
 import io.github.jonasnuber.valari.api.ValidationDescriptor;
 import io.github.jonasnuber.valari.api.exceptions.AggregatedValidationException;
-import io.github.jonasnuber.valari.core.CoreDefaults;
+import io.github.jonasnuber.valari.core.i18n.CoreDefaults;
 import io.github.jonasnuber.valari.core.DomainValidator;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;

@@ -3,7 +3,7 @@ package io.github.jonasnuber.valari.core.validations;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
-import io.github.jonasnuber.valari.core.CoreDefaults;
+import io.github.jonasnuber.valari.core.i18n.CoreDefaults;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Stream;

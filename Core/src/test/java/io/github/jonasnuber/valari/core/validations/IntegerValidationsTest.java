@@ -2,7 +2,7 @@ package io.github.jonasnuber.valari.core.validations;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import io.github.jonasnuber.valari.core.CoreDefaults;
+import io.github.jonasnuber.valari.core.i18n.CoreDefaults;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;

@@ -8,8 +8,8 @@ import static org.assertj.core.api.Assertions.*;
 import io.github.jonasnuber.valari.Person;
 import io.github.jonasnuber.valari.api.exceptions.ValidationException;
 import io.github.jonasnuber.valari.core.ConstructorValidator;
-import io.github.jonasnuber.valari.core.CoreDefaults;
 import io.github.jonasnuber.valari.core.ValidationResult;
+import io.github.jonasnuber.valari.core.i18n.CoreDefaults;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -65,7 +65,7 @@ class ParameterRuleBindingTest {
   void mustSatisfy_ShouldOverridePreviousValidation() {
     var binding =
         new ParameterRuleBinding<>("SomeName", "Value", ConstructorValidator.of(Person.class));
-    binding.mustSatisfy(value -> new ValidationResult.Builder("first rule").fail());
+    binding.mustSatisfy(value -> ValidationResult.builder("first rule").fail());
     binding.mustSatisfy(notEmpty()); // overrides previous
 
     var result = binding.validate();

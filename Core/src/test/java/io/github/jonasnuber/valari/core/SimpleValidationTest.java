@@ -1,56 +1,55 @@
 package io.github.jonasnuber.valari.core;
 
-import io.github.jonasnuber.valari.api.ValidationMetadata;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-
-import java.util.Objects;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
+import io.github.jonasnuber.valari.api.ValidationMetadata;
+import java.util.Objects;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
 class SimpleValidationTest {
 
-    private static SimpleValidation<Integer> validation;
+  private static SimpleValidation<Integer> validation;
 
-    @BeforeAll
-    static void init() {
-        validation = SimpleValidation.from(i -> i == 2, ValidationMetadata.builder("error").build());
-    }
+  @BeforeAll
+  static void init() {
+    validation = SimpleValidation.from(i -> i == 2, ValidationMetadata.builder("error").build());
+  }
 
-    @Test
-    void from_ShouldThrowException_ForNullPredicate() {
-        var thrown = catchThrowable(() -> SimpleValidation.from(null, null));
+  @Test
+  void from_ShouldThrowException_ForNullPredicate() {
+    var thrown = catchThrowable(() -> SimpleValidation.from(null, null));
 
-        assertThat(thrown)
-                .isInstanceOf(NullPointerException.class)
-                .hasMessage("Predicate must not be null");
-    }
+    assertThat(thrown)
+        .isInstanceOf(NullPointerException.class)
+        .hasMessage("Predicate must not be null");
+  }
 
-    @Test
-    void from_ShouldThrowException_ForNullMetadata() {
-        var thrown = catchThrowable(() -> SimpleValidation.from(Objects::nonNull, null));
+  @Test
+  void from_ShouldThrowException_ForNullMetadata() {
+    var thrown = catchThrowable(() -> SimpleValidation.from(Objects::nonNull, null));
 
-        assertThat(thrown)
-                .isInstanceOf(NullPointerException.class)
-                .hasMessage("ValidationMetadata must not be null");
-    }
+    assertThat(thrown)
+        .isInstanceOf(NullPointerException.class)
+        .hasMessage("ValidationMetadata must not be null");
+  }
 
-    @Test
-    void test_ShouldReturnValidResult_ForValidInput() {
-        var result = validation.test(2);
+  @Test
+  void test_ShouldReturnValidResult_ForValidInput() {
+    var result = validation.test(2);
 
-        var isValid = result.isValid();
+    var isValid = result.isValid();
 
-        assertThat(isValid).isTrue();
-    }
+    assertThat(isValid).isTrue();
+  }
 
-    @Test
-    void test_ShouldReturnInvalidResult_ForInvalidInput() {
-        var result = validation.test(3);
+  @Test
+  void test_ShouldReturnInvalidResult_ForInvalidInput() {
+    var result = validation.test(3);
 
-        var isInvalid = result.isInvalid();
+    var isInvalid = result.isInvalid();
 
-        assertThat(isInvalid).isTrue();
-    }
+    assertThat(isInvalid).isTrue();
+  }
 }

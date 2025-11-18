@@ -8,7 +8,7 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 import io.github.jonasnuber.valari.Person;
 import io.github.jonasnuber.valari.api.*;
 import io.github.jonasnuber.valari.core.ConstructorValidator;
-import io.github.jonasnuber.valari.core.CoreDefaults;
+import io.github.jonasnuber.valari.core.i18n.CoreDefaults;
 import io.github.jonasnuber.valari.core.DomainValidator;
 import io.github.jonasnuber.valari.core.bindings.FieldRuleBinding;
 import io.github.jonasnuber.valari.core.bindings.ParameterRuleBinding;

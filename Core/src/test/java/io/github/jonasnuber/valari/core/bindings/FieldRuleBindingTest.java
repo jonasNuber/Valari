@@ -1,15 +1,15 @@
 package io.github.jonasnuber.valari.core.bindings;
 
-import io.github.jonasnuber.valari.Person;
-import io.github.jonasnuber.valari.api.exceptions.ValidationException;
-import io.github.jonasnuber.valari.core.CoreDefaults;
-import io.github.jonasnuber.valari.core.DomainValidator;
-import io.github.jonasnuber.valari.core.ValidationResult;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-
 import static io.github.jonasnuber.valari.core.validations.StringValidations.notEmpty;
 import static org.assertj.core.api.Assertions.*;
+
+import io.github.jonasnuber.valari.Person;
+import io.github.jonasnuber.valari.api.exceptions.ValidationException;
+import io.github.jonasnuber.valari.core.DomainValidator;
+import io.github.jonasnuber.valari.core.ValidationResult;
+import io.github.jonasnuber.valari.core.i18n.CoreDefaults;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 class FieldRuleBindingTest {
 
@@ -66,7 +66,7 @@ class FieldRuleBindingTest {
   void mustSatisfy_ShouldOverridePreviousValidation() {
     var person = new Person("Bob", 25);
     var binding = new FieldRuleBinding<>("Name", Person::getName, DomainValidator.of(Person.class));
-    binding.mustSatisfy(value -> new ValidationResult.Builder("first rule").fail());
+    binding.mustSatisfy(value -> ValidationResult.builder("first rule").fail());
     binding.mustSatisfy(notEmpty()); // overrides previous
 
     var result = binding.validate(person);

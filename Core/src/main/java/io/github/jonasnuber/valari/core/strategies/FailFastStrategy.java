@@ -2,7 +2,6 @@ package io.github.jonasnuber.valari.core.strategies;
 
 import io.github.jonasnuber.valari.api.*;
 import io.github.jonasnuber.valari.core.ValidationResultCollection;
-
 import java.util.List;
 import java.util.Objects;
 
@@ -68,7 +67,7 @@ public final class FailFastStrategy implements ValidationStrategy<ValidationResu
         validationDescriptor, "The descriptor of the validation must not be null");
 
     ValidationResultCollection.Builder resultsBuilder =
-        new ValidationResultCollection.Builder(validationDescriptor);
+        ValidationResultCollection.builder(validationDescriptor);
 
     for (NoInputValidator<? extends ThrowableResult<?>> validator : validators) {
       ThrowableResult<?> result = validator.validate();
