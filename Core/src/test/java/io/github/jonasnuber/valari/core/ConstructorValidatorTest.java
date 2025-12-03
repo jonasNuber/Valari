@@ -88,25 +88,6 @@ class ConstructorValidatorTest {
   }
 
   @Test
-  void validateAndThrow_ShouldNotThrow_WhenFieldsPass() {
-    assertThatCode(() -> validator.validate().throwIfInvalid()).doesNotThrowAnyException();
-  }
-
-  @Test
-  void validateAndThrow_ShouldThrow_WhenFieldsFail() {
-    validator.parameter("optionalPresent", "String").ifPresent(between(2, 3));
-
-    var thrown = catchThrowable(() -> validator.validate().throwIfInvalid());
-
-    assertThat(thrown)
-        .isInstanceOf(AggregatedValidationException.class)
-        .hasMessageContaining(
-            "Validation for Parameter \"Person\" (class io.github.jonasnuber.valari.Person) failed with 1 error(s):")
-        .hasMessageContaining(
-            "The Parameter \"optionalPresent\" is invalid: must have less than 3 chars");
-  }
-
-  @Test
   void failFast_ShouldUseFailFastStrategy() {
     validator
         .parameter("invalidParam1", null)

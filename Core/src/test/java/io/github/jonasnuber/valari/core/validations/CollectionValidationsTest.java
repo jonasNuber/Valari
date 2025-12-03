@@ -3,21 +3,14 @@ package io.github.jonasnuber.valari.core.validations;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
-import io.github.jonasnuber.valari.core.i18n.CoreDefaults;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
-class CollectionValidationsTest {
-
-  @BeforeAll
-  static void init() {
-    CoreDefaults.initializeDefaults();
-  }
+class CollectionValidationsTest extends BaseValidationTest {
 
   @Test
   void notEmpty_ShouldReturnValidResult_ForNotEmptyCollection() {
@@ -41,7 +34,7 @@ class CollectionValidationsTest {
     var result = validation.test(emptyCollection);
 
     assertThat(result.isValid()).isFalse();
-    assertThat(result.getMetadata().resolveMessage()).isEqualTo("Collection must not be empty");
+    assertThat(getMessage(result.getMetadata())).isEqualTo("Collection must not be empty");
   }
 
   @Test
@@ -75,7 +68,7 @@ class CollectionValidationsTest {
     var result = validation.test(collection);
 
     assertThat(result.isValid()).isFalse();
-    assertThat(result.getMetadata().resolveMessage())
+    assertThat(getMessage(result.getMetadata()))
         .isEqualTo(
             String.format("Size must be greater than %s and less than %s", minSize, maxSize));
   }
@@ -111,7 +104,7 @@ class CollectionValidationsTest {
     var result = validation.test(collection);
 
     assertThat(result.isValid()).isFalse();
-    assertThat(result.getMetadata().resolveMessage())
+    assertThat(getMessage(result.getMetadata()))
         .isEqualTo("Collection must contain Object \"String\"");
   }
 
@@ -155,7 +148,7 @@ class CollectionValidationsTest {
     var result = validation.test(collection);
 
     assertThat(result.isValid()).isFalse();
-    assertThat(result.getMetadata().resolveMessage())
+    assertThat(getMessage(result.getMetadata()))
         .isEqualTo("Collection must contain at least one null element");
   }
 
@@ -190,7 +183,7 @@ class CollectionValidationsTest {
     var result = validation.test(collection);
 
     assertThat(result.isValid()).isFalse();
-    assertThat(result.getMetadata().resolveMessage())
+    assertThat(getMessage(result.getMetadata()))
         .isEqualTo("Collection must not contain null elements");
   }
 
@@ -225,8 +218,7 @@ class CollectionValidationsTest {
     var result = validation.test(collection);
 
     assertThat(result.isValid()).isFalse();
-    assertThat(result.getMetadata().resolveMessage())
-        .isEqualTo("All elements must match the Predicate");
+    assertThat(getMessage(result.getMetadata())).isEqualTo("All elements must match the Predicate");
   }
 
   @Test
@@ -271,7 +263,7 @@ class CollectionValidationsTest {
     var result = validation.test(collection);
 
     assertThat(result.isValid()).isFalse();
-    assertThat(result.getMetadata().resolveMessage())
+    assertThat(getMessage(result.getMetadata()))
         .isEqualTo("At least one element must match the Predicate");
   }
 
@@ -317,8 +309,7 @@ class CollectionValidationsTest {
     var result = validation.test(collection);
 
     assertThat(result.isValid()).isFalse();
-    assertThat(result.getMetadata().resolveMessage())
-        .isEqualTo("No element should match the predicate");
+    assertThat(getMessage(result.getMetadata())).isEqualTo("No element should match the predicate");
   }
 
   @Test

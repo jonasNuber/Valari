@@ -2,18 +2,11 @@ package io.github.jonasnuber.valari.core.validations;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import io.github.jonasnuber.valari.core.i18n.CoreDefaults;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
-class IntegerValidationsTest {
-
-  @BeforeAll
-  static void init() {
-    CoreDefaults.initializeDefaults();
-  }
+class IntegerValidationsTest extends BaseValidationTest {
 
   @Test
   void sameAmount_ShouldReturnValidResult_ForSameAmount() {
@@ -33,7 +26,7 @@ class IntegerValidationsTest {
     var result = validation.test(higherValue);
 
     assertThat(result.isValid()).isFalse();
-    assertThat(result.getMetadata().resolveMessage()).isEqualTo("must equal 5");
+    assertThat(getMessage(result.getMetadata())).isEqualTo("must equal 5");
   }
 
   @ParameterizedTest
@@ -44,7 +37,7 @@ class IntegerValidationsTest {
     var result = validation.test(lowerValue);
 
     assertThat(result.isValid()).isFalse();
-    assertThat(result.getMetadata().resolveMessage()).isEqualTo("must equal 5");
+    assertThat(getMessage(result.getMetadata())).isEqualTo("must equal 5");
   }
 
   @ParameterizedTest
@@ -65,7 +58,7 @@ class IntegerValidationsTest {
     var result = validation.test(max);
 
     assertThat(result.isValid()).isFalse();
-    assertThat(result.getMetadata().resolveMessage()).isEqualTo("must be lower than 10");
+    assertThat(getMessage(result.getMetadata())).isEqualTo("must be lower than 10");
   }
 
   @ParameterizedTest
@@ -76,7 +69,7 @@ class IntegerValidationsTest {
     var result = validation.test(higherValue);
 
     assertThat(result.isValid()).isFalse();
-    assertThat(result.getMetadata().resolveMessage()).isEqualTo("must be lower than 10");
+    assertThat(getMessage(result.getMetadata())).isEqualTo("must be lower than 10");
   }
 
   @ParameterizedTest
@@ -97,7 +90,7 @@ class IntegerValidationsTest {
     var result = validation.test(min);
 
     assertThat(result.isValid()).isFalse();
-    assertThat(result.getMetadata().resolveMessage()).isEqualTo("must be greater than 3");
+    assertThat(getMessage(result.getMetadata())).isEqualTo("must be greater than 3");
   }
 
   @ParameterizedTest
@@ -108,7 +101,7 @@ class IntegerValidationsTest {
     var result = validation.test(smallerValue);
 
     assertThat(result.isValid()).isFalse();
-    assertThat(result.getMetadata().resolveMessage()).isEqualTo("must be greater than 3");
+    assertThat(getMessage(result.getMetadata())).isEqualTo("must be greater than 3");
   }
 
   @ParameterizedTest
@@ -130,7 +123,7 @@ class IntegerValidationsTest {
     var result = validation.test(min);
 
     assertThat(result.isValid()).isFalse();
-    assertThat(result.getMetadata().resolveMessage()).isEqualTo("must be greater than 3");
+    assertThat(getMessage(result.getMetadata())).isEqualTo("must be greater than 3");
   }
 
   @Test
@@ -142,7 +135,7 @@ class IntegerValidationsTest {
     var result = validation.test(max);
 
     assertThat(result.isValid()).isFalse();
-    assertThat(result.getMetadata().resolveMessage()).isEqualTo("must be lower than 10");
+    assertThat(getMessage(result.getMetadata())).isEqualTo("must be lower than 10");
   }
 
   @ParameterizedTest
@@ -153,7 +146,7 @@ class IntegerValidationsTest {
     var result = validation.test(smallerValue);
 
     assertThat(result.isValid()).isFalse();
-    assertThat(result.getMetadata().resolveMessage()).isEqualTo("must be greater than 3");
+    assertThat(getMessage(result.getMetadata())).isEqualTo("must be greater than 3");
   }
 
   @ParameterizedTest
@@ -164,7 +157,7 @@ class IntegerValidationsTest {
     var result = validation.test(greaterValue);
 
     assertThat(result.isValid()).isFalse();
-    assertThat(result.getMetadata().resolveMessage()).isEqualTo("must be lower than 10");
+    assertThat(getMessage(result.getMetadata())).isEqualTo("must be lower than 10");
   }
 
   @ParameterizedTest
@@ -185,7 +178,7 @@ class IntegerValidationsTest {
     var result = validation.test(smallerValue);
 
     assertThat(result.isValid()).isFalse();
-    assertThat(result.getMetadata().resolveMessage()).isEqualTo("must be greater than 2");
+    assertThat(getMessage(result.getMetadata())).isEqualTo("must be greater than 2");
   }
 
   @ParameterizedTest
@@ -196,7 +189,7 @@ class IntegerValidationsTest {
     var result = validation.test(greaterValue);
 
     assertThat(result.isValid()).isFalse();
-    assertThat(result.getMetadata().resolveMessage()).isEqualTo("must be lower than 11");
+    assertThat(getMessage(result.getMetadata())).isEqualTo("must be lower than 11");
   }
 
   @ParameterizedTest
@@ -217,7 +210,7 @@ class IntegerValidationsTest {
     var result = validation.test(oddNumber);
 
     assertThat(result.isValid()).isFalse();
-    assertThat(result.getMetadata().resolveMessage()).isEqualTo("must be even");
+    assertThat(getMessage(result.getMetadata())).isEqualTo("must be even");
   }
 
   @ParameterizedTest
@@ -238,6 +231,6 @@ class IntegerValidationsTest {
     var result = validation.test(evenNumber);
 
     assertThat(result.isValid()).isFalse();
-    assertThat(result.getMetadata().resolveMessage()).isEqualTo("must be odd");
+    assertThat(getMessage(result.getMetadata())).isEqualTo("must be odd");
   }
 }

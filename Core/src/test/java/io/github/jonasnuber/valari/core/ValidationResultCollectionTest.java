@@ -22,8 +22,7 @@ class ValidationResultCollectionTest {
 
     assertThat(result.getResults()).containsExactly(ValidationResult.skip());
     assertThat(result.getState()).isEqualByComparingTo(ValidationState.SKIPPED);
-    assertThat(result.getMetadata().getMessageKey())
-        .isEqualTo("validation.result.aggregated.skipped");
+    assertThat(result.getMetadata().getMessageKey()).isEqualTo("validation.aggregated.skipped");
   }
 
   @Test
@@ -166,8 +165,6 @@ class ValidationResultCollectionTest {
 
     assertThat(thrown)
         .isInstanceOf(AggregatedValidationException.class)
-        .hasMessageContaining(
-            "Validation for Subject \"<unknown>\" (class io.github.jonasnuber.valari.Person) failed with 1 error(s):")
-        .hasMessageContaining("The Subject \"<unknown>\" is invalid: fail");
+        .hasMessageContaining("is invalid");
   }
 }

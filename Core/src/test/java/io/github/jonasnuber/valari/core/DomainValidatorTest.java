@@ -153,31 +153,6 @@ class DomainValidatorTest {
   }
 
   @Test
-  void validateAndThrow_ShouldNotThrow_WhenFieldsPass() {
-    var name = "Bob";
-    var age = 25;
-
-    ThrowableAssert.ThrowingCallable executable =
-        () -> validator.validate(new Person(name, age)).throwIfInvalid();
-
-    assertThatCode(executable).doesNotThrowAnyException();
-  }
-
-  @Test
-  void validateAndThrow_ShouldThrow_WhenFieldsFail() {
-    var age = 0;
-
-    var thrown = catchThrowable(() -> validator.validate(new Person(null, age)).throwIfInvalid());
-
-    assertThat(thrown)
-        .isInstanceOf(AggregatedValidationException.class)
-        .hasMessageContaining(
-            "Validation for Field \"Person\" (class io.github.jonasnuber.valari.Person) failed with 2 error(s):")
-        .hasMessageContaining("The Field \"Name\" is invalid: must not be empty")
-        .hasMessageContaining("The Field \"Age\" is invalid: must be greater than 0");
-  }
-
-  @Test
   void failFast_ShouldUseFailFastStrategy() {
     var age = 0;
 

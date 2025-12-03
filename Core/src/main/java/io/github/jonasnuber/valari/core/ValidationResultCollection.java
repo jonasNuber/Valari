@@ -132,8 +132,8 @@ public final class ValidationResultCollection
    * <ul>
    *   <li>The label and {@link LabelType} of the validated object ({@link ValidationDescriptor}).
    *   <li>A localized or default base message describing the result.
+   *   <li>The validation clazz.
    *   <li>An appropriate message key for i18n resolution.
-   *   <li>Additional message arguments (e.g., number of failures).
    * </ul>
    *
    * <p>The message varies depending on {@link #getState()}:
@@ -148,29 +148,25 @@ public final class ValidationResultCollection
    */
   @Override
   public ValidationMetadata getMetadata() {
-    var labelType = validationDescriptor.getLabelType();
-    var label = validationDescriptor.getLabel();
-    var clazz = validationDescriptor.getValidationClass();
-
-    var baseArgs = new ArrayList<>(List.of(labelType, label, clazz));
+    LabelType labelType = validationDescriptor.getLabelType();
+    String label = validationDescriptor.getLabel();
+    Class<?> clazz = validationDescriptor.getValidationClass();
 
     String defaultMessage;
     String key;
 
     switch (getState()) {
       case SUCCESS -> {
-        defaultMessage = "Validation for {0} \"{1}\" ({2}) succeeded:";
-        key = "validation.result.aggregated.success";
+        defaultMessage = "succeeded";
+        key = "validation.aggregated.success";
       }
       case SKIPPED -> {
-        defaultMessage = "Validation for {0} \"{1}\" ({2}) was skipped entirely.";
-        key = "validation.result.aggregated.skipped";
+        defaultMessage = "skipped";
+        key = "validation.aggregated.skipped";
       }
       case FAILURE -> {
-        defaultMessage = "Validation for {0} \"{1}\" ({2}) failed with {3} error(s):";
-        key = "validation.result.aggregated.failure";
-        baseArgs.add(
-            getResults().stream().filter(r -> r.getState() == ValidationState.FAILURE).count());
+        defaultMessage = "failed";
+        key = "validation.aggregated.failure";
       }
       default -> throw new IllegalStateException("Unexpected state: " + getState());
     }
@@ -180,7 +176,6 @@ public final class ValidationResultCollection
         .validationClass(clazz)
         .labelType(labelType)
         .label(label)
-        .messageArguments(baseArgs.toArray())
         .build();
   }
 

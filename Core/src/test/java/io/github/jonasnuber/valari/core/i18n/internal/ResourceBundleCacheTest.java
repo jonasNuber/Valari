@@ -1,10 +1,11 @@
-package io.github.jonasnuber.valari.core.i18n;
+package io.github.jonasnuber.valari.core.i18n.internal;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
 import java.util.Locale;
 import java.util.concurrent.ConcurrentMap;
+
 import org.junit.jupiter.api.Test;
 
 class ResourceBundleCacheTest {

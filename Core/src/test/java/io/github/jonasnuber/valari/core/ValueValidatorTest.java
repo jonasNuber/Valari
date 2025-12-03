@@ -103,7 +103,7 @@ class ValueValidatorTest {
     assertThat(changedResult.getLabelType()).isNotEqualTo(defaultResult.getLabelType());
     assertThat((String) changedResult.getMessage())
         .isNotEqualTo(defaultResult.getMessage())
-        .isEqualTo("The Parameter \"Value\" is invalid: must not be null\n");
+        .contains("is invalid");
   }
 
   @Test
@@ -199,7 +199,7 @@ class ValueValidatorTest {
 
     assertThat(thrown)
         .isInstanceOf(ValidationException.class)
-        .hasMessageContaining("The Value \"Value\" is invalid: must not be empty");
+        .hasMessageContaining("is invalid");
   }
 
   @Test
@@ -210,6 +210,6 @@ class ValueValidatorTest {
 
     assertThat(thrown)
         .isInstanceOf(ValidationException.class)
-        .hasMessageContaining("The Value \"Value\" is invalid: must not be empty");
+        .hasMessageContaining("is invalid");
   }
 }

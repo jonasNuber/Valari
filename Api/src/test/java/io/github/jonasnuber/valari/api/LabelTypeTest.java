@@ -1,15 +1,13 @@
 package io.github.jonasnuber.valari.api;
 
-import io.github.jonasnuber.valari.api.i18n.MessageResolutionContext;
-import io.github.jonasnuber.valari.api.i18n.MessageResolver;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.Test;
-
-import java.util.Locale;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+
+import io.github.jonasnuber.valari.api.i18n.MessageResolutionContext;
+import io.github.jonasnuber.valari.api.i18n.MessageResolver;
+import java.util.Locale;
+import org.junit.jupiter.api.Test;
 
 class LabelTypeTest {
 

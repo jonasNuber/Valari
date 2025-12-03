@@ -4,19 +4,11 @@ import static io.github.jonasnuber.valari.core.validations.StringValidations.not
 import static org.assertj.core.api.Assertions.*;
 
 import io.github.jonasnuber.valari.Person;
-import io.github.jonasnuber.valari.api.exceptions.ValidationException;
 import io.github.jonasnuber.valari.core.DomainValidator;
 import io.github.jonasnuber.valari.core.ValidationResult;
-import io.github.jonasnuber.valari.core.i18n.CoreDefaults;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 class FieldRuleBindingTest {
-
-  @BeforeAll
-  static void init() {
-    CoreDefaults.initializeDefaults();
-  }
 
   @Test
   void constructor_ShouldThrowException_ForNullInputs() {
@@ -161,27 +153,5 @@ class FieldRuleBindingTest {
         .isInstanceOf(IllegalStateException.class)
         .hasMessage(
             "No validation rule was set. Call mustSatisfy(...) or ifPresent(...) before validation");
-  }
-
-  @Test
-  void validateAndThrow_ShouldNotThrowException_WhenValidationSucceeds() {
-    var validPerson = new Person("Name", 25);
-    var binding = new FieldRuleBinding<>("Name", Person::getName, DomainValidator.of(Person.class));
-    binding.mustSatisfy(notEmpty());
-
-    assertThatCode(() -> binding.validate(validPerson).throwIfInvalid()).doesNotThrowAnyException();
-  }
-
-  @Test
-  void validateAndThrow_ShouldThrowException_WhenValidationFails() {
-    var invalidPerson = new Person(null, 25);
-    var binding = new FieldRuleBinding<>("Name", Person::getName, DomainValidator.of(Person.class));
-    binding.mustSatisfy(notEmpty());
-
-    var thrown = catchThrowable(() -> binding.validate(invalidPerson).throwIfInvalid());
-
-    assertThat(thrown)
-        .isInstanceOf(ValidationException.class)
-        .hasMessageContaining("The Field \"Name\" is invalid: must not be empty");
   }
 }

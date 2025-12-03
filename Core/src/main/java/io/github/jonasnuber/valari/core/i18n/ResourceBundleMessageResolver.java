@@ -1,6 +1,7 @@
 package io.github.jonasnuber.valari.core.i18n;
 
 import io.github.jonasnuber.valari.api.i18n.MessageResolver;
+import io.github.jonasnuber.valari.core.i18n.internal.ResourceBundleCache;
 
 import java.text.MessageFormat;
 import java.util.*;

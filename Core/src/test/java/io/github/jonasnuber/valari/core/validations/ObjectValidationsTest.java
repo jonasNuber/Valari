@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 
 import org.junit.jupiter.api.Test;
 
-class ObjectValidationsTest {
+class ObjectValidationsTest extends BaseValidationTest {
 
   @Test
   void notNull_ShouldReturnValidResult_ForNotNullObject() {
@@ -23,7 +23,7 @@ class ObjectValidationsTest {
     var result = validation.test(null);
 
     assertThat(result.isValid()).isFalse();
-    assertThat(result.getMetadata().resolveMessage()).isEqualTo("must not be null");
+    assertThat(getMessage(result.getMetadata())).isEqualTo("must not be null");
   }
 
   @Test
@@ -44,7 +44,7 @@ class ObjectValidationsTest {
     var result = validation.test("different");
 
     assertThat(result.isValid()).isFalse();
-    assertThat(result.getMetadata().resolveMessage()).isEqualTo("must be equal to \"test\"");
+    assertThat(getMessage(result.getMetadata())).isEqualTo("must be equal to \"test\"");
   }
 
   @Test

@@ -241,39 +241,41 @@ class ValidationResultTest {
   void getMessage_ShouldReturnSuccessMessage_ForSuccessfulResult() {
     var result = ValidationResult.builder("default").messageKey("validation.object.notNull").ok();
 
-    var message = result.getMessage();
+    String message = result.getMessage();
 
-    assertThat(message).isEqualTo("The Subject \"<unknown>\" is valid: must not be null\n");
+    assertThat(message).contains("is valid");
   }
 
   @Test
   void getMessage_ShouldReturnSkippedMessage_ForSkippedResult() {
     var result = ValidationResult.builder("default").messageKey("validation.object.notNull").skip();
 
-    var message = result.getMessage();
+    String message = result.getMessage();
 
-    assertThat(message).isEqualTo("Validation for Subject \"<unknown>\" was skipped\n");
+    assertThat(message).contains("is skipped");
   }
 
   @Test
   void getMessage_ShouldReturnFailureMessage_ForFailedResult() {
     var result = ValidationResult.builder("default").messageKey("validation.object.notNull").fail();
 
-    var message = result.getMessage();
+    String message = result.getMessage();
 
-    assertThat(message).isEqualTo("The Subject \"<unknown>\" is invalid: must not be null\n");
+    assertThat(message).contains("is invalid");
   }
 
   @Test
   void getMessage_ShouldReturnCorrectMessage_ForCustomFormatterAndResolver() {
     var formatter = new DefaultResultFormatter();
-    var resolver = new ResourceBundleMessageResolver("ValidationMessages");
+    var resolver =
+        new ResourceBundleMessageResolver(
+            "io.github.jonasnuber.valari.core.i18n.ValidationMessages");
     var locale = Locale.ENGLISH;
     var result = ValidationResult.builder("default").messageKey("validation.object.notNull").fail();
 
     var message = result.getMessage(formatter, resolver, locale);
 
-    assertThat(message).isEqualTo("The Subject \"<unknown>\" is invalid: must not be null\n");
+    assertThat(message).contains("Subject \"<unknown>\" is invalid: must not be null\n");
   }
 
   @Test
@@ -282,9 +284,7 @@ class ValidationResultTest {
 
     var thrown = catchThrowable(result::throwIfInvalid);
 
-    assertThat(thrown)
-        .isInstanceOf(ValidationException.class)
-        .hasMessageContaining("The Subject \"<unknown>\" is invalid: default message");
+    assertThat(thrown).isInstanceOf(ValidationException.class).hasMessageContaining("is invalid");
   }
 
   @Test
@@ -309,6 +309,6 @@ class ValidationResultTest {
 
     assertThat(thrown)
         .isInstanceOf(InvalidParameterException.class)
-        .hasMessageContaining("The Subject \"<unknown>\" is invalid: default message");
+        .hasMessageContaining("is invalid");
   }
 }

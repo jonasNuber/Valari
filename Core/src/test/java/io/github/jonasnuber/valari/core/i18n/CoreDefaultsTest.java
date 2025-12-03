@@ -11,7 +11,9 @@ class CoreDefaultsTest {
 
   @Test
   void initializeDefaults_ShouldSetCorrectDefaultsInMessageResolutionContext() {
-    var resolver = new ResourceBundleMessageResolver("ValidationMessages", true, 5 * 60_000);
+    var resolver =
+        new ResourceBundleMessageResolver(
+            "io.github.jonasnuber.valari.core.i18n.ValidationMessages", true, 5L * 60_000);
     var locale = Locale.ENGLISH;
 
     CoreDefaults.initializeDefaults();

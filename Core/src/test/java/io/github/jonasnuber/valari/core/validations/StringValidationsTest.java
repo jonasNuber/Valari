@@ -9,7 +9,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 
-class StringValidationsTest {
+class StringValidationsTest extends BaseValidationTest {
 
   private static Stream<String> notEmptyStringValues() {
     return Stream.of("notEmpty", "   ");
@@ -37,7 +37,7 @@ class StringValidationsTest {
     var result = validation.test(emptyValue);
 
     assertThat(result.isValid()).isFalse();
-    assertThat(result.getMetadata().resolveMessage()).isEqualTo("must not be empty");
+    assertThat(getMessage(result.getMetadata())).isEqualTo("must not be empty");
   }
 
   @ParameterizedTest
@@ -62,7 +62,7 @@ class StringValidationsTest {
     var result = validation.test(blankValue);
 
     assertThat(result.isValid()).isFalse();
-    assertThat(result.getMetadata().resolveMessage()).isEqualTo("must not be blank");
+    assertThat(getMessage(result.getMetadata())).isEqualTo("must not be blank");
   }
 
   @ParameterizedTest
@@ -85,7 +85,7 @@ class StringValidationsTest {
     var result = validation.test(smallerValue);
 
     assertThat(result.isValid()).isFalse();
-    assertThat(result.getMetadata().resolveMessage()).isEqualTo("must have exactly 5 chars");
+    assertThat(getMessage(result.getMetadata())).isEqualTo("must have exactly 5 chars");
   }
 
   @ParameterizedTest
@@ -97,7 +97,7 @@ class StringValidationsTest {
     var result = validation.test(greaterValue);
 
     assertThat(result.isValid()).isFalse();
-    assertThat(result.getMetadata().resolveMessage()).isEqualTo("must have exactly 5 chars");
+    assertThat(getMessage(result.getMetadata())).isEqualTo("must have exactly 5 chars");
   }
 
   @Test
@@ -131,7 +131,7 @@ class StringValidationsTest {
     var result = validation.test(value);
 
     assertThat(result.isValid()).isFalse();
-    assertThat(result.getMetadata().resolveMessage()).isEqualTo("must have more than 3 chars");
+    assertThat(getMessage(result.getMetadata())).isEqualTo("must have more than 3 chars");
   }
 
   @ParameterizedTest
@@ -143,7 +143,7 @@ class StringValidationsTest {
     var result = validation.test(smallerValue);
 
     assertThat(result.isValid()).isFalse();
-    assertThat(result.getMetadata().resolveMessage()).isEqualTo("must have more than 3 chars");
+    assertThat(getMessage(result.getMetadata())).isEqualTo("must have more than 3 chars");
   }
 
   @Test
@@ -177,7 +177,7 @@ class StringValidationsTest {
     var result = validation.test(value);
 
     assertThat(result.isValid()).isFalse();
-    assertThat(result.getMetadata().resolveMessage()).isEqualTo("must have less than 5 chars");
+    assertThat(getMessage(result.getMetadata())).isEqualTo("must have less than 5 chars");
   }
 
   @ParameterizedTest
@@ -189,7 +189,7 @@ class StringValidationsTest {
     var result = validation.test(greaterValue);
 
     assertThat(result.isValid()).isFalse();
-    assertThat(result.getMetadata().resolveMessage()).isEqualTo("must have less than 5 chars");
+    assertThat(getMessage(result.getMetadata())).isEqualTo("must have less than 5 chars");
   }
 
   @Test
@@ -272,7 +272,7 @@ class StringValidationsTest {
     var result = validation.test(sentence);
 
     assertThat(result.isValid()).isFalse();
-    assertThat(result.getMetadata().resolveMessage()).isEqualTo("must contain \"test\"");
+    assertThat(getMessage(result.getMetadata())).isEqualTo("must contain \"test\"");
   }
 
   @Test
@@ -315,7 +315,7 @@ class StringValidationsTest {
     var result = validation.test(sentence);
 
     assertThat(result.isValid()).isFalse();
-    assertThat(result.getMetadata().resolveMessage()).isEqualTo("must contain \"test\"");
+    assertThat(getMessage(result.getMetadata())).isEqualTo("must contain \"test\"");
   }
 
   @Test
@@ -358,7 +358,7 @@ class StringValidationsTest {
     var result = validation.test(value);
 
     assertThat(result.isValid()).isFalse();
-    assertThat(result.getMetadata().resolveMessage())
+    assertThat(getMessage(result.getMetadata()))
         .isEqualTo("must fully match regex \" hello\\d+ \"");
   }
 
@@ -402,7 +402,7 @@ class StringValidationsTest {
     var result = validation.test(value);
 
     assertThat(result.isValid()).isFalse();
-    assertThat(result.getMetadata().resolveMessage())
+    assertThat(getMessage(result.getMetadata()))
         .isEqualTo("must contain substring matching regex \" \\d+ \"");
   }
 
@@ -443,7 +443,7 @@ class StringValidationsTest {
     var result = validation.test(value);
 
     assertThat(result.isValid()).isFalse();
-    assertThat(result.getMetadata().resolveMessage()).isEqualTo("must start with \"prefix\"");
+    assertThat(getMessage(result.getMetadata())).isEqualTo("must start with \"prefix\"");
   }
 
   @Test
@@ -484,7 +484,7 @@ class StringValidationsTest {
     var result = validation.test(value);
 
     assertThat(result.isValid()).isFalse();
-    assertThat(result.getMetadata().resolveMessage())
+    assertThat(getMessage(result.getMetadata()))
         .isEqualTo("must start with \"(case-insensitive) Prefix\"");
   }
 
@@ -527,7 +527,7 @@ class StringValidationsTest {
     var result = validation.test(value);
 
     assertThat(result.isValid()).isFalse();
-    assertThat(result.getMetadata().resolveMessage()).isEqualTo("must end with \"Suffix\"");
+    assertThat(getMessage(result.getMetadata())).isEqualTo("must end with \"Suffix\"");
   }
 
   @Test
@@ -568,7 +568,7 @@ class StringValidationsTest {
     var result = validation.test(value);
 
     assertThat(result.isValid()).isFalse();
-    assertThat(result.getMetadata().resolveMessage())
+    assertThat(getMessage(result.getMetadata()))
         .isEqualTo("must end with \"(case-insensitive) Suffix\"");
   }
 

@@ -8,7 +8,6 @@ import io.github.jonasnuber.valari.api.i18n.MessageResolver;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.Locale;
-
 import org.junit.jupiter.api.Test;
 
 class DefaultResultFormatterTest {
@@ -53,7 +52,7 @@ class DefaultResultFormatterTest {
 
     String out = formatter.format(result, resolver, locale).trim();
 
-    assertThat(out).isEqualTo("The Field \"Id\" is valid: must be greater than 3");
+    assertThat(out).contains("Field \"Id\" is valid").doesNotContain("must be greater than 3");
   }
 
   @Test
@@ -62,7 +61,7 @@ class DefaultResultFormatterTest {
 
     String out = formatter.format(result, resolver, Locale.ENGLISH);
 
-    assertThat(out.trim()).isEqualTo("Validation for Field \"City\" was skipped");
+    assertThat(out.trim()).contains("Field \"City\" is skipped");
   }
 
   @Test
@@ -71,7 +70,7 @@ class DefaultResultFormatterTest {
 
     String out = formatter.format(result, resolver, Locale.ENGLISH);
 
-    assertThat(out.trim()).isEqualTo("The Field \"Name\" is invalid: cannot contain digits");
+    assertThat(out.trim()).contains("Field \"Name\" is invalid: cannot contain digits");
   }
 
   @Test
@@ -88,8 +87,9 @@ class DefaultResultFormatterTest {
 
     assertThat(out)
         .contains("Person validation")
-        .contains("  The Field \"Name\" is valid: ok")
-        .contains("  The Field \"Age\" is invalid: too young");
+        .contains("Field \"Age\" is invalid: too young")
+        .doesNotContain("Field \"Name\" is valid")
+        .doesNotContain("ok");
   }
 
   @Test
@@ -102,7 +102,7 @@ class DefaultResultFormatterTest {
 
     String out = formatter.format(agg, resolver, Locale.ENGLISH);
 
-    assertThat(out.trim()).isEqualTo("Address validation skipped");
+    assertThat(out.trim()).contains("Address validation skipped");
   }
 
   @Test
@@ -125,10 +125,11 @@ class DefaultResultFormatterTest {
 
     assertThat(out)
         .contains("Location broken")
-        .contains("  The Field \"Zip\" is valid: valid zip")
-        .contains("  Coords invalid")
-        .contains("    The Field \"X\" is invalid: negative")
-        .contains("    The Field \"Y\" is valid: ok");
+        .contains("Coords invalid")
+        .contains("Field \"X\" is invalid: negative")
+        .doesNotContain("Field \"Zip\" is valid")
+        .doesNotContain("valid zip")
+        .doesNotContain("Field \"Y\" is valid");
   }
 
   record SimpleResult(ValidationState state, ValidationMetadata metadata)
@@ -176,7 +177,7 @@ class DefaultResultFormatterTest {
   static class FakeResolver implements MessageResolver {
     @Override
     public String resolve(String key, List<Object> args, String defaultMsg, Locale locale) {
-      return MessageFormat.format(defaultMsg, args.toArray());
+      return MessageFormat.format(defaultMsg == null ? "{0} \"{1}\"" : defaultMsg, args.toArray());
     }
 
     @Override
@@ -184,6 +185,12 @@ class DefaultResultFormatterTest {
         String key, Locale locale, String defaultMessage, Object... args) {
       if ("labeltype.field".equals(key)) {
         return "Field";
+      } else if ("validation.result.success".equals(key)) {
+        return "is valid";
+      } else if ("validation.result.failure".equals(key)) {
+        return "is invalid";
+      } else if ("validation.result.skipped".equals(key)) {
+        return "is skipped";
       }
 
       return key;

@@ -1,4 +1,4 @@
-package io.github.jonasnuber.valari.core.i18n;
+package io.github.jonasnuber.valari.core.i18n.internal;
 
 import java.util.Locale;
 import java.util.Objects;

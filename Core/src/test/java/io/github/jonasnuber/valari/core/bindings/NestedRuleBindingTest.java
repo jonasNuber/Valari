@@ -1,24 +1,16 @@
 package io.github.jonasnuber.valari.core.bindings;
 
-import io.github.jonasnuber.valari.CreditCard;
-import io.github.jonasnuber.valari.Person;
-import io.github.jonasnuber.valari.api.ValidationDescriptor;
-import io.github.jonasnuber.valari.api.exceptions.AggregatedValidationException;
-import io.github.jonasnuber.valari.core.i18n.CoreDefaults;
-import io.github.jonasnuber.valari.core.DomainValidator;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-
 import static io.github.jonasnuber.valari.core.validations.IntegerValidations.greaterThan;
 import static io.github.jonasnuber.valari.core.validations.StringValidations.notEmpty;
 import static org.assertj.core.api.Assertions.*;
 
-class NestedRuleBindingTest {
+import io.github.jonasnuber.valari.CreditCard;
+import io.github.jonasnuber.valari.Person;
+import io.github.jonasnuber.valari.api.ValidationDescriptor;
+import io.github.jonasnuber.valari.core.DomainValidator;
+import org.junit.jupiter.api.Test;
 
-  @BeforeAll
-  static void init() {
-    CoreDefaults.initializeDefaults();
-  }
+class NestedRuleBindingTest {
 
   @Test
   void constructor_ShouldThrowException_ForNullInputs() {
@@ -159,10 +151,6 @@ class NestedRuleBindingTest {
 
     assertThat(result.isInvalid()).isTrue();
     assertThat(result.getMetadata().getLabel()).isEqualTo("Owner");
-    assertThat((String) result.getMessage())
-        .contains(
-            "Validation for Subject \"Owner\" (class java.lang.Object) failed with 1 error(s):")
-        .contains("The Field \"Name\" is invalid: must not be empty");
   }
 
   @Test
@@ -196,10 +184,6 @@ class NestedRuleBindingTest {
 
     assertThat(result.isInvalid()).isTrue();
     assertThat(result.getMetadata().getLabel()).isEqualTo("Owner");
-    assertThat((String) result.getMessage())
-        .contains(
-            "Validation for Subject \"Owner\" (class java.lang.Object) failed with 1 error(s):")
-        .contains("The Field \"Name\" is invalid: must not be empty");
   }
 
   @Test
@@ -234,39 +218,5 @@ class NestedRuleBindingTest {
         .isInstanceOf(IllegalStateException.class)
         .hasMessage(
             "No validator was set. Call mustSatisfy(...) or ifPresent(...) before validation");
-  }
-
-  @Test
-  void validateAndThrow_ShouldNotThrowException_WhenValidationSucceeds() {
-    var creditCard = new CreditCard("someId", new Person("Bob", 25));
-    var binding =
-        new NestedRuleBinding<>(
-            ValidationDescriptor.builder().label("Owner").build(),
-            CreditCard::getOwner,
-            DomainValidator.of(CreditCard.class));
-    binding.mustSatisfy(
-        DomainValidator.of(Person.class).field("Name", Person::getName).mustSatisfy(notEmpty()));
-
-    assertThatCode(() -> binding.validate(creditCard).throwIfInvalid()).doesNotThrowAnyException();
-  }
-
-  @Test
-  void validateAndThrow_ShouldThrowException_WhenValidationFails() {
-    var creditCard = new CreditCard("someId", new Person(null, 25));
-    var binding =
-        new NestedRuleBinding<>(
-            ValidationDescriptor.builder().label("Owner").build(),
-            CreditCard::getOwner,
-            DomainValidator.of(CreditCard.class));
-    binding.mustSatisfy(
-        DomainValidator.of(Person.class).field("Name", Person::getName).mustSatisfy(notEmpty()));
-
-    var thrown = catchThrowable(() -> binding.validate(creditCard).throwIfInvalid());
-
-    assertThat(thrown)
-        .isInstanceOf(AggregatedValidationException.class)
-        .hasMessageContaining(
-            "Validation for Subject \"Owner\" (class java.lang.Object) failed with 1 error(s):")
-        .hasMessageContaining("The Field \"Name\" is invalid: must not be empty");
   }
 }

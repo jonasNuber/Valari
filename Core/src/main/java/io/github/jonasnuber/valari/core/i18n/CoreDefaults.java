@@ -1,7 +1,6 @@
 package io.github.jonasnuber.valari.core.i18n;
 
 import io.github.jonasnuber.valari.api.i18n.MessageResolutionContext;
-
 import java.util.Locale;
 
 /**
@@ -65,8 +64,8 @@ public class CoreDefaults {
    * <p>The following defaults are applied:
    *
    * <ul>
-   *   <li>A {@link ResourceBundleMessageResolver} bound to {@code "ValidationMessages"} with a
-   *       cache TTL of 5 minutes
+   *   <li>A {@link ResourceBundleMessageResolver} bound to {@code
+   *       "io.github.jonasnuber.valari.core.i18n.ValidationMessages"} with a cache TTL of 5 minutes
    *   <li>{@link Locale#ENGLISH} as the default locale
    *   <li>{@link DefaultResultFormatter} as the global result formatter
    * </ul>
@@ -76,7 +75,8 @@ public class CoreDefaults {
    */
   public static void initializeDefaults() {
     MessageResolutionContext.setResolver(
-        new ResourceBundleMessageResolver("ValidationMessages", true, 5 * 60_000));
+        new ResourceBundleMessageResolver(
+            "io.github.jonasnuber.valari.core.i18n.ValidationMessages", true, 5L * 60_000));
     MessageResolutionContext.setLocale(Locale.ENGLISH);
     MessageResolutionContext.setFormatter(new DefaultResultFormatter());
   }
